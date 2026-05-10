@@ -5,9 +5,9 @@
   "results": [
     {
       "id": 1,
-      "url": "https://github.com/bastienwirtz/homer",
-      "title": "Homer - A very simple static homepage for your server",
-      "description": "A dead simple static HOMepage for your servER to keep your services on hand, from a simple yaml configuration file.",
+      "url": "https://github.com/AntKinton/homerized",
+      "title": "Homerized - A very simple non-static homepage for your server",
+      "description": "A dead simple non-static HOMepage for your servER to keep your services on hand, from a simple yaml configuration file.",
       "notes": "",
       "website_title": "GitHub",
       "website_description": "GitHub is where over 100 million developers shape the future of software, together.",

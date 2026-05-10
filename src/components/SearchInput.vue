@@ -1,5 +1,5 @@
 <template>
-  <search class="search-bar">
+  <div class="search-bar">
     <form role="search">
       <label for="search" class="search-label"></label>
       <input
@@ -13,7 +13,7 @@
         @keydown.alt.enter.prevent="open('_blank')"
       />
     </form>
-  </search>
+  </div>
 </template>
 
 <script>

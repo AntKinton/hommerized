@@ -9,6 +9,21 @@
 }
 
 @layer base {
+  // CSS Variables Contract - Define base state variables
+  :root {
+    // Status colors
+    --status-online: #22c55e;
+    --status-offline: #ef4444;
+    --status-loading: #f59e0b;
+    --status-error: #ef4444;
+    
+    // Component states
+    --component-hover-bg: rgba(0, 0, 0, 0.05);
+    --component-focus-bg: rgba(0, 0, 0, 0.1);
+    --component-border: rgba(0, 0, 0, 0.1);
+    --component-error-bg: rgba(255, 58, 58, 0.24);
+  }
+
   html,
   body,
   body #app-mount,
@@ -31,7 +46,18 @@
       background-size: cover;
       background-position: center;
       color: var(--text);
-      transition: background-color cubic-bezier(0.165, 0.84, 0.44, 1) 300ms;
+
+      &.has-footer {
+        padding-bottom: 4rem;
+        
+        @media (max-width: 768px) {
+          padding-bottom: 3rem;
+        }
+        
+        @media (max-width: 480px) {
+          padding-bottom: 2rem;
+        }
+      }
 
       a {
         color: var(--link);
@@ -56,8 +82,8 @@
         }
       }
       .component-error .card {
-        border: 1px solid rgba(255, 33, 33, 0.664);
-        background-color: rgba(255, 58, 58, 0.24);
+        border: 1px solid var(--status-error);
+        background-color: var(--component-error-bg, rgba(255, 58, 58, 0.24));
       }
 
       .message {
@@ -110,16 +136,7 @@
         min-height: 100px;
         vertical-align: center;
         background-color: var(--highlight-primary);
-
-        h1 {
-          margin-top: -12px;
-          font-size: 2rem;
-        }
-
-        .headline {
-          margin-top: 5px;
-          font-size: 0.9rem;
-        }
+        padding-top: 6px;
 
         .container {
           min-height: 80px;
@@ -160,6 +177,40 @@
       .navbar-end {
         text-align: right;
       }
+
+      // Dark theme styles for navbar and header
+      &.dark #bighead {
+        .first-line {
+          background-color: var(--card-background) !important;
+          border-bottom: 1px solid var(--card-shadow);
+        }
+        
+        .navbar {
+          background-color: var(--card-background) !important;
+          border-bottom: 1px solid var(--card-shadow);
+
+          a {
+            color: var(--text) !important;
+            padding: 8px 12px;
+
+            &:hover,
+            &:focus {
+              color: var(--text) !important;
+              background-color: rgba(66, 133, 244, 0.3) !important; // Azul con transparencia para dark mode
+            }
+
+            // Sobrescribir hover de temas específicos
+            html body #app.dark &.navbar a:hover,
+            html body #app.dark &.navbar a:focus {
+              background-color: rgba(66, 133, 244, 0.3) !important;
+            }
+          }
+          
+          .navbar-menu {
+            background-color: var(--card-background) !important;
+          }
+        }
+      }
     }
 
     #main-section {
@@ -168,6 +219,7 @@
       h2 {
         padding-bottom: 0px;
         @include ellipsis();
+        color: var(--text-title);
         i {
           color: var(--highlight-primary);
         }
