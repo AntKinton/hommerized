@@ -1,0 +1,28 @@
+# Enhanced Modules Configuration
+# This file contains configuration for enhanced features added in Hommerized fork
+# These features are not part of the original Homer project
+
+# Enable groups policy for access control
+groupsPolicy:
+  enabled: false
+  policyFile: "/assets/config/policy-rules.yml"
+  fallback: "allow"
+
+# More header configuration
+header-additional:
+  showUserName: false
+  showUserGroups: false
+
+# More navbar configuration
+navbar-additional:
+  showLogoutItem: false
+  logoutEndpoint: "https://auth.your-domain.com/logout"
+
+# Additional enhanced modules can be added here
+# Examples:
+# 
+# advancedLogging:
+#   enabled: true
+#   level: "debug"
+#   endpoint: "/api/logs"
+#

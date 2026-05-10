@@ -57,7 +57,7 @@ export default {
       default: null,
     },
     columns: {
-      type: String,
+      type: Number,
       required: true,
     },
     groupIndex: {

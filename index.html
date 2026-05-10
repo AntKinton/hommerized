@@ -7,6 +7,16 @@
     <link rel="mask-icon" href="assets/icons/logo.svg">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
     <title>Homer</title>
+    
+    <!-- Authentication headers injected by Caddy -->
+    <script>
+      window.__AUTH_HEADERS__ = {
+          user: '{{.Req.Header.Get "Remote-User"}}',
+          groups: '{{.Req.Header.Get "Remote-Groups"}}',
+          name: '{{.Req.Header.Get "Remote-Name"}}',
+          email: '{{.Req.Header.Get "Remote-Email"}}'
+      };
+    </script>
   </head>
   <body>
     <div id="app-mount"></div>

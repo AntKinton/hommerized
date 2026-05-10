@@ -4,20 +4,20 @@
 
   &.offline:before,
   &.error:before {
-    background-color: #d65c68;
-    box-shadow: 0 0 5px 1px #d65c68;
-    color: #d65c68;
+    background-color: var(--status-error);
+    box-shadow: 0 0 5px 1px var(--status-error);
+    color: var(--status-error);
   }
 
   &.pending:before {
-    background-color: #e8bb7d;
-    box-shadow: 0 0 5px 1px #e8bb7d;
+    background-color: var(--status-loading);
+    box-shadow: 0 0 5px 1px var(--status-loading);
   }
 
   &.online:before,
   &.ready:before {
-    background-color: #94e185;
-    box-shadow: 0 0 5px 1px #94e185;
+    background-color: var(--status-online);
+    box-shadow: 0 0 5px 1px var(--status-online);
   }
 
   &.in-progress:before {
