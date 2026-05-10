@@ -22,18 +22,18 @@ ARG VERSION_TAG=latest
 LABEL \
     org.label-schema.schema-version="1.0" \
     org.label-schema.version="$VERSION_TAG" \
-    org.opencontainers.image.title="Homer Image" \
-    org.opencontainers.image.description="A dead simple static Home-Page for your server to keep your services on hand, from a simple yaml configuration file." \
-    org.opencontainers.image.ref.name="b4bz/homer:${VERSION_TAG}" \
+    org.opencontainers.image.title="Hommerized Image" \
+    org.opencontainers.image.description="A dead simple un-static HOMMepage for your servERIZED to keep your services on hand, from a simple yaml configuration file. Optimized for rootless Podman quadlet deployment." \
+    org.opencontainers.image.ref.name="ghcr.io/antkinton/hommerized:${VERSION_TAG}" \
     org.opencontainers.image.version="$VERSION_TAG" \
     org.opencontainers.image.licenses="Apache-2.0 license" \
-    org.opencontainers.image.source="https://github.com/bastienwirtz/homer" \
-    org.opencontainers.image.url="https://hub.docker.com/r/b4bz/homer"
+    org.opencontainers.image.source="https://github.com/AntKinton/homerized" \
+    org.opencontainers.image.url="https://github.com/AntKinton/homerized/pkgs/container/hommerized"
 
 ENV GID=1000 \
     UID=1000 \
     PORT=8080 \
-    SUBFOLDER="/_" \
+    SUBFOLDER="" \
     INIT_ASSETS=1 \
     IPV6_DISABLE=0
 

@@ -4,10 +4,10 @@ import fs from "fs";
 import path from "path";
 import process from "process";
 
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-import { version } from "./package.json";
+import { version, basedOn } from "./package.json";
 
 function writeVersionPlugin() {
   return {
@@ -19,14 +19,25 @@ function writeVersionPlugin() {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  base: "",
-  build: {
-    assetsDir: "resources",
-  },
-  define: {
-    __APP_VERSION__: JSON.stringify(version),
-  },
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  
+  return {
+    base: "",
+    build: {
+      assetsDir: "resources",
+    },
+    define: {
+      __APP_VERSION__: JSON.stringify(version),
+      __BASED_ON__: JSON.stringify(basedOn),
+    },
+    server: {
+        host: "0.0.0.0",
+        port: 5173,
+        allowedHosts: env.VITE_ALLOWED_HOSTS 
+          ? env.VITE_ALLOWED_HOSTS.split(',') 
+          : ["localhost"],
+    },
   plugins: [
     writeVersionPlugin(),
     // Custom plugin to serve dummy-data JSON files without sourcemap injection
@@ -54,8 +65,8 @@ export default defineConfig({
       useCredentials: true,
       manifestFilename: "assets/manifest.json",
       manifest: {
-        name: "Homer dashboard",
-        short_name: "Homer",
+        name: "Hommerized dashboard",
+        short_name: "Hommerized",
         description: "Home Server Dashboard",
         theme_color: "#3367D6",
         start_url: "../",
@@ -91,4 +102,5 @@ export default defineConfig({
       },
     },
   },
+  };
 });

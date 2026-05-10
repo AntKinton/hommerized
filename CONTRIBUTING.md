@@ -2,7 +2,7 @@
 
 ### Welcome!
 
-First off, thank you for considering contributing to Homer!
+First off, thank you for considering contributing to Hommerized!
 
 ### Project philosophy
 
@@ -24,7 +24,7 @@ For all contributions, please respect the following guidelines:
 * Each pull request should implement ONE feature or bugfix. If you want to add or fix more than one thing, submit more than one pull request.
 * Do not commit changes to files that are irrelevant to your feature or bugfix (e.g. `.gitignore`).
 * Do not add unnecessary dependencies.
-* Be aware that the pull request review process is not immediate, and is generally proportional to the size of the pull request.
+* Be aware that pull request review process is not immediate, and is generally proportional to size of pull request.
 
 # Getting started
 
@@ -35,19 +35,35 @@ feel free to open an issue to present your idea.
 
 ### Working with AI Agents
 
-This repository include an [`AGENTS.md`](https://github.com/bastienwirtz/homer/blob/main/AGENTS.md) instruction file for agents. It use an [open format](https://agents.md/), which most agent should natively use for context. However, for specific agent like Claude Code or Gemini, you will have to specifically ask it to read the file or create symlink:  
+This repository include an [`AGENTS.md`](https://github.com/AntKinton/hommerized/blob/main/AGENTS.md) instruction file for agents. It use an [open format](https://agents.md/), which most agent should natively use for context. However, for specific agent like Claude Code or Gemini, you will have to specifically ask it to read the file or create symlink:  
 
 ```sh
 ln -s AGENTS.md CLAUDE.md
 ln -s AGENTS.md GEMINI.md
 ```
 
+### Hommerized-Specific Features
+
+This fork includes additional features beyond the original Homer:
+- **Authentication support** with Authelia or similar providers
+- **Group-based service filtering** for role-based access control
+- **Rootless Podman quadlet optimization** for container deployments
+- **Enhanced security** features and configurations
+
+When contributing, please ensure:
+- Authentication features remain compatible with existing providers
+- Group filtering works with new services
+- Podman quadlet configurations are properly tested
+- Security implications are considered
+
 ### How to submit a contribution
 
 The general process to submit a contribution is as follow:
-1. Take a look at the [development guideline](https://github.com/bastienwirtz/homer/blob/main/docs/development.md).
+1. Take a look at the [development guideline](https://github.com/AntKinton/hommerized/blob/main/docs/development.md).
 2. Create your own fork of the code
-3. Do the changes in your fork
-4. Make sure to fill the [pull request description](https://github.com/bastienwirtz/homer/blob/main/.github/PULL_REQUEST_TEMPLATE.md) properly.
+3. Do changes in your fork
+4. Make sure to fill the [pull request description](https://github.com/AntKinton/hommerized/blob/main/.github/PULL_REQUEST_TEMPLATE.md) properly.
+5. Test authentication and group filtering features if relevant
+6. Verify Podman quadlet compatibility when applicable
 
 ### Happy coding :metal:
