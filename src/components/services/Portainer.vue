@@ -35,108 +35,126 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Portainer",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    endpoints: null,
-    containers: null,
-    fetchOk: null,
-    versionstring: null,
-  }),
-  computed: {
-    running: function () {
-      if (!this.containers) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const endpoints = ref(null);
+    const containers = ref(null);
+    const fetchOk = ref(null);
+    const versionstring = ref(null);
+
+    const running = computed(() => {
+      if (!containers.value) {
         return "";
       }
-      return this.containers.filter((container) => {
+      return containers.value.filter((container) => {
         return container.State.toLowerCase() === "running";
       }).length;
-    },
-    dead: function () {
-      if (!this.containers) {
+    });
+
+    const dead = computed(() => {
+      if (!containers.value) {
         return "";
       }
-      return this.containers.filter((container) => {
+      return containers.value.filter((container) => {
         return container.State.toLowerCase() === "dead";
       }).length;
-    },
-    misc: function () {
-      if (!this.containers) {
+    });
+
+    const misc = computed(() => {
+      if (!containers.value) {
         return "";
       }
-      return this.containers.filter((container) => {
+      return containers.value.filter((container) => {
         return (
           container.State.toLowerCase() !== "running" &&
           container.State.toLowerCase() !== "dead"
         );
       }).length;
-    },
-    status: function () {
-      return this.fetchOk ? "online" : "offline";
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+    });
 
-    // Initial data fetch
-    this.fetchStatus();
-    this.fetchVersion();
-  },
-  methods: {
-    fetchStatus: async function () {
+    const status = computed(() => {
+      return fetchOk.value ? "online" : "offline";
+    });
+
+    const fetchStatus = async () => {
       const headers = {
-        "X-Api-Key": this.item.apikey,
+        "X-Api-Key": props.item.apikey,
       };
 
-      this.endpoints = await this.fetch("/api/endpoints", { headers }).catch(
-        (e) => {
-          console.error(e);
-        },
-      );
+      try {
+        const response = await fetch("/api/endpoints", { headers });
+        endpoints.value = await response.json();
+      } catch (e) {
+        console.error(e);
+      }
 
-      let containers = [];
-      for (let endpoint of this.endpoints) {
+      let containersArray = [];
+      for (let endpoint of endpoints.value) {
         if (
-          this.item.environments &&
-          !this.item.environments.includes(endpoint.Name)
+          props.item.environments &&
+          !props.item.environments.includes(endpoint.Name)
         ) {
           continue;
         }
         const uri = `/api/endpoints/${endpoint.Id}/docker/containers/json?all=1`;
-        const endpointContainers = await this.fetch(uri, { headers }).catch(
-          (e) => {
-            console.error(e);
-          },
-        );
-
-        if (endpointContainers) {
-          containers = containers.concat(endpointContainers);
+        try {
+          const endpointContainers = await fetch(uri, { headers });
+          if (endpointContainers) {
+            containersArray = containersArray.concat(endpointContainers);
+          }
+        } catch (e) {
+          console.error(e);
         }
       }
 
-      this.containers = containers;
-    },
-    fetchVersion: async function () {
+      containers.value = containersArray;
+    };
+
+    const fetchVersion = async () => {
       const headers = {
-        "X-Api-Key": this.item.apikey,
+        "X-Api-Key": props.item.apikey,
       };
-      this.fetch("/api/status", { headers })
-        .then((response) => {
-          this.fetchOk = true;
-          this.versionstring = response.Version;
-        })
-        .catch((e) => {
-          this.fetchOk = false;
-          console.error(e);
-        });
-    },
+      try {
+        const response = await fetch("/api/status", { headers });
+        fetchOk.value = true;
+        versionstring.value = response.Version;
+      } catch (e) {
+        fetchOk.value = false;
+        console.error(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+    fetchVersion();
+
+    return {
+      endpoints,
+      containers,
+      fetchOk,
+      versionstring,
+      running,
+      dead,
+      misc,
+      status,
+      fetchStatus,
+      fetchVersion
+    };
   },
 };
 </script>

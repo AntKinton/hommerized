@@ -20,49 +20,56 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "UptimeKuma",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    incident: null,
-    heartbeat: null,
-  }),
-  computed: {
-    dashboard: function () {
-      return this.item.slug ? this.item.slug : "default";
-    },
-    status: function () {
-      if (!this.incident) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const incident = ref(null);
+    const heartbeat = ref(null);
+
+    const dashboard = computed(() => {
+      return props.item.slug ? props.item.slug : "default";
+    });
+
+    const status = computed(() => {
+      if (!incident.value) {
         return "";
       }
-      return this.incident.incident == null ? this.pageStatus : "bad";
-    },
-    lastHeartBeatList: function () {
+      return incident.value.incident.incident == null ? pageStatus.value : "bad";
+    });
+
+    const lastHeartBeatList = computed(() => {
       let result = {};
 
-      for (let id in this.heartbeat.heartbeatList) {
-        let index = this.heartbeat.heartbeatList[id].length - 1;
-        result[id] = this.heartbeat.heartbeatList[id][index];
+      for (let id in heartbeat.value.heartbeatList) {
+        let index = heartbeat.value.heartbeatList[id].length - 1;
+        result[id] = heartbeat.value.heartbeatList[id][index];
       }
 
       return result;
-    },
-    pageStatus: function () {
-      if (!this.heartbeat) {
+    });
+
+    const pageStatus = computed(() => {
+      if (!heartbeat.value) {
         return "";
       }
-      if (Object.keys(this.heartbeat.heartbeatList).length === 0) {
+      if (Object.keys(heartbeat.value.heartbeatList).length === 0) {
         return "";
       }
       let result = "good";
       let hasUp = false;
-      for (let id in this.lastHeartBeatList) {
-        let beat = this.lastHeartBeatList[id];
+      for (let id in lastHeartBeatList.value) {
+        let beat = lastHeartBeatList.value[id];
         if (beat.status == 1) {
           hasUp = true;
         } else {
@@ -73,17 +80,18 @@ export default {
         result = "bad";
       }
       return result;
-    },
-    statusMessage: function () {
-      if (!this.incident) {
+    });
+
+    const statusMessage = computed(() => {
+      if (!incident.value) {
         return "";
       }
-      if (this.incident.incident) {
-        return this.incident.incident.title;
+      if (incident.value.incident.incident) {
+        return incident.value.incident.incident.title;
       }
 
       let message;
-      switch (this.pageStatus) {
+      switch (pageStatus.value) {
         case "good":
           message = "All Systems Operational";
           break;
@@ -97,39 +105,52 @@ export default {
           message = "Unknown service status";
       }
       return message;
-    },
-    uptime: function () {
-      if (!this.heartbeat) {
+    });
+
+    const uptime = computed(() => {
+      if (!heartbeat.value) {
         return 0;
       }
-      const data = Object.values(this.heartbeat.uptimeList);
+      const data = Object.values(heartbeat.value.uptimeList);
       const percent = data.reduce((a, b) => a + b, 0) / data.length || 0;
       return (percent * 100).toFixed(1);
-    },
-  },
-  created() {
-    /* eslint-disable */
-    this.item.url = `${this.item.url}/status/${this.dashboard}`;
-    
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+    });
+
+    const fetchStatus = async () => {
+      const now = Date.now();
+      
+      try {
+        const resp = await fetch(`/api/status-page/${dashboard.value}?cachebust=${now}`);
+        incident.value = resp;
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        const hb = await fetch(`/api/status-page/heartbeat/${dashboard.value}?cachebust=${now}`);
+        heartbeat.value = hb;
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
 
     // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: function () {
-      const now = Date.now();
-      this.fetch(`/api/status-page/${this.dashboard}?cachebust=${now}`)
-        .catch((e) => console.error(e))
-        .then((resp) => (this.incident = resp));
+    fetchStatus();
 
-      this.fetch(
-        `/api/status-page/heartbeat/${this.dashboard}?cachebust=${now}`,
-      )
-        .catch((e) => console.error(e))
-        .then((resp) => (this.heartbeat = resp));
-    },
+    return {
+      incident,
+      heartbeat,
+      dashboard,
+      status,
+      lastHeartBeatList,
+      pageStatus,
+      statusMessage,
+      uptime,
+      fetchStatus
+    };
   },
 };
 </script>

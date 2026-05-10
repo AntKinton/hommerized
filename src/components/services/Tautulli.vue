@@ -20,46 +20,55 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Tautulli",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    stats: null,
-    error: false,
-  }),
-  computed: {
-    streams: function () {
-      if (!this.stats) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const stats = ref(null);
+    const error = ref(false);
+
+    const streams = computed(() => {
+      if (!stats.value) {
         return "";
       }
-      return this.stats.stream_count;
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+      return stats.value.stream_count;
+    });
 
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+    const fetchStatus = async () => {
       try {
-        const response = await this.fetch(
-          `/api/v2?apikey=${this.item.apikey}&cmd=get_activity`,
+        const response = await fetch(
+          `/api/v2?apikey=${props.item.apikey}&cmd=get_activity`,
         );
-        this.error = false;
-        this.stats = response.response.data;
+        error.value = false;
+        stats.value = response.response.data;
       } catch (e) {
-        this.error = true;
+        error.value = true;
         console.error(e);
       }
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      stats,
+      error,
+      streams,
+      fetchStatus
+    };
   },
 };
 </script>

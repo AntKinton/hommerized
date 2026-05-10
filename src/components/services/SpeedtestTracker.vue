@@ -14,42 +14,55 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "SpeedtestTracker",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    speedtest: null,
-  }),
-  computed: {
-    download: function () {
-      return this.format(this.speedtest?.download);
-    },
-    upload: function () {
-      return this.format(this.speedtest?.upload);
-    },
-    ping: function () {
-      return this.format(this.speedtest?.ping);
-    },
-  },
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/api/speedtest/latest")
-        .then((response) => {
-          this.speedtest = response.data;
-        })
-        .catch((e) => console.log(e));
-    },
-    format: function (value) {
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const speedtest = ref(null);
+
+    const download = computed(() => {
+      return format(speedtest.value?.download);
+    });
+
+    const upload = computed(() => {
+      return format(speedtest.value?.upload);
+    });
+
+    const ping = computed(() => {
+      return format(speedtest.value?.ping);
+    });
+
+    const format = (value) => {
       return value ? parseFloat(value).toFixed(2) : "n/a";
-    },
+    };
+
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("/api/speedtest/latest");
+        speedtest.value = response.data;
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchStatus();
+
+    return {
+      speedtest,
+      download,
+      upload,
+      ping,
+      fetchStatus
+    };
   },
 };
 </script>

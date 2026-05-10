@@ -20,43 +20,56 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Traefik",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    fetchOk: null,
-    versionstring: null,
-  }),
-  computed: {
-    status: function () {
-      return this.fetchOk ? "online" : "offline";
-    },
-  },
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const fetchOk = ref(null);
+    const versionstring = ref(null);
+
+    const status = computed(() => {
+      return fetchOk.value ? "online" : "offline";
+    });
+
+    const fetchStatus = async () => {
       let headers = {};
-      if (this.item.basic_auth) {
-        const encodedCredentials = btoa(this.item.basic_auth);
+      if (props.item.basic_auth) {
+        const encodedCredentials = btoa(props.item.basic_auth);
         headers["Authorization"] = `Basic ${encodedCredentials}`;
       }
-      this.fetch("/api/version", { headers })
-        .then((response) => {
-          this.fetchOk = true;
-          this.versionstring = response.Version;
-        })
-        .catch((e) => {
-          this.fetchOk = false;
-          console.log(e);
-        });
-    },
+      
+      try {
+        const response = await fetch("/api/version", { headers });
+        fetchOk.value = true;
+        versionstring.value = response.Version;
+      } catch (e) {
+        fetchOk.value = false;
+        console.log(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      fetchOk,
+      versionstring,
+      status,
+      fetchStatus
+    };
   },
 };
 </script>

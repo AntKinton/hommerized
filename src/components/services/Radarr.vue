@@ -26,101 +26,115 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 const V3_API = "/api/v3";
 const LEGACY_API = "/api";
 
 export default {
   name: "Radarr",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      activity: null,
-      missing: null,
-      warnings: null,
-      errors: null,
-      serverError: false,
-    };
-  },
-  computed: {
-    apiPath() {
-      return this.item.legacyApi ? LEGACY_API : V3_API;
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchConfig;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchConfig();
-  },
-  methods: {
-    fetchConfig: function () {
+    const activity = ref(null);
+    const missing = ref(null);
+    const warnings = ref(null);
+    const errors = ref(null);
+    const serverError = ref(false);
+
+    const apiPath = computed(() => {
+      return props.item.legacyApi ? LEGACY_API : V3_API;
+    });
+
+    const fetchConfig = () => {
       const handleError = (e) => {
         console.error(e);
-        this.serverError = true;
+        serverError.value = true;
       };
-      this.fetch(`${this.apiPath}/health?apikey=${this.item.apikey}`)
+      
+      fetch(`${apiPath.value}/health?apikey=${props.item.apikey}`)
         .then((health) => {
-          this.warnings = 0;
-          this.errors = 0;
+          warnings.value = 0;
+          errors.value = 0;
           for (var i = 0; i < health.length; i++) {
             if (health[i].type == "warning") {
-              this.warnings++;
+              warnings.value++;
             } else if (health[i].type == "error") {
-              this.errors++;
+              errors.value++;
             }
           }
         })
         .catch(handleError);
-      if (!this.item.legacyApi) {
-        this.fetch(`${this.apiPath}/queue/details?apikey=${this.item.apikey}`)
+        
+      if (!props.item.legacyApi) {
+        fetch(`${apiPath.value}/queue/details?apikey=${props.item.apikey}`)
           .then((queue) => {
             for (var i = 0; i < queue.length; i++) {
               if (queue[i].trackedDownloadStatus == "warning") {
-                this.warnings++;
+                warnings.value++;
               } else if (queue[i].trackedDownloadStaus == "error") {
-                this.errors++;
+                errors.value++;
               }
             }
           })
           .catch(handleError);
       }
-      this.fetch(`${this.apiPath}/queue?apikey=${this.item.apikey}`)
+      
+      fetch(`${apiPath.value}/queue?apikey=${props.item.apikey}`)
         .then((queue) => {
-          this.activity = 0;
+          activity.value = 0;
 
-          if (this.item.legacyApi) {
+          if (props.item.legacyApi) {
             for (var i = 0; i < queue.length; i++) {
               if (queue[i].movie) {
-                this.activity++;
+                activity.value++;
               }
             }
           } else {
-            this.activity = queue.totalRecords;
+            activity.value = queue.totalRecords;
           }
         })
         .catch(handleError);
-      if (!this.item.legacyApi) {
-        this.fetch(
-          `${this.apiPath}/wanted/missing?pageSize=1&apikey=${this.item.apikey}`,
+        
+      if (!props.item.legacyApi) {
+        fetch(
+          `${apiPath.value}/wanted/missing?pageSize=1&apikey=${props.item.apikey}`,
         )
           .then((overview) => {
-            this.fetch(
-              `${this.apiPath}/wanted/missing?pageSize=${overview.totalRecords}&apikey=${this.item.apikey}`,
+            fetch(
+              `${apiPath.value}/wanted/missing?pageSize=${overview.totalRecords}&apikey=${props.item.apikey}`,
             ).then((movies) => {
-              this.missing = movies.records.filter(
+              missing.value = movies.records.filter(
                 (m) => m.monitored && m.isAvailable && !m.hasFile,
               ).length;
             });
           })
           .catch(handleError);
       }
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchConfig);
+
+    // Initial data fetch
+    fetchConfig();
+
+    return {
+      activity,
+      missing,
+      warnings,
+      errors,
+      serverError,
+      apiPath,
+      fetchConfig
+    };
   },
 };
 </script>

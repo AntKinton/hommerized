@@ -9,7 +9,7 @@
         <i class="fa-solid fa-signal"></i> {{ up }}/{{ total }}
         <template v-if="avgRespTime > 0">
           <span class="separator"> | </span>
-          <i class="fa-solid fa-stopwatch"></i> {{ avgRespTime }} ms avg.
+          <i class="fa-solid fa-stopwatch"></i> {{ formatDuration(avgRespTime / 1000) }} avg.
         </template>
       </p>
     </template>
@@ -22,101 +22,110 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { formatDuration, formatPercentage } from "@/utils/formatters.js";
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Gatus",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    up: 0,
-    down: 0,
-    total: 0,
-    avgRespTime: NaN,
-    percentageGood: NaN,
-    status: false,
-    statusMessage: false,
-  }),
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const up = ref(0);
+    const down = ref(0);
+    const total = ref(0);
+    const avgRespTime = ref(NaN);
+    const percentageGood = ref(NaN);
+    const status = ref(false);
+    const statusMessage = ref(false);
+
+    const fetchStatus = async () => {
+      try {
+        let response = await fetch("/api/v1/endpoints/statuses", {
+          method: "GET",
+          cache: "no-cache",
+        });
+
+        // Apply filtering by groups, if defined
+        if (props.item.groups) {
+          response = response?.filter((job) => {
+            return props.item.groups.includes(job.group) === true;
+          });
+        }
+
+        // Initialise counts, avg times
+        total.value = response.length;
+        up.value = 0;
+
+        let totalrestime = 0;
+        let totalresults = 0;
+
+        response.forEach((job) => {
+          if (job.results[job.results.length - 1].success === true) {
+            up.value++;
+          }
+
+          if (!props.item.hideaverages) {
+            // Update array of average times
+            let totalduration = 0;
+            let rescounter = 0;
+            job.results.forEach((res) => {
+              totalduration += parseInt(res.duration, 10) / 1000000;
+              rescounter++;
+            });
+
+            totalrestime += totalduration;
+            totalresults += rescounter;
+          } else {
+            totalrestime = 0;
+            totalresults = 1;
+          }
+        });
+
+        // Rest are down
+        down.value = total.value - up.value;
+
+        // Calculate overall average response time
+        avgRespTime.value = (totalrestime / totalresults).toFixed(2);
+
+        // Status flag
+        if (up.value == 0 && down.value == 0) {
+          status.value = false;
+        } else if (down.value == total.value) {
+          status.value = "bad";
+        } else if (up.value == total.value) {
+          status.value = "good";
+        } else {
+          status.value = "warn";
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
 
     // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/api/v1/endpoints/statuses", {
-        method: "GET",
-        cache: "no-cache",
-      })
-        .then((response) => {
-          // Apply filtering by groups, if defined
-          if (this.item.groups) {
-            response = response?.filter((job) => {
-              return this.item.groups.includes(job.group) === true;
-            });
-          }
+    fetchStatus();
 
-          // Initialise counts, avg times
-          this.total = response.length;
-          this.up = 0;
-
-          let totalrestime = 0;
-          let totalresults = 0;
-
-          response.forEach((job) => {
-            if (job.results[job.results.length - 1].success === true) {
-              this.up++;
-            }
-
-            if (!this.item.hideaverages) {
-              // Update array of average times
-              let totalduration = 0;
-              let rescounter = 0;
-              job.results.forEach((res) => {
-                totalduration += parseInt(res.duration, 10) / 1000000;
-                rescounter++;
-              });
-
-              totalrestime += totalduration;
-              totalresults += rescounter;
-            } else {
-              totalrestime = 0;
-              totalresults = 1;
-            }
-          });
-
-          // Rest are down
-          this.down = this.total - this.up;
-
-          // Calculate overall average response time
-          this.avgRespTime = (totalrestime / totalresults).toFixed(2);
-
-          // Update representations
-          if (this.up == 0 || this.total == 0) {
-            this.percentageGood = 0;
-          } else {
-            this.percentageGood = Math.round((this.up / this.total) * 100);
-          }
-
-          // Status flag
-          if (this.up == 0 && this.down == 0) {
-            this.status = false;
-          } else if (this.down == this.total) {
-            this.status = "bad";
-          } else if (this.up == this.total) {
-            this.status = "good";
-          } else {
-            this.status = "warn";
-          }
-        })
-        .catch((e) => {
-          console.error(e);
-        });
-    },
+    return {
+      up,
+      down,
+      total,
+      avgRespTime,
+      percentageGood,
+      status,
+      statusMessage,
+      fetchStatus,
+      formatDuration
+    };
   },
 };
 </script>

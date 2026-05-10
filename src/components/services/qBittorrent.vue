@@ -27,73 +27,78 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
-const units = ["B", "KB", "MB", "GB"];
-
-// Take the rate in bytes and keep dividing it by 1k until the lowest
-// value for which we have a unit is determined. Return the value with
-// up to two decimals as a string and unit/s appended.
-const displayRate = (rate) => {
-  let i = 0;
-
-  while (rate > 1000 && i < units.length) {
-    rate /= 1000;
-    i++;
-  }
-  return (
-    Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(
-      rate || 0,
-    ) + ` ${units[i]}/s`
-  );
-};
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
+import { formatSpeed } from "@/utils/formatters.js";
 
 export default {
   name: "QBittorrent",
-  mixins: [service],
   props: { item: Object },
-  data: () => ({ dl: null, ul: null, count: null, error: null }),
-  computed: {
-    downRate: function () {
-      return displayRate(this.dl);
-    },
-    upRate: function () {
-      return displayRate(this.ul);
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchAllData;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    // Properties for download, upload, torrent count and errors.
+    const dl = ref(null);
+    const ul = ref(null);
+    const count = ref(null);
+    const error = ref(null);
+
+    // Computed properties for rate labels.
+    const downRate = computed(() => {
+      return formatSpeed(dl.value);
+    });
+
+    const upRate = computed(() => {
+      return formatSpeed(ul.value);
+    });
+
+    // Combined method for scheduler - fetches both rates and count
+    const fetchAllData = async () => {
+      await getRate();
+      await fetchCount();
+    };
+
+    const fetchCount = async () => {
+      try {
+        const body = await fetch("/api/v2/torrents/info");
+        error.value = false;
+        count.value = body.length;
+      } catch (e) {
+        error.value = true;
+        console.error(e);
+      }
+    };
+
+    const getRate = async () => {
+      try {
+        const body = await fetch("/api/v2/transfer/info");
+        error.value = false;
+        dl.value = body.dl_info_speed;
+        ul.value = body.up_info_speed;
+      } catch (e) {
+        error.value = true;
+        console.error(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchAllData);
 
     // Fetch initial values
-    this.fetchAllData();
-  },
-  methods: {
-    // Combined method for scheduler - fetches both rates and count
-    fetchAllData: async function () {
-      this.getRate();
-      this.fetchCount();
-    },
-    fetchCount: async function () {
-      try {
-        const body = await this.fetch("/api/v2/torrents/info");
-        this.error = false;
-        this.count = body.length;
-      } catch (e) {
-        this.error = true;
-        console.error(e);
-      }
-    },
-    getRate: async function () {
-      try {
-        const body = await this.fetch("/api/v2/transfer/info");
-        this.error = false;
-        this.dl = body.dl_info_speed;
-        this.ul = body.up_info_speed;
-      } catch (e) {
-        this.error = true;
-        console.error(e);
-      }
-    },
+    fetchAllData();
+
+    return {
+      dl,
+      ul,
+      count,
+      error,
+      downRate,
+      upRate,
+      fetchAllData
+    };
   },
 };
 </script>

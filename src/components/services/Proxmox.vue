@@ -75,99 +75,124 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Proxmox",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    vms: {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const vms = ref({
       total: 0,
       running: 0,
-    },
-    lxcs: {
+    });
+    const lxcs = ref({
       total: 0,
       running: 0,
-    },
-    memoryUsed: 0,
-    diskUsed: 0,
-    cpuUsed: 0,
-    hide: [],
-    error: false,
-    loading: true,
-  }),
-  created() {
-    if (this.item.hide) this.hide = this.item.hide;
+    });
+    const memoryUsed = ref(0);
+    const diskUsed = ref(0);
+    const cpuUsed = ref(0);
+    const hide = ref([]);
+    const error = ref(false);
+    const loading = ref(true);
 
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
-
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    statusClass(value) {
-      if (value > this.item.danger_value) return "danger";
-      if (value > this.item.warning_value) return "warning";
+    const statusClass = (value) => {
+      if (value > props.item.danger_value) return "danger";
+      if (value > props.item.warning_value) return "warning";
       return "healthy";
-    },
-    fetchStatus: async function () {
+    };
+
+    const isValueShown = (value) => {
+      return hide.value.indexOf(value) == -1;
+    };
+
+    const parseVMsAndLXCs = (items, value) => {
+      value.total += items.data.length;
+      value.running += items.data.filter((i) => i.status === "running").length;
+      
+      // if no vms, hide this value:
+      if (value.total == 0) hide.value.push("vms");
+    };
+
+    const fetchStatus = async () => {
       try {
         const options = {
           headers: {
-            Authorization: this.item.api_token,
+            Authorization: props.item.api_token,
           },
         };
-        const status = await this.fetch(
-          `/api2/json/nodes/${this.item.node}/status`,
+        const status = await fetch(
+          `/api2/json/nodes/${props.item.node}/status`,
           options,
         );
+        
         // main metrics:
-        const decimalsToShow = this.item.hide_decimals ? 0 : 1;
-        this.memoryUsed = (
+        const decimalsToShow = props.item.hide_decimals ? 0 : 1;
+        memoryUsed.value = (
           (status.data.memory.used * 100) /
           status.data.memory.total
         ).toFixed(decimalsToShow);
-        this.diskUsed = (
+        diskUsed.value = (
           (status.data.rootfs.used * 100) /
           status.data.rootfs.total
         ).toFixed(decimalsToShow);
-        this.cpuUsed = (status.data.cpu * 100).toFixed(decimalsToShow);
+        cpuUsed.value = (status.data.cpu * 100).toFixed(decimalsToShow);
+        
         // vms:
-        if (this.isValueShown("vms")) {
-          const vms = await this.fetch(
-            `/api2/json/nodes/${this.item.node}/qemu`,
+        if (isValueShown("vms")) {
+          const vmsData = await fetch(
+            `/api2/json/nodes/${props.item.node}/qemu`,
             options,
           );
-          this.parseVMsAndLXCs(vms, this.vms);
+          parseVMsAndLXCs(vmsData, vms.value);
         }
+        
         // lxc containers:
-        if (this.isValueShown("lxcs")) {
-          const lxcs = await this.fetch(
-            `/api2/json/nodes/${this.item.node}/lxc`,
+        if (isValueShown("lxcs")) {
+          const lxcsData = await fetch(
+            `/api2/json/nodes/${props.item.node}/lxc`,
             options,
           );
-          this.parseVMsAndLXCs(lxcs, this.lxcs);
+          parseVMsAndLXCs(lxcsData, lxcs.value);
         }
-        this.error = false;
+        
+        error.value = false;
       } catch (err) {
         console.log(err);
-        this.error = true;
+        error.value = true;
       }
-      this.loading = false;
-    },
-    parseVMsAndLXCs(items, value) {
-      value.total += items.data.length;
-      value.running += items.data.filter((i) => i.status === "running").length;
-      // if no vms, hide this value:
-      if (value.total == 0) this.hide.push("lxcs");
-    },
-    isValueShown(value) {
-      return this.hide.indexOf(value) == -1;
-    },
+      loading.value = false;
+    };
+
+    if (props.item.hide) hide.value = props.item.hide;
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      vms,
+      lxcs,
+      memoryUsed,
+      diskUsed,
+      cpuUsed,
+      hide,
+      error,
+      loading,
+      statusClass,
+      isValueShown,
+      fetchStatus
+    };
   },
 };
 </script>

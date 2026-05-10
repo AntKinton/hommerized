@@ -45,78 +45,81 @@
 </template>
 
 <script>
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
+
 export default {
   name: "OpenWeather",
   props: {
     item: Object,
   },
-  data: () => ({
-    id: null,
-    icon: null,
-    name: null,
-    temp: null,
-    conditions: null,
-    error: false,
-    timezoneOffset: 0,
-  }),
-  computed: {
-    temperature: function () {
-      if (!this.temp) return "";
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const id = ref(null);
+    const icon = ref(null);
+    const name = ref(null);
+    const temp = ref(null);
+    const conditions = ref(null);
+    const error = ref(false);
+    const timezoneOffset = ref(0);
+
+    const temperature = computed(() => {
+      if (!temp.value) return "";
 
       let unit = "K";
-      if (this.item.units === "metric") {
+      if (props.item.units === "metric") {
         unit = "°C";
-      } else if (this.item.units === "imperial") {
+      } else if (props.item.units === "imperial") {
         unit = "°F";
       }
-      return `${this.temp} ${unit}`;
-    },
-    locationTime: function () {
-      return this.calcTime(this.timezoneOffset);
-    },
-  },
-  created() {
-    this.fetchWeather();
-  },
-  methods: {
-    fetchWeather: async function () {
+      return `${temp.value} ${unit}`;
+    });
+
+    const locationTime = computed(() => {
+      return calcTime(timezoneOffset.value);
+    });
+
+    const fetchWeather = async () => {
       let locationQuery;
 
       // Use location ID if specified, otherwise retrieve value from location (name).
-      if (this.item.locationId) {
-        locationQuery = `id=${this.item.locationId}`;
+      if (props.item.locationId) {
+        locationQuery = `id=${props.item.locationId}`;
       } else {
-        locationQuery = `q=${this.item.location}`;
+        locationQuery = `q=${props.item.location}`;
       }
 
-      const apiKey = this.item.apikey || this.item.apiKey;
+      const apiKey = props.item.apikey || props.item.apiKey;
 
-      let url = `https://api.openweathermap.org/data/2.5/weather?${locationQuery}&appid=${apiKey}&units=${this.item.units}`;
-      if (this.item.endpoint) {
-        url = this.item.endpoint;
+      let url = `https://api.openweathermap.org/data/2.5/weather?${locationQuery}&appid=${apiKey}&units=${props.item.units}`;
+      if (props.item.endpoint) {
+        url = props.item.endpoint;
       }
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw Error(response.statusText);
-          }
-          return response.json();
-        })
-        .then((weather) => {
-          this.id = weather.id;
-          this.name = weather.name;
-          this.temp = parseInt(weather.main.temp).toFixed(1);
-          this.icon = weather.weather[0].icon;
-          this.conditions = weather.weather[0].description;
-          this.timezoneOffset = weather.timezone;
-        })
-        .catch((e) => {
-          console.log(e);
-          this.name = this.item.name;
-          this.error = true;
-        });
-    },
-    calcTime: (offset) => {
+      
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        const weather = await response.json();
+        
+        id.value = weather.id;
+        name.value = weather.name;
+        temp.value = parseInt(weather.main.temp).toFixed(1);
+        icon.value = weather.weather[0].icon;
+        conditions.value = weather.weather[0].description;
+        timezoneOffset.value = weather.timezone;
+      } catch (e) {
+        console.log(e);
+        name.value = props.item.name;
+        error.value = true;
+      }
+    };
+
+    const calcTime = (offset) => {
       const localTime = new Date();
       const utcTime =
         localTime.getTime() + localTime.getTimezoneOffset() * 60000;
@@ -125,7 +128,23 @@ export default {
         hour: "2-digit",
         minute: "2-digit",
       });
-    },
+    };
+
+    fetchWeather();
+
+    return {
+      id,
+      icon,
+      name,
+      temp,
+      conditions,
+      error,
+      timezoneOffset,
+      temperature,
+      locationTime,
+      fetchWeather,
+      calcTime
+    };
   },
 };
 </script>

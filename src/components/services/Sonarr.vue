@@ -27,70 +27,84 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 const V3_API = "/api/v3";
 const LEGACY_API = "/api";
 
 export default {
   name: "Sonarr",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      activity: null,
-      missing: null,
-      warnings: null,
-      errors: null,
-      serverError: false,
-    };
-  },
-  computed: {
-    apiPath() {
-      return this.item.legacyApi ? LEGACY_API : V3_API;
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchConfig;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchConfig();
-  },
-  methods: {
-    fetchConfig: function () {
+    const activity = ref(null);
+    const missing = ref(null);
+    const warnings = ref(null);
+    const errors = ref(null);
+    const serverError = ref(false);
+
+    const apiPath = computed(() => {
+      return props.item.legacyApi ? LEGACY_API : V3_API;
+    });
+
+    const fetchConfig = () => {
       const handleError = (e) => {
         console.error(e);
-        this.serverError = true;
+        serverError.value = true;
       };
-      this.fetch(`${this.apiPath}/health?apikey=${this.item.apikey}`)
+      
+      fetch(`${apiPath.value}/health?apikey=${props.item.apikey}`)
         .then((health) => {
-          this.warnings = health.filter((h) => h.type === "warning").length;
-          this.errors = health.filter((h) => h.type === "errors").length;
+          warnings.value = health.filter((h) => h.type === "warning").length;
+          errors.value = health.filter((h) => h.type === "errors").length;
         })
         .catch(handleError);
-      this.fetch(`${this.apiPath}/queue?apikey=${this.item.apikey}`)
+        
+      fetch(`${apiPath.value}/queue?apikey=${props.item.apikey}`)
         .then((queue) => {
-          this.activity = 0;
-          if (this.item.legacyApi) {
+          activity.value = 0;
+
+          if (props.item.legacyApi) {
             for (var i = 0; i < queue.length; i++) {
               if (queue[i].series) {
-                this.activity++;
+                activity.value++;
               }
             }
           } else {
-            this.activity = queue.totalRecords;
+            activity.value = queue.totalRecords;
           }
         })
         .catch(handleError);
-      this.fetch(`${this.apiPath}/wanted/missing?apikey=${this.item.apikey}`)
+        
+      fetch(`${apiPath.value}/wanted/missing?apikey=${props.item.apikey}`)
         .then((missing) => {
-          this.missing = missing.totalRecords;
+          missing.value = missing.totalRecords;
         })
         .catch(handleError);
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchConfig);
+
+    // Initial data fetch
+    fetchConfig();
+
+    return {
+      activity,
+      missing,
+      warnings,
+      errors,
+      serverError,
+      apiPath,
+      fetchConfig
+    };
   },
 };
 </script>

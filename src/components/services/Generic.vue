@@ -54,15 +54,21 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+
 export default {
   name: "Generic",
   props: {
     item: Object,
   },
-  computed: {
-    mediaClass: function () {
-      return { media: true, "no-subtitle": !this.item.subtitle };
-    },
+  setup(props) {
+    const mediaClass = computed(() => {
+      return { media: true, "no-subtitle": !props.item.subtitle };
+    });
+
+    return {
+      mediaClass
+    };
   },
 };
 </script>

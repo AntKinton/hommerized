@@ -20,38 +20,34 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Ping",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    status: null,
-    rtt: null,
-  }),
-  computed: {
-    rttLabel: function () {
-      if (this.status === "online") {
-        return `${this.rtt}ms`;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const status = ref(null);
+    const rtt = ref(null);
+
+    const rttLabel = computed(() => {
+      if (status.value === "online") {
+        return `${rtt.value}ms`;
       }
       return "unavailable";
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+    });
 
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+    const fetchStatus = async () => {
       const method =
-        typeof this.item.method === "string"
-          ? this.item.method.toUpperCase()
+        typeof props.item.method === "string"
+          ? props.item.method.toUpperCase()
           : "HEAD";
 
       if (!["GET", "HEAD", "OPTION"].includes(method)) {
@@ -60,24 +56,36 @@ export default {
       }
 
       const startTime = performance.now();
-      const timeout = parseInt(this.item.timeout, 10) || 2000;
+      const timeout = parseInt(props.item.timeout, 10) || 2000;
       const params = {
         method,
         cache: "no-cache",
         signal: AbortSignal.timeout(timeout),
       };
 
-      this.fetch("/", params, false)
-        .then(() => {
-          this.status = "online";
-          const endTime = performance.now();
-          this.rtt = Math.round(endTime - startTime);
-        })
-        .catch(() => {
-          this.status = "offline";
-          this.rtt = null; // Reset rtt on failure
-        });
-    },
+      try {
+        await fetch("/", params, false);
+        status.value = "online";
+        const endTime = performance.now();
+        rtt.value = Math.round(endTime - startTime);
+      } catch {
+        status.value = "offline";
+        rtt.value = null; // Reset rtt on failure
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      status,
+      rtt,
+      rttLabel,
+      fetchStatus
+    };
   },
 };
 </script>

@@ -26,45 +26,54 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "NetAlertx",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      total: 0,
-      connected: 0,
-      newdevices: 0,
-      downalert: 0,
-      serverError: false,
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const total = ref(0);
+    const connected = ref(0);
+    const newdevices = ref(0);
+    const downalert = ref(0);
+    const serverError = ref(false);
+
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("/devices/totals", { headers: { Authorization: `Bearer ${props.item.apikey}` } });
+        total.value = response.total || response[0] || 0;
+        connected.value = response.connected || response[1] || 0;
+        newdevices.value = response.new || response[3] || 0;
+        downalert.value = response.down || response[4] || 0;
+        serverError.value = false;
+      } catch (e) {
+        console.log(e);
+        serverError.value = true;
+      }
     };
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
 
     // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/devices/totals", { headers: { Authorization: `Bearer ${this.item.apikey}` } })
-        .then((response) => {
-          this.total = response.total || response[0] || 0;
-          this.connected = response.connected || response[1] || 0;
-          this.newdevices = response.new || response[3] || 0;
-          this.downalert = response.down || response[4] || 0;
-          this.serverError = false;
-        })
-        .catch((e) => {
-          console.log(e);
-          this.serverError = true;
-        });
-    },
+    fetchStatus();
+
+    return {
+      total,
+      connected,
+      newdevices,
+      downalert,
+      serverError,
+      fetchStatus
+    };
   },
 };
 </script>

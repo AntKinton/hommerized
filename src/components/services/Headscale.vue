@@ -20,41 +20,48 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useService } from '@/composables/useService.js';
 
 export default {
-  name: "Docuseal",
+  name: "Headscale",
   props: {
     item: Object,
   },
   setup(props) {
     const {
-      fetch
+      fetch,
+      initAutoUpdate
     } = useService(props.item);
 
-    const status = ref(null);
+    const fetchOk = ref(null);
     const versionstring = ref(null);
 
+    const status = computed(() => {
+      return fetchOk.value ? "online" : "offline";
+    });
+
     const fetchStatus = async () => {
-      const params = {
-        cache: "no-cache",
-      };
       try {
-        const response = await fetch("/version", params, false);
-        status.value = "online";
-        versionstring.value = response;
+        const response = await fetch("/api/v1/version");
+        fetchOk.value = true;
+        versionstring.value = response.version || "Unknown";
       } catch (e) {
-        status.value = "offline";
+        fetchOk.value = false;
         console.log(e);
       }
     };
 
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
     fetchStatus();
 
     return {
-      status,
+      fetchOk,
       versionstring,
+      status,
       fetchStatus
     };
   },
