@@ -20,59 +20,70 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { computed, ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "AdGuardHome",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      status: null,
-      stats: null,
-    };
-  },
-  computed: {
-    percentage: function () {
-      if (this.stats) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const status = ref(null);
+    const stats = ref(null);
+
+    const percentage = computed(() => {
+      if (stats.value) {
         return (
-          (this.stats.num_blocked_filtering * 100) /
-          this.stats.num_dns_queries
+          (stats.value.num_blocked_filtering * 100) /
+          stats.value.num_dns_queries
         ).toFixed(2);
       }
       return "";
-    },
-    protection: function () {
-      if (this.status) {
-        return this.status.protection_enabled ? "enabled" : "disabled";
+    });
+
+    const protection = computed(() => {
+      if (status.value) {
+        return status.value.protection_enabled ? "enabled" : "disabled";
       } else return "unknown";
-    },
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+    });
+
+    const fetchStatus = async () => {
+      try {
+        const statusData = await fetch("/control/status");
+        status.value = statusData;
+      } catch (e) {
+        console.log(e);
+      }
+
+      if (!props.item.subtitle) {
+        try {
+          const statsData = await fetch("/control/stats");
+          stats.value = statsData;
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
 
     // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/control/status")
-        .then((status) => {
-          this.status = status;
-        })
-        .catch((e) => console.log(e));
+    fetchStatus();
 
-      if (!this.item.subtitle) {
-        this.fetch("/control/stats")
-          .then((stats) => {
-            this.stats = stats;
-          })
-          .catch((e) => console.log(e));
-      }
-    },
+    return {
+      status,
+      stats,
+      percentage,
+      protection,
+      fetchStatus
+    };
   },
 };
 </script>

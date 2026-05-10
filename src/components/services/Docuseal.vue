@@ -20,36 +20,43 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Docuseal",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    status: null,
-    versionstring: null,
-  }),
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const status = ref(null);
+    const versionstring = ref(null);
+
+    const fetchStatus = async () => {
       const params = {
         cache: "no-cache",
       };
-      this.fetch("/version", params, false)
-        .then((response) => {
-          this.status = "online";
-          this.versionstring = response;
-        })
-        .catch((e) => {
-          this.status = "offline";
-          console.log(e);
-        });
-    },
+      try {
+        const response = await fetch("/version", params, false);
+        status.value = "online";
+        versionstring.value = response;
+      } catch (e) {
+        status.value = "offline";
+        console.log(e);
+      }
+    };
+
+    fetchStatus();
+
+    return {
+      status,
+      versionstring,
+      fetchStatus
+    };
   },
 };
 </script>

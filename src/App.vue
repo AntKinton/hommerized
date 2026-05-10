@@ -7,8 +7,11 @@
       `page-${currentPage}`,
       isDark ? 'dark' : 'light',
       !config.footer ? 'no-footer' : '',
+      config.footer ? 'has-footer' : '',
     ]"
+    :style="getDynamicStyles()"
   >
+    <!-- DynamicTheme component -->
     <DynamicTheme v-if="config.colors" :themes="config.colors" />
     <div id="bighead">
       <section v-if="config.header" class="first-line">
@@ -22,6 +25,7 @@
           <div class="dashboard-title">
             <span class="headline">{{ config.subtitle }}</span>
             <h1>{{ config.title }}</h1>
+            <UserInfoDisplay v-if="showUserInfo" />
           </div>
         </div>
       </section>
@@ -52,18 +56,42 @@
           @search-open="navigateToFirstService"
           @search-cancel="filterServices()"
         />
+
+        <LogoutItem v-if="showLogoutItem" />
       </Navbar>
     </div>
     <section id="main-section" class="section">
       <div v-cloak class="container">
-        <ConnectivityChecker
-          v-if="config.connectivityCheck"
-          @network-status-update="offline = $event"
+        <!-- Loading state -->
+        <Loader 
+          v-if="initializing" 
+          message="Loading dashboard..."
+          details="Initializing configuration and services..."
+          size="medium"
+          fullscreen
         />
 
-        <GetStarted v-if="configurationNeeded" />
+        <!-- Error state -->
+        <ErrorDisplay 
+          v-else-if="initializationError"
+          title="Initialization Error"
+          :message="initializationError.message || 'Failed to load the dashboard. Please check your configuration and try refreshing the page.'"
+          :details="initializationError.stack"
+          size="medium"
+          fullscreen
+          @retry="retryInitialization"
+        />
 
-        <div v-if="!offline">
+        <!-- Normal state -->
+        <template v-else>
+          <ConnectivityChecker
+            v-if="config.connectivityCheck"
+            @network-status-update="offline = $event"
+          />
+
+          <GetStarted v-if="!config" :config="config" />
+
+          <div v-if="!offline">
           <!-- Optional messages -->
           <Message :item="config.message" />
 
@@ -75,7 +103,7 @@
               { 'layout-vertical': vlayout && !filter },
             ]"
           >
-            <ServiceGroup
+            <AsyncServiceGroup
               v-for="(group, groupIndex) in services"
               :key="`${currentPage}-${groupIndex}`"
               :group="group"
@@ -86,6 +114,7 @@
             />
           </div>
         </div>
+        </template>
       </div>
     </section>
 
@@ -96,26 +125,33 @@
           class="content has-text-centered"
           v-html="config.footer"
         ></div>
+        <!-- Filtering Service component for service filtering -->
+        <ServicePolicy ref="filteringService" />
       </div>
     </footer>
   </div>
 </template>
 
 <script>
-import { parse } from "yaml";
-import merge from "lodash.merge";
-
-import Navbar from "./components/Navbar.vue";
-import GetStarted from "./components/GetStarted.vue";
+import { mapState } from 'pinia';
+import { useConfigStore } from '@/stores/config.js';
+import { useModulesStore } from '@/stores/modules.js';
+import { useAuthStore } from '@/stores/auth.js';
 import ConnectivityChecker from "./components/ConnectivityChecker.vue";
-import ServiceGroup from "./components/ServiceGroup.vue";
-import Message from "./components/Message.vue";
-import SearchInput from "./components/SearchInput.vue";
 import SettingToggle from "./components/SettingToggle.vue";
-import DarkMode from "./components/DarkMode.vue";
-import DynamicTheme from "./components/DynamicTheme.vue";
+import ServicePolicy from "./components/ServicePolicy.vue";
 
-import defaultConfig from "./assets/defaults.yml?raw";
+import DynamicTheme from "./components/DynamicTheme.vue";
+import UserInfoDisplay from "./components/UserInfoDisplay.vue";
+import Navbar from "./components/Navbar.vue";
+import DarkMode from "./components/DarkMode.vue";
+import SearchInput from "./components/SearchInput.vue";
+import LogoutItem from "./components/LogoutItem.vue";
+import GetStarted from "./components/GetStarted.vue";
+import Message from "./components/Message.vue";
+import Loader from "./components/Loader.vue";
+import ErrorDisplay from "./components/ErrorDisplay.vue";
+import AsyncServiceGroup from "./components/AsyncServiceGroup.vue";
 
 export default {
   name: "App",
@@ -123,24 +159,35 @@ export default {
     Navbar,
     GetStarted,
     ConnectivityChecker,
-    ServiceGroup,
+    AsyncServiceGroup,
     Message,
     SearchInput,
     SettingToggle,
+    LogoutItem,
     DarkMode,
     DynamicTheme,
+    ServicePolicy,
+    UserInfoDisplay,
+    Loader,
+    ErrorDisplay,
   },
-  provide() {
+  setup() {
+    const configStore = useConfigStore();
+    const modulesStore = useModulesStore();
+    const authStore = useAuthStore();
+    
     return {
-      config: () => this.config,
+      configStore,
+      modulesStore,
+      authStore
     };
   },
   data: function () {
     return {
       loaded: false,
+      initializing: false,
+      initializationError: null,
       currentPage: null,
-      configNotFound: false,
-      config: null,
       services: null,
       offline: false,
       filter: "",
@@ -150,85 +197,106 @@ export default {
     };
   },
   computed: {
-    configurationNeeded: function () {
-      return (this.loaded && !this.services) || this.configNotFound;
+    ...mapState(useConfigStore, {
+      config: 'currentConfig'
+    }),
+    ...mapState(useModulesStore, {
+      modulesInitialized: 'initialized',
+      shouldShowUserName: 'shouldShowUserName',
+      shouldShowUserGroups: 'shouldShowUserGroups',
+      shouldShowLogoutItem: 'shouldShowLogoutItem'
+    }),
+    ...mapState(useAuthStore, {
+      authInitialized: 'initialized',
+      authUser: 'user'
+    }),
+    
+    // Computed properties that depend on multiple stores
+    showUserInfo() {
+      // Only show if stores are initialized and conditions are met
+      if (!this.modulesInitialized || !this.authInitialized) {
+        return false;
+      }
+      return (this.shouldShowUserName || this.shouldShowUserGroups) && this.authUser;
+    },
+    showLogoutItem() {
+      // Only show if stores are initialized and conditions are met
+      if (!this.modulesInitialized || !this.authInitialized) {
+        return false;
+      }
+      return Boolean(this.shouldShowLogoutItem && this.authUser);
     },
   },
   created: async function () {
-    this.buildDashboard();
-    window.onhashchange = this.buildDashboard;
-    this.loaded = true;
-    console.info(`Homer v${__APP_VERSION__}`);
+    this.initializing = true;
+    this.initializationError = null;
+    
+    try {
+      // Initialize strictly in sequence to avoid race conditions
+      // modulesStore depends on configStore, so initialize config first
+      const startTime = performance.now();
+      
+      // Initialize config first to ensure base configuration is available
+      await this.configStore.initialize();
+      
+      // Only initialize modules and auth after config is guaranteed to be ready
+      const [modulesResult, authResult] = await Promise.allSettled([
+        this.modulesStore.initialize(),
+        this.authStore.initialize()
+      ]);
+      
+      // Check for any initialization errors from modules and auth
+      const errors = [];
+      if (modulesResult.status === 'rejected') errors.push(modulesResult.reason);
+      if (authResult.status === 'rejected') errors.push(authResult.reason);
+      
+      if (errors.length > 0) {
+        throw new Error(`Store initialization failed: ${errors.map(e => e.message).join(', ')}`);
+      }
+      
+      // Validate essential state before building dashboard
+      if (!this.configStore.currentConfig) {
+        throw new Error('Essential configuration not loaded - cannot build dashboard');
+      }
+      
+      // Build dashboard after all stores are ready and validated
+      await this.buildDashboard();
+      window.onhashchange = this.buildDashboard;
+      this.loaded = true;
+      
+      const endTime = performance.now();
+      console.info(`Hommerized ${__APP_VERSION__} - Based on ${__BASED_ON__.name} (${__BASED_ON__.version}) - Initialized in ${(endTime - startTime).toFixed(2)}ms`);
+    } catch (error) {
+      console.error('Failed to initialize application:', error);
+      this.initializationError = error;
+      this.loaded = false;
+    } finally {
+      this.initializing = false;
+    }
   },
   beforeUnmount() {
     window.onhashchange = null;
   },
   methods: {
     searchHotkey() {
-      if (this.config.hotkey && this.config.hotkey.search) {
-        return this.config.hotkey.search;
-      }
+      return this.configStore.get('hotkey.search');
     },
-    buildDashboard: async function () {
-      const defaults = parse(defaultConfig);
-      let config;
-      try {
-        config = await this.getConfig();
-        this.currentPage = window.location.hash.substring(1) || "default";
-
-        if (this.currentPage !== "default") {
-          let pageConfig = await this.getConfig(
-            `assets/${this.currentPage}.yml`,
-          );
-          config = Object.assign(config, pageConfig);
-        }
-      } catch (error) {
-        console.log(error);
-        config = this.handleErrors("⚠️ Error loading configuration", error);
+    buildDashboard: function () {
+      // Config is already loaded by configStore, just use it
+      const config = this.configStore.currentConfig;
+      
+      // Cache frequently accessed values
+      const groupPoliciesEnabled = this.modulesStore.isGroupPoliciesEnabled;
+      const filteringService = this.$refs.filteringService;
+      
+      // Apply group filtering if enabled (synchronous operation)
+      if (groupPoliciesEnabled && filteringService) {
+        this.services = filteringService.filterServices(config.services);
+      } else {
+        this.services = config.services;
       }
-      this.config = merge(defaults, config);
-      this.services = this.config.services;
 
-      document.title =
-        this.config.documentTitle ||
-        [this.config.title, this.config.subtitle].filter(Boolean).join(" | ");
-
-      if (this.config.stylesheet) {
-        let stylesheet = "";
-        let addtionnal_styles = this.config.stylesheet;
-        if (!Array.isArray(this.config.stylesheet)) {
-          addtionnal_styles = [addtionnal_styles];
-        }
-        for (const file of addtionnal_styles) {
-          stylesheet += `@import "${file}";`;
-        }
-        this.createStylesheet(stylesheet);
-      }
-    },
-    getConfig: function (path = "assets/config.yml") {
-      return fetch(path).then((response) => {
-        if (response.status == 404 || response.redirected) {
-          this.configNotFound = true;
-          return {};
-        }
-
-        if (!response.ok) {
-          throw Error(`${response.statusText}: ${response.body}`);
-        }
-
-        const that = this;
-        return response
-          .text()
-          .then((body) => {
-            return parse(body, { merge: true });
-          })
-          .then(function (config) {
-            if (config.externalConfig) {
-              return that.getConfig(config.externalConfig);
-            }
-            return config;
-          });
-      });
+      // Document title is already set by configStore during initialization
     },
     matchesFilter: function (item) {
       const needle = this.filter?.toLowerCase();
@@ -250,13 +318,19 @@ export default {
     filterServices: function (filter) {
       this.filter = filter;
 
+      // Get base services (with policy filtering if enabled)
+      const baseServices = (this.modulesStore.isGroupPoliciesEnabled && this.$refs.filteringService) 
+        ? this.$refs.filteringService.filterServices(this.config.services)
+        : this.config.services;
+
       if (!filter) {
-        this.services = this.config.services;
+        this.services = baseServices;
         return;
       }
 
+      // Apply search filtering
       const searchResultItems = [];
-      for (const group of this.config.services) {
+      for (const group of baseServices) {
         if (group.items !== null) {
           for (const item of group.items) {
             if (this.matchesFilter(item)) {
@@ -283,10 +357,62 @@ export default {
         },
       };
     },
-    createStylesheet: function (css) {
-      let style = document.createElement("style");
-      style.appendChild(document.createTextNode(css));
-      document.head.appendChild(style);
+    getDynamicStyles: function() {
+      // Use CSS variables instead of DOM manipulation
+      const styles = {};
+      
+      // Example: Add theme colors as CSS variables if needed
+      if (this.config?.colors) {
+        Object.entries(this.config.colors).forEach(([key, value]) => {
+          styles[`--color-${key}`] = value;
+        });
+      }
+      
+      return styles;
+    },
+    retryInitialization: async function() {
+      this.initializing = true;
+      this.initializationError = null;
+      
+      try {
+        const startTime = performance.now();
+        
+        // Sequential initialization to avoid race conditions
+        // modulesStore depends on configStore, so initialize config first
+        await this.configStore.initialize();
+        
+        // Initialize both modules and auth stores in parallel
+        const [modulesResult, authResult] = await Promise.allSettled([
+          this.modulesStore.initialize(),
+          this.authStore.initialize() 
+        ]);
+        
+        // Check for any initialization errors from modules and auth
+        const errors = [];
+        if (modulesResult.status === 'rejected') errors.push(modulesResult.reason);
+        if (authResult.status === 'rejected') errors.push(authResult.reason);
+        
+        if (errors.length > 0) {
+          throw new Error(`Store initialization failed: ${errors.map(e => e.message).join(', ')}`);
+        }
+        
+        // Validate essential state before building dashboard
+        if (!this.configStore.currentConfig) {
+          throw new Error('Essential configuration not loaded - cannot build dashboard');
+        }
+        
+        this.buildDashboard();
+        this.loaded = true;
+        
+        const endTime = performance.now();
+        console.info(`Hommerized ${__APP_VERSION__} - Based on ${__BASED_ON__.name} (${__BASED_ON__.version}) - Retry successful in ${(endTime - startTime).toFixed(2)}ms`);
+      } catch (error) {
+        console.error('Failed to initialize application on retry:', error);
+        this.initializationError = error;
+        this.loaded = false;
+      } finally {
+        this.initializing = false;
+      }
     },
   },
 };

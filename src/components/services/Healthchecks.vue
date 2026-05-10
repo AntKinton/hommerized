@@ -17,68 +17,82 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Healthchecks",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    api: null,
-  }),
-  computed: {
-    up: function () {
-      if (!this.api) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const api = ref(null);
+
+    const up = computed(() => {
+      if (!api.value) {
         return "";
       }
-      return this.api.checks?.filter((check) => {
+      return api.value.checks?.filter((check) => {
         return check.status.toLowerCase() === "up";
       }).length;
-    },
-    down: function () {
-      if (!this.api) {
+    });
+
+    const down = computed(() => {
+      if (!api.value) {
         return "";
       }
-      return this.api.checks?.filter((check) => {
+      return api.value.checks?.filter((check) => {
         return check.status.toLowerCase() === "down";
       }).length;
-    },
-    grace: function () {
-      if (!this.api) {
+    });
+
+    const grace = computed(() => {
+      if (!api.value) {
         return "";
       }
-      return this.api.checks?.filter((check) => {
+      return api.value.checks?.filter((check) => {
         return check.status.toLowerCase() === "grace";
       }).length;
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+    });
 
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      const apikey = this.item.apikey;
+    const fetchStatus = async () => {
+      const apikey = props.item.apikey;
       if (!apikey) {
         console.error(
-          "apikey is not present in config.yml for the Healthchecks entry!",
+          "apikey is not present in config.yml for Healthchecks entry!",
         );
         return;
       }
 
       const headers = {
-        "X-Api-Key": this.item.apikey,
+        "X-Api-Key": props.item.apikey,
       };
 
-      this.api = await this.fetch("/api/v1/checks/", { headers }).catch((e) => {
+      try {
+        api.value = await fetch("/api/v1/checks/", { headers });
+      } catch (e) {
         console.error(e);
-      });
-    },
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      api,
+      up,
+      down,
+      grace,
+      fetchStatus
+    };
   },
 };
 </script>

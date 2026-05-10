@@ -26,55 +26,68 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 const API = "/api/v1";
 
 export default {
   name: "Readarr",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      activity: null,
-      missing: null,
-      warnings: null,
-      errors: null,
-      serverError: false,
-    };
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchConfig;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchConfig();
-  },
-  methods: {
-    fetchConfig: function () {
+    const activity = ref(null);
+    const missing = ref(null);
+    const warnings = ref(null);
+    const errors = ref(null);
+    const serverError = ref(false);
+
+    const fetchConfig = () => {
       const handleError = (e) => {
         console.error(e);
-        this.serverError = true;
+        serverError.value = true;
       };
-      this.fetch(`${API}/health?apikey=${this.item.apikey}`)
+      
+      fetch(`${API}/health?apikey=${props.item.apikey}`)
         .then((health) => {
-          this.warnings = health.filter((h) => h.type === "warning").length;
-          this.errors = health.filter((h) => h.type === "errors").length;
+          warnings.value = health.filter((h) => h.type === "warning").length;
+          errors.value = health.filter((h) => h.type === "errors").length;
         })
         .catch(handleError);
-      this.fetch(`${API}/queue?apikey=${this.item.apikey}`)
+        
+      fetch(`${API}/queue?apikey=${props.item.apikey}`)
         .then((queue) => {
-          this.activity = queue.totalRecords;
+          activity.value = queue.totalRecords;
         })
         .catch(handleError);
-      this.fetch(`${API}/wanted/missing?apikey=${this.item.apikey}`)
+        
+      fetch(`${API}/wanted/missing?apikey=${props.item.apikey}`)
         .then((missing) => {
-          this.missing = missing.totalRecords;
+          missing.value = missing.totalRecords;
         })
         .catch(handleError);
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchConfig);
+
+    // Initial data fetch
+    fetchConfig();
+
+    return {
+      activity,
+      missing,
+      warnings,
+      errors,
+      serverError,
+      fetchConfig
+    };
   },
 };
 </script>

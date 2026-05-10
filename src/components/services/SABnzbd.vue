@@ -37,71 +37,68 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
-
-const units = ["KB", "MB", "GB"];
-
-// Function to convert rate into a human-readable format
-const displayRate = (rate) => {
-  let i = 0;
-
-  while (rate > 1000 && i < units.length) {
-    rate /= 1000;
-    i++;
-  }
-  return (
-    Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(
-      rate || 0,
-    ) + ` ${units[i]}/s`
-  );
-};
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
+import { formatBytes, formatSpeed } from "@/utils/formatters.js";
 
 export default {
   name: "SABnzbd",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    stats: null,
-    error: false,
-    dlSpeed: null,
-    ulSpeed: null,
-  }),
-  computed: {
-    downloads() {
-      if (!this.stats) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const stats = ref(null);
+    const error = ref(false);
+    const dlSpeed = ref(null);
+    const ulSpeed = ref(null);
+
+    const downloads = computed(() => {
+      if (!stats.value) {
         return "";
       }
-      return this.stats.noofslots;
-    },
-    downRate() {
-      return displayRate(this.dlSpeed);
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+      return stats.value.noofslots;
+    });
 
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+    const downRate = computed(() => {
+      return formatSpeed(dlSpeed.value);
+    });
+
+    const fetchStatus = async () => {
       try {
-        const response = await this.fetch(
-          `/api?output=json&apikey=${this.item.apikey}&mode=queue`,
+        const response = await fetch(
+          `/api?output=json&apikey=${props.item.apikey}&mode=queue`,
         );
-        this.error = false;
-        this.stats = response.queue;
+        error.value = false;
+        stats.value = response.queue;
 
         // Fetching download speed from "speed" (convert to KB/s if needed)
-        this.dlSpeed = parseFloat(response.queue.speed) * 1024; // Convert MB to KB
+        dlSpeed.value = parseFloat(response.queue.speed) * 1024; // Convert MB to KB
       } catch (e) {
-        this.error = true;
+        error.value = true;
         console.error(e);
       }
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      stats,
+      error,
+      dlSpeed,
+      ulSpeed,
+      downloads,
+      downRate,
+      fetchStatus
+    };
   },
 };
 </script>

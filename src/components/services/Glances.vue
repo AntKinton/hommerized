@@ -16,59 +16,67 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Glances",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    stats: [],
-    error: null,
-  }),
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStat;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const stats = ref([]);
+    const error = ref(null);
+
+    const fetchStat = async () => {
+      try {
+        const response = await fetch(`/api/4/quicklook`);
+        stats.value["load"] = {
+          value: response.load,
+          label: "System load",
+          icon: "fa-solid fa-bolt",
+          unit: "%",
+        };
+        stats.value["cpu"] = {
+          value: response.cpu,
+          label: `CPU usage (${response.cpu_name})`,
+          icon: "fa-solid fa-microchip",
+          unit: "%",
+        };
+        stats.value["mem"] = {
+          value: response.mem,
+          label: `RAM usage`,
+          icon: "fa-solid fa-memory",
+          unit: "%",
+        };
+        stats.value["swap"] = {
+          value: response.swap,
+          label: `Swap usage`,
+          icon: "fa-solid fa-file-arrow-down",
+          unit: "%",
+        };
+      } catch (e) {
+        console.log(e);
+        error.value = "Unable to get metrics";
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStat);
 
     // Initial data fetch
-    this.fetchStat();
-  },
-  methods: {
-    fetchStat: async function () {
-      this.fetch(`/api/4/quicklook`)
-        .then((response) => {
-          this.stats["load"] = {
-            value: response.load,
-            label: "System load",
-            icon: "fa-solid fa-bolt",
-            unit: "%",
-          };
-          this.stats["cpu"] = {
-            value: response.cpu,
-            label: `CPU usage (${response.cpu_name})`,
-            icon: "fa-solid fa-microchip",
-            unit: "%",
-          };
-          this.stats["mem"] = {
-            value: response.mem,
-            label: `RAM usage`,
-            icon: "fa-solid fa-memory",
-            unit: "%",
-          };
-          this.stats["swap"] = {
-            value: response.swap,
-            label: `Swap usage`,
-            icon: "fa-solid fa-file-arrow-down",
-            unit: "%",
-          };
-        })
-        .catch((e) => {
-          console.log(e);
-          this.error = "Unable to get metrics";
-        });
-    },
+    fetchStat();
+
+    return {
+      stats,
+      error,
+      fetchStat
+    };
   },
 };
 </script>

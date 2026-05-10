@@ -6,7 +6,7 @@
       <p>
         <a
           class="button is-primary mt-5 has-text-weight-bold"
-          href="https://github.com/bastienwirtz/homer/blob/main/docs/configuration.md#configuration"
+          href="https://github.com/antkinton/hommerized/blob/main/docs/configuration.md#configuration"
           target="_blank"
         >
           Get started →
@@ -19,6 +19,12 @@
 <script>
 export default {
   name: "GetStarted",
+  props: {
+    config: {
+      type: Object,
+      default: null
+    }
+  }
 };
 </script>
 

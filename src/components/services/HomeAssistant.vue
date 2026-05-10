@@ -20,106 +20,120 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "HomeAssistant",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    status: "",
-    version: "",
-    entities: 0,
-    location_name: "",
-    separator: " ",
-    items: ["name", "version"],
-  }),
-  computed: {
-    headers: function () {
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const status = ref("");
+    const version = ref("");
+    const entities = ref(0);
+    const location_name = ref("");
+    const separator = ref(" ");
+    const items = ref(["name", "version"]);
+
+    const headers = computed(() => {
       return {
-        Authorization: `Bearer ${this.item.apikey}`,
+        Authorization: `Bearer ${props.item.apikey}`,
         "Content-Type": "application/json",
       };
-    },
-    details: function () {
-      const details = [];
-      const items = this.items;
-      const separator = this.separator;
+    });
 
-      for (const i in items) {
-        const key = items[i];
+    const details = computed(() => {
+      const detailsArray = [];
+      const itemsArray = items.value;
+      const separatorValue = separator.value;
+
+      for (const i in itemsArray) {
+        const key = itemsArray[i];
 
         switch (key) {
           case "version":
-            details.push(`v${this.version}`);
+            detailsArray.push(`v${version.value}`);
             break;
           case "name":
-            details.push(`${this.location_name}`);
+            detailsArray.push(`${location_name.value}`);
             break;
           case "entities":
-            details.push(`${this.entities} entities`);
+            detailsArray.push(`${entities.value} entities`);
             break;
           default:
-            details.push(`undefined key ${key} `);
+            detailsArray.push(`undefined key ${key} `);
         }
       }
 
-      return details.join(separator);
-    },
-  },
-  created() {
-    this.fetchServerStatus().then(() => {
-      if (!this.item.subtitle && this.status !== "dead") {
-        if (this.item.items) this.items = this.item.items;
-        if (this.item.separator) this.separator = this.item.separator;
+      return detailsArray.join(separatorValue);
+    });
 
-        this.fetchServerStats();
+    const fetchServerStatus = async () => {
+      const headersValue = headers.value;
+
+      try {
+        const response = await fetch("/api/", { headers: headersValue });
+        if (response && response.message) status.value = "running";
+        else throw new Error();
+      } catch (e) {
+        console.log(e);
+        status.value = "dead";
+      }
+    };
+
+    const fetchServerStats = async () => {
+      const headersValue = headers.value;
+
+      try {
+        const configResponse = await fetch("/api/config", { headers: headersValue });
+        if (configResponse) {
+          if (configResponse.version) version.value = configResponse.version;
+          if (configResponse.location_name)
+            location_name.value = configResponse.location_name;
+        } else throw new Error();
+      } catch (e) {
+        console.log(e);
+        status.value = "dead";
+      }
+
+      try {
+        const statesResponse = await fetch("/api/states", { headers: headersValue });
+        if (statesResponse) {
+          entities.value = statesResponse.length;
+        } else throw new Error();
+      } catch (e) {
+        console.log(e);
+        status.value = "dead";
+      }
+    };
+
+    // Initial fetch and setup
+    fetchServerStatus().then(() => {
+      if (!props.item.subtitle && status.value !== "dead") {
+        if (props.item.items) items.value = props.item.items;
+        if (props.item.separator) separator.value = props.item.separator;
+
+        fetchServerStats();
       }
     });
-  },
-  methods: {
-    fetchServerStatus: async function () {
-      const headers = this.headers;
 
-      return this.fetch("/api/", { headers })
-        .then((response) => {
-          if (response && response.message) this.status = "running";
-          else throw new Error();
-        })
-        .catch((e) => {
-          console.log(e);
-          this.status = "dead";
-        });
-    },
-    fetchServerStats: async function () {
-      const headers = this.headers;
-
-      this.fetch("/api/config", { headers })
-        .then((response) => {
-          if (response) {
-            if (response.version) this.version = response.version;
-            if (response.location_name)
-              this.location_name = response.location_name;
-          } else throw new Error();
-        })
-        .catch((e) => {
-          console.log(e);
-          this.status = "dead";
-        });
-
-      this.fetch("/api/states", { headers })
-        .then((response) => {
-          if (response) {
-            this.entities = response.length;
-          } else throw new Error();
-        })
-        .catch((e) => {
-          console.log(e);
-          this.status = "dead";
-        });
-    },
+    return {
+      status,
+      version,
+      entities,
+      location_name,
+      separator,
+      items,
+      headers,
+      details,
+      fetchServerStatus,
+      fetchServerStats
+    };
   },
 };
 </script>

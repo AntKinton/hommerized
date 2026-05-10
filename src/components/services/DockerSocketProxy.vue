@@ -32,47 +32,58 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
+
 export default {
   name: "DockerSocketProxy",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      running: null,
-      stopped: null,
-      errors: null,
-      serverError: false,
-    };
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchData;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchData();
-  },
-  methods: {
-    fetchData: function () {
+    const running = ref(null);
+    const stopped = ref(null);
+    const errors = ref(null);
+    const serverError = ref(false);
+
+    const fetchData = async () => {
       const handleError = (e) => {
         console.error(e);
-        this.serverError = true;
+        serverError.value = true;
       };
 
-      // Fetch all containers (including stopped) from Docker Socket Proxy
-      this.fetch("/containers/json?all=true") // Docker endpoint for container statuses
-        .then((containers) => {
-          this.running = containers.filter(
-            (container) => container.State === "running",
-          ).length;
-          this.stopped = containers.filter(
-            (container) => container.State === "exited",
-          ).length;
-        })
-        .catch(handleError);
-    },
+      try {
+        // Fetch all containers (including stopped) from Docker Socket Proxy
+        const containers = await fetch("/containers/json?all=true"); // Docker endpoint for container statuses
+        running.value = containers.filter(
+          (container) => container.State === "running",
+        ).length;
+        stopped.value = containers.filter(
+          (container) => container.State === "exited",
+        ).length;
+      } catch (e) {
+        handleError(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchData);
+
+    // Initial data fetch
+    fetchData();
+
+    return {
+      running,
+      stopped,
+      errors,
+      serverError,
+      fetchData
+    };
   },
 };
 </script>

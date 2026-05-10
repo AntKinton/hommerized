@@ -20,38 +20,45 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Gitea",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    fetchOk: null,
-    versionstring: null,
-  }),
-  computed: {
-    status: function () {
-      return this.fetchOk ? "online" : "offline";
-    },
-  },
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/swagger.v1.json")
-        .then((response) => {
-          this.fetchOk = true;
-          this.versionstring = response.info.version;
-        })
-        .catch((e) => {
-          this.fetchOk = false;
-          console.log(e);
-        });
-    },
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const fetchOk = ref(null);
+    const versionstring = ref(null);
+
+    const status = computed(() => {
+      return fetchOk.value ? "online" : "offline";
+    });
+
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("/swagger.v1.json");
+        fetchOk.value = true;
+        versionstring.value = response.info.version;
+      } catch (e) {
+        fetchOk.value = false;
+        console.log(e);
+      }
+    };
+
+    fetchStatus();
+
+    return {
+      fetchOk,
+      versionstring,
+      status,
+      fetchStatus
+    };
   },
 };
 </script>

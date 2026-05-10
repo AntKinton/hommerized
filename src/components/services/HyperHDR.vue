@@ -27,60 +27,59 @@
   </Generic>
 </template>
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 const ENDPPOINT_SERVER_INFO = "/json-rpc?request=";
 
 export default {
   name: "HyperHDR",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    serverInfo: null,
-    error: false,
-  }),
-  computed: {
-    instances: function () {
-      const instances = this.serverInfo?.info?.instance;
-      return instances ?? [];
-    },
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
 
-    currentInstance: function () {
-      const instanceId = this.serverInfo?.info?.currentInstance;
-      return this.instances.find(
+    const serverInfo = ref(null);
+    const error = ref(false);
+
+    const instances = computed(() => {
+      const instancesData = serverInfo.value?.info?.instance;
+      return instancesData ?? [];
+    });
+
+    const currentInstance = computed(() => {
+      const instanceId = serverInfo.value?.info?.currentInstance;
+      return instances.value.find(
         (instance) => instance.instance === instanceId
       )?.friendly_name;
-    },
+    });
 
-    running: function () {
-      if (!this.instances) {
+    const running = computed(() => {
+      if (!instances.value) {
         return 0;
       }
 
-      return this.instances.filter(
+      return instances.value.filter(
         (instance) => instance.running === true
       ).length;
-    },
+    });
     
-    stopped: function () {
-      if (!this.instances) {
+    const stopped = computed(() => {
+      if (!instances.value) {
         return 0;
       }
 
-      return this.instances.length - this.running;
-    },
+      return instances.value.length - running.value;
+    });
 
-    status: function () {
-      return !this.error ? "online" : "offline";
-    },
-  },
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+    const status = computed(() => {
+      return !error.value ? "online" : "offline";
+    });
+
+    const fetchStatus = async () => {
       const headers = {};
 
       const command = {
@@ -92,14 +91,27 @@ export default {
       )}`;
 
       try {
-        const response = await this.fetch(requestUrl, { headers });
-        this.error = false;
-        this.serverInfo = response;
+        const response = await fetch(requestUrl, { headers });
+        error.value = false;
+        serverInfo.value = response;
       } catch (e) {
-        this.error = true;
+        error.value = true;
         console.error(e);
       }
-    },
+    };
+
+    fetchStatus();
+
+    return {
+      serverInfo,
+      error,
+      instances,
+      currentInstance,
+      running,
+      stopped,
+      status,
+      fetchStatus
+    };
   },
 };
 </script>

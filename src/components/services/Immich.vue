@@ -26,66 +26,64 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
+import { formatBytes } from '@/utils/formatters.js';
 
 export default {
   name: "Immich",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      users: null,
-      photos: null,
-      videos: null,
-      usage: null,
-      serverError: false,
-    };
-  },
-  computed: {
-    humanizeSize: function () {
-      let bytes = this.usage;
-      if (Math.abs(bytes) < 1024) return bytes + " B";
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-      const units = ["KiB", "MiB", "GiB", "TiB"];
-      let u = -1;
-      do {
-        bytes /= 1024;
-        ++u;
-      } while (
-        Math.round(Math.abs(bytes) * 100) / 100 >= 1024 &&
-        u < units.length - 1
-      );
+    const users = ref(null);
+    const photos = ref(null);
+    const videos = ref(null);
+    const usage = ref(null);
+    const serverError = ref(false);
 
-      return bytes.toFixed(2) + " " + units[u];
-    },
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchConfig;
+    const humanizeSize = computed(() => {
+      return formatBytes(usage.value);
+    });
 
-    // Initial data fetch
-    this.fetchConfig();
-  },
-  methods: {
-    fetchConfig: function () {
+    const fetchConfig = () => {
       const headers = {
-        "x-api-key": this.item.apikey,
+        "x-api-key": props.item.apikey,
       };
 
-      this.fetch(`/api/server/statistics`, { headers })
+      fetch(`/api/server/statistics`, { headers })
         .then((stats) => {
-          this.photos = stats.photos;
-          this.videos = stats.videos;
-          this.usage = stats.usage;
-          this.users = stats.usageByUser.length;
+          photos.value = stats.photos;
+          videos.value = stats.videos;
+          usage.value = stats.usage;
+          users.value = stats.usageByUser.length;
         })
         .catch((e) => {
           console.error(e);
-          this.serverError = true;
+          serverError.value = true;
         });
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchConfig);
+
+    // Initial data fetch
+    fetchConfig();
+
+    return {
+      users,
+      photos,
+      videos,
+      usage,
+      serverError,
+      humanizeSize,
+      fetchConfig
+    };
   },
 };
 </script>

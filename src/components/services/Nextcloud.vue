@@ -15,43 +15,51 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Nextcloud",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    fetchOk: null,
-    versionstring: null,
-    maintenance: null,
-  }),
-  computed: {
-    status: function () {
-      if (!this.fetchOk) {
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const fetchOk = ref(null);
+    const versionstring = ref(null);
+    const maintenance = ref(null);
+
+    const status = computed(() => {
+      if (!fetchOk.value) {
         return "offline";
       }
-      return this.maintenance ? "maintenance" : "online";
-    },
-  },
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/status.php")
-        .then((response) => {
-          this.fetchOk = true;
-          this.versionstring = response.versionstring;
-          this.maintenance = response.maintenance;
-        })
-        .catch((e) => {
-          this.fetchOk = false;
-          console.log(e);
-        });
-    },
+      return maintenance.value ? "maintenance" : "online";
+    });
+
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("/status.php");
+        fetchOk.value = true;
+        versionstring.value = response.versionstring;
+        maintenance.value = response.maintenance;
+      } catch (e) {
+        fetchOk.value = false;
+        console.log(e);
+      }
+    };
+
+    fetchStatus();
+
+    return {
+      fetchOk,
+      versionstring,
+      maintenance,
+      status,
+      fetchStatus
+    };
   },
 };
 </script>

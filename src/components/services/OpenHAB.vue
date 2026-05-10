@@ -20,92 +20,106 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "OpenHAB",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    status: "",
-    things: {
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const status = ref("");
+    const things = ref({
       count: 0,
       online: 0,
-    },
-    items: {
+    });
+    const items = ref({
       count: 0,
-    },
-  }),
-  computed: {
-    headers: function () {
-      const basicAuth = `${this.item.apikey}:`;
+    });
+
+    const headers = computed(() => {
+      const basicAuth = `${props.item.apikey}:`;
 
       return {
         Authorization: `Basic ${btoa(basicAuth)}`,
       };
-    },
-    details: function () {
-      const details = [];
+    });
 
-      if (this.item.things) {
-        details.push(
-          `${this.things.count} things (${this.things.online} Online)`,
+    const details = computed(() => {
+      const detailsArray = [];
+
+      if (props.item.things) {
+        detailsArray.push(
+          `${things.value.count} things (${things.value.online} Online)`,
         );
       }
 
-      if (this.item.items) {
-        details.push(`${this.items.count} items`);
+      if (props.item.items) {
+        detailsArray.push(`${items.value.count} items`);
       }
 
-      return details.join(", ");
-    },
-  },
-  created() {
-    this.fetchServerStatus();
+      return detailsArray.join(", ");
+    });
 
-    if (!this.item.subtitle && this.status !== "dead") {
-      this.fetchServerStats();
+    const fetchServerStatus = async () => {
+      const headersValue = headers.value;
+      try {
+        const response = await fetch("/rest/systeminfo", { headersValue });
+        if (response && response.systemInfo) status.value = "running";
+        else throw new Error();
+      } catch (e) {
+        console.log(e);
+        status.value = "dead";
+      }
+    };
+
+    const fetchServerStats = async () => {
+      const headersValue = headers.value;
+
+      if (props.item.things) {
+        try {
+          const data = await fetch("/rest/things?summary=true", {
+            headersValue,
+          });
+          things.value.count = data.length;
+          things.value.online = data.filter(
+            (e) => e.statusInfo.status === "ONLINE",
+          ).length;
+        } catch (e) {
+          console.log(e);
+        }
+      }
+
+      if (props.item.items) {
+        try {
+          const data = await fetch("/rest/items", { headersValue });
+          items.value.count = data.length;
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    };
+
+    fetchServerStatus();
+
+    if (!props.item.subtitle && status.value !== "dead") {
+      fetchServerStats();
     }
-  },
-  methods: {
-    fetchServerStatus: async function () {
-      const headers = this.headers;
-      this.fetch("/rest/systeminfo", { headers })
-        .then((response) => {
-          if (response && response.systemInfo) this.status = "running";
-          else throw new Error();
-        })
-        .catch((e) => {
-          console.log(e);
-          this.status = "dead";
-        });
-    },
-    fetchServerStats: async function () {
-      const headers = this.headers;
 
-      if (this.item.things) {
-        const data = await this.fetch("/rest/things?summary=true", {
-          headers,
-        }).catch((e) => {
-          console.log(e);
-        });
-
-        this.things.count = data.length;
-        this.things.online = data.filter(
-          (e) => e.statusInfo.status === "ONLINE",
-        ).length;
-      }
-
-      if (this.item.items) {
-        const data = await this.fetch("/rest/items", { headers }).catch((e) => {
-          console.log(e);
-        });
-
-        this.items.count = data.length;
-      }
-    },
+    return {
+      status,
+      things,
+      items,
+      headers,
+      details,
+      fetchServerStatus,
+      fetchServerStats
+    };
   },
 };
 </script>

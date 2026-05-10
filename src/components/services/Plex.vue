@@ -34,45 +34,43 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
+
 export default {
   name: "Plex",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      streams: null,
-      series: null,
-      movies: null,
-      warnings: null,
-      errors: null,
-      serverError: false,
-    };
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchData;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchData();
-  },
-  methods: {
-    fetchData: function () {
+    const streams = ref(null);
+    const series = ref(null);
+    const movies = ref(null);
+    const warnings = ref(null);
+    const errors = ref(null);
+    const serverError = ref(false);
+
+    const fetchData = () => {
       const handleError = (e) => {
         console.error(e);
-        this.serverError = true;
+        serverError.value = true;
       };
-      this.fetch(`/status/sessions?X-Plex-Token=${this.item.token}`, {}, false)
+      
+      fetch(`/status/sessions?X-Plex-Token=${props.item.token}`, {}, false)
         .then((str) => {
           const parser = new DOMParser();
           const xml = parser.parseFromString(str, "application/xml");
           const metadata = xml.getElementsByTagName("MediaContainer")[0];
-          this.streams = metadata ? metadata.getAttribute("size") || 0 : 0;
+          streams.value = metadata ? metadata.getAttribute("size") || 0 : 0;
         })
         .catch(handleError);
-      this.fetch(`/library/sections?X-Plex-Token=${this.item.token}`, {}, false)
+        
+      fetch(`/library/sections?X-Plex-Token=${props.item.token}`, {}, false)
         .then((str) => {
           const parser = new DOMParser();
           const xml = parser.parseFromString(str, "application/xml");
@@ -90,7 +88,7 @@ export default {
           Promise.all(
             seriesDirIds.map((seriesDirId) =>
               fetch(
-                `${this.endpoint}/library/sections/${seriesDirId}/all?X-Plex-Token=${this.item.token}`,
+                `${props.item.endpoint}/library/sections/${seriesDirId}/all?X-Plex-Token=${props.item.token}`,
               )
                 .then((response) => response.text())
                 .then((str) => {
@@ -101,7 +99,7 @@ export default {
             ),
           )
             .then(() => {
-              this.series = seriesCount;
+              series.value = seriesCount;
             })
             .catch(handleError);
 
@@ -109,7 +107,7 @@ export default {
           Promise.all(
             movieDirIds.map((movieDirId) =>
               fetch(
-                `${this.endpoint}/library/sections/${movieDirId}/all?X-Plex-Token=${this.item.token}`,
+                `${props.item.endpoint}/library/sections/${movieDirId}/all?X-Plex-Token=${props.item.token}`,
               )
                 .then((response) => response.text())
                 .then((str) => {
@@ -119,11 +117,27 @@ export default {
                 .catch(handleError),
             ),
           ).then(() => {
-            this.movies = movieCount;
+            movies.value = movieCount;
           });
         })
         .catch(handleError);
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchData);
+
+    // Initial data fetch
+    fetchData();
+
+    return {
+      streams,
+      series,
+      movies,
+      warnings,
+      errors,
+      serverError,
+      fetchData
+    };
   },
 };
 </script>

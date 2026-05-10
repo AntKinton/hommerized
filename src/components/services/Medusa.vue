@@ -32,40 +32,47 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Medusa",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      config: null,
-      serverError: false,
-    };
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchConfig;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchConfig();
-  },
-  methods: {
-    fetchConfig: function () {
-      this.fetch("/api/v2/config", {
-        headers: { "X-Api-Key": this.item.apikey },
+    const config = ref(null);
+    const serverError = ref(false);
+
+    const fetchConfig = () => {
+      fetch("/api/v2/config", {
+        headers: { "X-Api-Key": props.item.apikey },
       })
         .then((conf) => {
-          this.config = conf;
+          config.value = conf;
         })
         .catch((e) => {
           console.log(e);
-          this.serverError = true;
+          serverError.value = true;
         });
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchConfig);
+
+    // Initial data fetch
+    fetchConfig();
+
+    return {
+      config,
+      serverError,
+      fetchConfig
+    };
   },
 };
 </script>

@@ -1,0 +1,44 @@
+---
+# Defined user groups
+groups:
+  alpha-team:
+    name: "Alpha Team"
+    description: "Full access to infrastructure and development"
+  beta-group:
+    name: "Beta Group"
+    description: "Access to groupware and communication services"
+  gamma-admins:
+    name: "Gamma Administrators"
+    description: "Full access to all services"
+
+# Service access policies
+servicePolicies:
+  # Infrastructure - Nodes accessible to all, Headplane only for alpha-team
+  Infra-Nodes:
+    allowedGroups: ["alpha-team", "beta-group", "gamma-admins"]
+    services: ["Nodes"]
+    
+  Infra-Headplane:
+    allowedGroups: ["alpha-team", "gamma-admins"]
+    services: ["Headplane"]
+    
+  # Services - All users
+  Services:
+    allowedGroups: ["alpha-team", "beta-group", "gamma-admins"]
+    services: ["PostgreSQL", "Continuwuity/Matrix", "Ntfy"]
+    
+  # System - Only alpha-team
+  System:
+    allowedGroups: ["alpha-team", "gamma-admins"]
+    services: ["PostfixAdmin", "Adminer"]
+    
+  # Groupware - Only beta-group
+  Groupware:
+    allowedGroups: ["beta-group", "gamma-admins"]
+    services: ["Roundcube", "Hub/Nextcloud", "Element/Matrix"]
+    
+  # Security - Only gamma-admins
+  Security:
+    allowedGroups: ["gamma-admins"]
+    services: ["Vaultwarden", "Ark"]
+

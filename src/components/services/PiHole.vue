@@ -20,136 +20,132 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "PiHole",
-  mixins: [service],
   props: {
     item: {
       type: Object,
       required: true,
     },
   },
-  data: () => ({
-    status: "",
-    percent_blocked: 0,
-    sessionId: null,
-    sessionExpiry: null,
-    retryCount: 0,
-    maxRetries: 3,
-    retryDelay: 5000,
-  }),
-  computed: {
-    percentage: function () {
-      if (this.percent_blocked >= 0) {
-        return this.percent_blocked.toFixed(1);
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const status = ref("");
+    const percent_blocked = ref(0);
+    const sessionId = ref(null);
+    const sessionExpiry = ref(null);
+    const retryCount = ref(0);
+    const maxRetries = ref(3);
+    const retryDelay = ref(5000);
+
+    const percentage = computed(() => {
+      if (percent_blocked.value >= 0) {
+        return percent_blocked.value.toFixed(1);
       }
       return "";
-    },
-    isAuthenticated() {
-      return (
-        this.sessionId && this.sessionExpiry && Date.now() < this.sessionExpiry
-      );
-    },
-  },
-  created() {
-    if (parseInt(this.item.apiVersion, 10) === 6) {
-      this.loadCachedSession();
+    });
 
-      // Set up auto-update method for the scheduler
-      this.autoUpdateMethod = this.fetchStatus;
-    } else {
-      // Set up auto-update method for the scheduler
-      this.autoUpdateMethod = this.fetchStatus_v5();
-    }
-    // Initial data fetch
-    this.autoUpdateMethod();
-  },
-  methods: {
-    handleError: function (error, status) {
+    const isAuthenticated = computed(() => {
+      return (
+        sessionId.value && sessionExpiry.value && Date.now() < sessionExpiry.value
+      );
+    });
+
+    const handleError = (error, statusValue) => {
       console.error(error);
-      this.subtitle = error;
-      this.status = status;
-    },
-    loadCachedSession: function () {
+      props.item.subtitle = error;
+      status.value = statusValue;
+    };
+
+    const loadCachedSession = () => {
       try {
         const cachedSession = localStorage.getItem(
-          `pihole_session_${this.item.url}`,
+          `pihole_session_${props.item.url}`,
         );
         if (cachedSession) {
           const session = JSON.parse(cachedSession);
           if (session.expiry > Date.now()) {
-            this.sessionId = session.sid;
-            this.sessionExpiry = session.expiry;
+            sessionId.value = session.sid;
+            sessionExpiry.value = session.expiry;
           } else {
-            this.removeCacheSession();
+            removeCacheSession();
           }
         }
       } catch (e) {
-        this.handleError(`Failed to load cached session: ${e}`, "error");
-        this.removeCacheSession();
+        handleError(`Failed to load cached session: ${e}`, "error");
+        removeCacheSession();
       }
-    },
-    removeCacheSession: function () {
-      localStorage.removeItem(`pihole_session_${this.item.url}`);
-      this.sessionId = null;
-      this.sessionExpiry = null;
-    },
-    authenticate: async function () {
+    };
+
+    const removeCacheSession = () => {
+      localStorage.removeItem(`pihole_session_${props.item.url}`);
+      sessionId.value = null;
+      sessionExpiry.value = null;
+    };
+
+    const authenticate = async () => {
       try {
-        const authResponse = await this.fetch("/api/auth", {
+        const authResponse = await fetch("/api/auth", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ password: this.item.apikey }),
+          body: JSON.stringify({ password: props.item.apikey }),
         });
 
         if (authResponse?.session?.sid) {
-          this.sessionId = authResponse.session.sid;
-          this.sessionExpiry =
+          sessionId.value = authResponse.session.sid;
+          sessionExpiry.value =
             Date.now() + authResponse.session.validity * 1000;
 
           localStorage.setItem(
-            `pihole_session_${this.item.url}`,
+            `pihole_session_${props.item.url}`,
             JSON.stringify({
-              sid: this.sessionId,
-              expiry: this.sessionExpiry,
+              sid: sessionId.value,
+              expiry: sessionExpiry.value,
             }),
           );
 
-          this.retryCount = 0;
+          retryCount.value = 0;
           return true;
         }
         throw new Error("Invalid authentication response");
       } catch (e) {
-        this.handleError(`Authentication failed: ${e}`, "disabled");
+        handleError(`Authentication failed: ${e}`, "disabled");
         return false;
       }
-    },
-    retryWithDelay: async function () {
-      console.log("Retrying authentication...");
-      if (this.retryCount < this.maxRetries) {
-        this.retryCount++;
-        await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
-        return this.fetchStatus();
+    };
+
+    const retryWithDelay = async () => {
+      //console.log("Retrying authentication...");
+      if (retryCount.value < maxRetries.value) {
+        retryCount.value++;
+        await new Promise((resolve) => setTimeout(resolve, retryDelay.value));
+        return fetchStatus();
       }
       return false;
-    },
-    fetchStatus: async function () {
+    };
+
+    const fetchStatus = async () => {
       try {
-        if (!this.isAuthenticated && this.item.apikey) {
-          const authenticated = await this.authenticate();
+        if (!isAuthenticated.value && props.item.apikey) {
+          const authenticated = await authenticate();
           if (!authenticated) return;
         }
 
         const [summary_response, status_response] = await Promise.all([
-          this.fetch(
-            `api/stats/summary?sid=${encodeURIComponent(this.sessionId)}`,
+          fetch(
+            `api/stats/summary?sid=${encodeURIComponent(sessionId.value)}`,
           ),
-          this.fetch(
-            `api/dns/blocking?sid=${encodeURIComponent(this.sessionId)}`,
+          fetch(
+            `api/dns/blocking?sid=${encodeURIComponent(sessionId.value)}`,
           ),
         ]);
 
@@ -160,31 +156,62 @@ export default {
           throw new Error("Invalid response format");
         }
 
-        this.status = status_response.blocking;
-        this.percent_blocked = summary_response.queries.percent_blocked;
-        this.retryCount = 0;
+        status.value = status_response.blocking;
+        percent_blocked.value = summary_response.queries.percent_blocked;
+        retryCount.value = 0;
       } catch (e) {
         const isAuthError =
           e.message.includes("401 error") || e.message.includes("403 error");
-        if (isAuthError && this.item.apikey) {
-          this.removeCacheSession();
-          return this.retryWithDelay();
+        if (isAuthError && props.item.apikey) {
+          removeCacheSession();
+          return retryWithDelay();
         }
-        this.handleError(`Failed to fetch status: ${e.message || e}`, "error");
-        this.removeCacheSession();
+        handleError(`Failed to fetch status: ${e.message || e}`, "error");
+        removeCacheSession();
       }
-    },
-    async fetchStatus_v5() {
-      const authQueryParams = this.item.apikey
-        ? `?summaryRaw&auth=${this.item.apikey}`
-        : "";
-      const result = await this.fetch(`/api.php${authQueryParams}`).catch((e) =>
-        this.handleError(`Failed to fetch status: ${e}`, "error"),
-      );
+    };
 
-      this.status = result.status;
-      this.percent_blocked = result.ads_percentage_today;
-    },
+    const fetchStatus_v5 = async () => {
+      const authQueryParams = props.item.apikey
+        ? `?summaryRaw&auth=${props.item.apikey}`
+        : "";
+      try {
+        const result = await fetch(`/api.php${authQueryParams}`);
+        status.value = result.status;
+        percent_blocked.value = result.ads_percentage_today;
+      } catch (e) {
+        handleError(`Failed to fetch status: ${e}`, "error");
+      }
+    };
+
+    // Setup based on API version
+    if (parseInt(props.item.apiVersion, 10) === 6) {
+      loadCachedSession();
+      initAutoUpdate(fetchStatus);
+    } else {
+      initAutoUpdate(fetchStatus_v5);
+    }
+
+    // Initial data fetch
+    if (parseInt(props.item.apiVersion, 10) === 6) {
+      fetchStatus();
+    } else {
+      fetchStatus_v5();
+    }
+
+    return {
+      status,
+      percent_blocked,
+      sessionId,
+      sessionExpiry,
+      retryCount,
+      maxRetries,
+      retryDelay,
+      percentage,
+      isAuthenticated,
+      fetchStatus,
+      fetchStatus_v5
+    };
   },
 };
 </script>
