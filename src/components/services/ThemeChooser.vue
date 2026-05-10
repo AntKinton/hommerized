@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+
 let currentTheme;
 const app = document.getElementById("app");
 
@@ -28,22 +30,23 @@ export default {
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      theme: null,
-    };
-  },
-  created: function () {
+  setup() {
+    const theme = ref(null);
+
     currentTheme = Array.from(app.classList).filter((word) =>
       word.startsWith("theme-"),
     )[0];
-    this.theme = currentTheme;
-  },
-  methods: {
-    switchTheme: function () {
-      app.classList.replace(currentTheme, this.theme);
-      currentTheme = this.theme;
-    },
+    theme.value = currentTheme;
+
+    const switchTheme = () => {
+      app.classList.replace(currentTheme, theme.value);
+      currentTheme = theme.value;
+    };
+
+    return {
+      theme,
+      switchTheme
+    };
   },
 };
 </script>

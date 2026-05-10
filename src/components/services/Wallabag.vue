@@ -20,33 +20,45 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Wallabag",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    status: null,
-    versionstring: null,
-  }),
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/api/version")
-        .then((response) => {
-          this.status = "online";
-          this.versionstring = response;
-        })
-        .catch((e) => {
-          this.status = "offline";
-          console.log(e);
-        });
-    },
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const status = ref(null);
+    const versionstring = ref(null);
+
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("/api/version");
+        status.value = "online";
+        versionstring.value = response;
+      } catch (e) {
+        status.value = "offline";
+        console.log(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      status,
+      versionstring,
+      fetchStatus
+    };
   },
 };
 </script>

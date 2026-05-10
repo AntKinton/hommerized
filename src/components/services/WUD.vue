@@ -21,45 +21,53 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "WUD",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      running: null,
-      update: null,
-      serverError: false,
-    };
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchConfig;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchConfig();
-  },
-  methods: {
-    fetchConfig: function () {
-      this.fetch(`/api/containers`)
+    const running = ref(null);
+    const update = ref(null);
+    const serverError = ref(false);
+
+    const fetchConfig = () => {
+      fetch("/api/containers")
         .then((containers) => {
-          this.running = 0;
-          this.update = 0;
+          running.value = 0;
+          update.value = 0;
           for (var i = 0; i < containers.length; i++) {
-            this.running++;
+            running.value++;
             if (containers[i].updateAvailable) {
-              this.update++;
+              update.value++;
             }
           }
         })
         .catch(() => {
-          this.serverError = true;
+          serverError.value = true;
         });
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchConfig);
+
+    // Initial data fetch
+    fetchConfig();
+
+    return {
+      running,
+      update,
+      serverError,
+      fetchConfig
+    };
   },
 };
 </script>

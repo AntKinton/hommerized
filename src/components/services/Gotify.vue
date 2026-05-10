@@ -18,21 +18,25 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Gotify",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    health: {},
-    messages: 0,
-  }),
-  computed: {
-    status: function () {
-      const statuses = [this.health.health, this.health.database];
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const health = ref({});
+    const messages = ref(0);
+
+    const status = computed(() => {
+      const statuses = [health.value.health, health.value.database];
 
       if (statuses.includes("red")) {
         return "red";
@@ -41,33 +45,48 @@ export default {
       }
 
       return "green";
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchAll;
+    });
+
+    const fetchAll = async () => {
+      await fetchStatus();
+      await fetchMessages();
+    };
+
+    const fetchStatus = async () => {
+      try {
+        const resp = await fetch(`/health`);
+        health.value = resp;
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    const fetchMessages = async () => {
+      const headers = {
+        "X-Gotify-Key": props.item.apikey,
+      };
+      try {
+        const resp = await fetch(`/message?limit=100`, { headers });
+        messages.value = resp.messages.length;
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchAll);
 
     // Initial data fetch
-    this.fetchAll();
-  },
-  methods: {
-    fetchAll: async function () {
-      this.fetchStatus();
-      this.fetchMessages();
-    },
-    fetchStatus: async function () {
-      await this.fetch(`/health`)
-        .catch((e) => console.log(e))
-        .then((resp) => (this.health = resp));
-    },
-    fetchMessages: async function () {
-      const headers = {
-        "X-Gotify-Key": this.item.apikey,
-      };
-      await this.fetch(`/message?limit=100`, { headers })
-        .catch((e) => console.log(e))
-        .then((resp) => (this.messages = resp.messages.length));
-    },
+    fetchAll();
+
+    return {
+      health,
+      messages,
+      status,
+      fetchAll,
+      fetchStatus,
+      fetchMessages
+    };
   },
 };
 </script>

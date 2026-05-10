@@ -20,38 +20,45 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Matrix",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    fetchOk: null,
-    versionstring: null,
-  }),
-  computed: {
-    status: function () {
-      return this.fetchOk ? "online" : "offline";
-    },
-  },
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("_matrix/federation/v1/version")
-        .then((response) => {
-          this.fetchOk = true;
-          this.versionstring = response.server.version;
-        })
-        .catch((e) => {
-          this.fetchOk = false;
-          console.log(e);
-        });
-    },
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const fetchOk = ref(null);
+    const versionstring = ref(null);
+
+    const status = computed(() => {
+      return fetchOk.value ? "online" : "offline";
+    });
+
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("_matrix/federation/v1/version");
+        fetchOk.value = true;
+        versionstring.value = response.server.version;
+      } catch (e) {
+        fetchOk.value = false;
+        console.log(e);
+      }
+    };
+
+    fetchStatus();
+
+    return {
+      fetchOk,
+      versionstring,
+      status,
+      fetchStatus
+    };
   },
 };
 </script>

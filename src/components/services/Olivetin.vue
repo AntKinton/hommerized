@@ -20,33 +20,40 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Olivetin",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    status: null,
-    versionstring: null,
-  }),
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/webUiSettings.json")
-        .then((response) => {
-          this.status = "online";
-          this.versionstring = response.CurrentVersion;
-        })
-        .catch((e) => {
-          this.status = "offline";
-          console.log(e);
-        });
-    },
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const status = ref(null);
+    const versionstring = ref(null);
+
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("/webUiSettings.json");
+        status.value = "online";
+        versionstring.value = response.CurrentVersion;
+      } catch (e) {
+        status.value = "offline";
+        console.log(e);
+      }
+    };
+
+    fetchStatus();
+
+    return {
+      status,
+      versionstring,
+      fetchStatus
+    };
   },
 };
 </script>

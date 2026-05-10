@@ -18,7 +18,8 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 const AlertsStatus = Object.freeze({
   firing: "firing",
@@ -28,12 +29,16 @@ const AlertsStatus = Object.freeze({
 
 export default {
   name: "Prometheus",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    api: {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const api = ref({
       status: "",
       count: 0,
       alerts: {
@@ -41,58 +46,73 @@ export default {
         inactive: 0,
         pending: 0,
       },
-    },
-  }),
-  computed: {
-    count: function () {
+    });
+
+    const count = computed(() => {
       return (
-        this.countFiring() || this.countPending() || this.countInactive() || 0
+        countFiring.value || countPending.value || countInactive.value || 0
       );
-    },
-    level: function () {
-      if (this.countFiring()) {
+    });
+
+    const level = computed(() => {
+      if (countFiring.value) {
         return AlertsStatus.firing;
-      } else if (this.countPending()) {
+      } else if (countPending.value) {
         return AlertsStatus.pending;
       }
       return AlertsStatus.inactive;
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+    });
 
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.api = await this.fetch("api/v1/alerts").catch((e) => console.log(e));
-    },
-    countFiring: function () {
-      if (this.api) {
-        return this.api.data?.alerts?.filter(
+    const countFiring = computed(() => {
+      if (api.value.data?.alerts) {
+        return api.value.data.alerts.filter(
           (alert) => alert.state === AlertsStatus.firing,
         ).length;
       }
       return 0;
-    },
-    countPending: function () {
-      if (this.api) {
-        return this.api.data?.alerts?.filter(
+    });
+
+    const countPending = computed(() => {
+      if (api.value.data?.alerts) {
+        return api.value.data.alerts.filter(
           (alert) => alert.state === AlertsStatus.pending,
         ).length;
       }
       return 0;
-    },
-    countInactive: function () {
-      if (this.api) {
-        return this.api.data?.alerts?.filter(
+    });
+
+    const countInactive = computed(() => {
+      if (api.value.data?.alerts) {
+        return api.value.data.alerts.filter(
           (alert) => alert.state === AlertsStatus.pending,
         ).length;
       }
       return 0;
-    },
+    });
+
+    const fetchStatus = async () => {
+      try {
+        api.value = await fetch("api/v1/alerts");
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      api,
+      count,
+      level,
+      countFiring,
+      countPending,
+      countInactive,
+      fetchStatus
+    };
   },
 };
 </script>

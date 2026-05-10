@@ -24,67 +24,80 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "FreshRSS",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      subscriptions: 0,
-      unread: 0,
-      serverError: false,
-    };
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchConfig;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchConfig();
-  },
-  methods: {
-    fetchConfig: async function () {
-      if (!this.auth) {
-        const match = await this.fetch(
-          `/api/greader.php/accounts/ClientLogin?Email=${this.item.username}&Passwd=${this.item.password}`,
-          { method: "GET", cache: "no-cache" },
-          false,
-        ).then((body) => {
-          return body.match(/Auth=(([([a-z0-9]+)\/([([a-z0-9]+))/i);
-        });
-        if (match !== null) this.auth = match[1];
+    const subscriptions = ref(0);
+    const unread = ref(0);
+    const serverError = ref(false);
+    let auth = null;
+
+    const fetchConfig = async () => {
+      if (!auth) {
+        try {
+          const body = await fetch(
+            `/api/greader.php/accounts/ClientLogin?Email=${props.item.username}&Passwd=${props.item.password}`,
+            { method: "GET", cache: "no-cache" },
+            false,
+          );
+          const match = body.match(/Auth=(([([a-z0-9]+)\/([([a-z0-9]+))/i);
+          if (match !== null) auth = match[1];
+        } catch (e) {
+          console.error(e);
+          serverError.value = true;
+          return;
+        }
       }
 
       const headers = {
-        Authorization: `GoogleLogin auth=${this.auth}`,
+        Authorization: `GoogleLogin auth=${auth}`,
       };
 
-      this.fetch(
-        `/api/greader.php/reader/api/0/subscription/list?output=json`,
-        { headers },
-      )
-        .then((subscription) => {
-          this.subscriptions = subscription.subscriptions.length;
-        })
-        .catch((e) => {
-          console.error(e);
-          this.serverError = true;
+      try {
+        const subscription = await fetch(
+          `/api/greader.php/reader/api/0/subscription/list?output=json`,
+          { headers },
+        );
+        subscriptions.value = subscription.subscriptions.length;
+      } catch (e) {
+        console.error(e);
+        serverError.value = true;
+      }
+
+      try {
+        const unreadcount = await fetch(`/api/greader.php/reader/api/0/unread-count?output=json`, {
+          headers,
         });
-      this.fetch(`/api/greader.php/reader/api/0/unread-count?output=json`, {
-        headers,
-      })
-        .then((unreadcount) => {
-          this.unread = unreadcount.max;
-        })
-        .catch((e) => {
-          console.error(e);
-          this.serverError = true;
-        });
-    },
+        unread.value = unreadcount.max;
+      } catch (e) {
+        console.error(e);
+        serverError.value = true;
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchConfig);
+
+    // Initial data fetch
+    fetchConfig();
+
+    return {
+      subscriptions,
+      unread,
+      serverError,
+      fetchConfig
+    };
   },
 };
 </script>

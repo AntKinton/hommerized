@@ -26,44 +26,54 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "PiAlert",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      total: 0,
-      connected: 0,
-      newdevices: 0,
-      downalert: 0,
-      serverError: false,
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const total = ref(0);
+    const connected = ref(0);
+    const newdevices = ref(0);
+    const downalert = ref(0);
+    const serverError = ref(false);
+
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("/php/server/devices.php?action=getDevicesTotals");
+        total.value = response[0];
+        connected.value = response[1];
+        newdevices.value = response[3];
+        downalert.value = response[4];
+        serverError.value = false;
+      } catch (e) {
+        console.log(e);
+        serverError.value = true;
+      }
     };
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
 
     // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      this.fetch("/php/server/devices.php?action=getDevicesTotals")
-        .then((response) => {
-          this.total = response[0];
-          this.connected = response[1];
-          this.newdevices = response[3];
-          this.downalert = response[4];
-        })
-        .catch((e) => {
-          console.log(e);
-          this.serverError = true;
-        });
-    },
+    fetchStatus();
+
+    return {
+      total,
+      connected,
+      newdevices,
+      downalert,
+      serverError,
+      fetchStatus
+    };
   },
 };
 </script>

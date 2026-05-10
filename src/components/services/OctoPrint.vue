@@ -50,25 +50,30 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "OctoPrint",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    printTime: null,
-    printTimeLeft: null,
-    completion: null,
-    state: null,
-    printer: null,
-    error: null,
-  }),
-  computed: {
-    statusClass: function () {
-      switch (this.state) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const printTime = ref(null);
+    const printTimeLeft = ref(null);
+    const completion = ref(null);
+    const state = ref(null);
+    const printer = ref(null);
+    const error = ref(null);
+    const display = ref(props.item.display == "bar" ? props.item.display : "text");
+
+    const statusClass = computed(() => {
+      switch (state.value) {
         case "Operational":
           return "ready";
         case "Offline":
@@ -78,48 +83,41 @@ export default {
         default:
           return "pending";
       }
-    },
-  },
-  created() {
-    this.display = this.item.display == "bar" ? this.item.display : "text";
+    });
 
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchAll;
+    const fetchAll = async () => {
+      await fetchPrinterStatus();
+      await fetchStatus();
+    };
 
-    // Initial data fetch
-    this.fetchAll();
-  },
-  methods: {
-    fetchAll: async function () {
-      this.fetchPrinterStatus();
-      this.fetchStatus();
-    },
-    fetchStatus: async function () {
+    const fetchStatus = async () => {
       try {
-        const response = await this.fetch(`api/job?apikey=${this.item.apikey}`);
-        this.printTime = response.progress.printTime;
-        this.printTimeLeft = response.progress.printTimeLeft;
-        this.completion = response.progress.completion;
-        this.state = response.state;
-        this.error = response.error;
+        const response = await fetch(`api/job?apikey=${props.item.apikey}`);
+        printTime.value = response.progress.printTime;
+        printTimeLeft.value = response.progress.printTimeLeft;
+        completion.value = response.progress.completion;
+        state.value = response.state;
+        error.value = response.error;
       } catch (e) {
-        this.error = `Fail to fetch octoprint data (${e.message})`;
+        error.value = `Fail to fetch octoprint data (${e.message})`;
         console.error(e);
       }
-    },
-    fetchPrinterStatus: async function () {
+    };
+
+    const fetchPrinterStatus = async () => {
       try {
-        const response = await this.fetch(
-          `api/printer?apikey=${this.item.apikey}`,
+        const response = await fetch(
+          `api/printer?apikey=${props.item.apikey}`,
         );
-        this.printer = response;
-        this.error = response.error;
+        printer.value = response;
+        error.value = response.error;
       } catch (e) {
-        this.error = `Fail to fetch octoprint data (${e.message})`;
+        error.value = `Fail to fetch octoprint data (${e.message})`;
         console.error(e);
       }
-    },
-    formatTime: function (seconds) {
+    };
+
+    const formatTime = (seconds) => {
       const days = Math.floor(seconds / 86400);
       let remainingSeconds = seconds % 86400;
       const hours = Math.floor(remainingSeconds / 3600);
@@ -140,7 +138,28 @@ export default {
       } else {
         return `${secs} seconds`;
       }
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchAll);
+
+    // Initial data fetch
+    fetchAll();
+
+    return {
+      printTime,
+      printTimeLeft,
+      completion,
+      state,
+      printer,
+      error,
+      display,
+      statusClass,
+      fetchAll,
+      fetchStatus,
+      fetchPrinterStatus,
+      formatTime
+    };
   },
 };
 </script>

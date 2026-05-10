@@ -4,7 +4,8 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 import Generic from "./Generic.vue";
 
 export default {
@@ -12,56 +13,62 @@ export default {
   components: {
     Generic,
   },
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    bookmarks: [],
-  }),
-  computed: {
-    calculatedLimit: function () {
-      const limit = parseInt(this.item.limit) || 5;
-      return Math.min(Math.max(limit, 1), 15);
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchBookmarks;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchBookmarks();
-  },
-  methods: {
-    fetchBookmarks: async function () {
+    const bookmarks = ref([]);
+
+    const calculatedLimit = computed(() => {
+      const limit = parseInt(props.item.limit) || 5;
+      return Math.min(Math.max(limit, 1), 15);
+    });
+
+    const fetchBookmarks = async () => {
       const headers = {
-        Authorization: `Token ${this.item.token}`,
+        Authorization: `Token ${props.item.token}`,
         Accept: "application/json",
       };
 
       let query = "";
-      if (this.item.query) {
-        query = `&q=${encodeURIComponent(this.item.query)}`;
+      if (props.item.query) {
+        query = `&q=${encodeURIComponent(props.item.query)}`;
       }
 
-      let url = `/api/bookmarks/?limit=${this.calculatedLimit}${query}`;
+      let url = `/api/bookmarks/?limit=${calculatedLimit.value}${query}`;
 
-      this.fetch(url, {
-        headers,
-      })
-        .then((ld_response) => {
-          this.bookmarks = ld_response.results.map((bookmark) => ({
-            name: `${bookmark.title}`,
-            subtitle: `${bookmark.description}`,
-            url: bookmark.url,
-            logo: `${bookmark.favicon_url}`,
-            tag: `${bookmark.tag_names.join(" #")}`,
-          }));
-        })
-        .catch((e) => {
-          console.log(e);
+      try {
+        const ld_response = await fetch(url, {
+          headers,
         });
-    },
+        bookmarks.value = ld_response.results.map((bookmark) => ({
+          name: `${bookmark.title}`,
+          subtitle: `${bookmark.description}`,
+          url: bookmark.url,
+          logo: `${bookmark.favicon_url}`,
+          tag: `${bookmark.tag_names.join(" #")}`,
+        }));
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchBookmarks);
+
+    // Initial data fetch
+    fetchBookmarks();
+
+    return {
+      bookmarks,
+      calculatedLimit,
+      fetchBookmarks
+    };
   },
 };
 </script>

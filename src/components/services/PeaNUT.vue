@@ -18,21 +18,25 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "PeaNUT",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    ups_status: "",
-    ups_load: 0,
-  }),
-  computed: {
-    status_text: function () {
-      switch (this.ups_status) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const ups_status = ref("");
+    const ups_load = ref(0);
+
+    const status_text = computed(() => {
+      switch (ups_status.value) {
         case "OL":
           return "online";
         case "OB":
@@ -42,9 +46,10 @@ export default {
         default:
           return "unknown";
       }
-    },
-    status_class: function () {
-      switch (this.ups_status) {
+    });
+
+    const status_class = computed(() => {
+      switch (ups_status.value) {
         case "OL":
           return "online";
         case "OB": // On battery
@@ -54,32 +59,41 @@ export default {
         default:
           return "unknown";
       }
-    },
-    load: function () {
-      if (this.ups_load) {
-        return this.ups_load.toFixed(1);
+    });
+
+    const load = computed(() => {
+      if (ups_load.value) {
+        return ups_load.value.toFixed(1);
       }
       return "";
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+    });
+
+    const fetchStatus = async () => {
+      const device = props.item.device || "";
+
+      try {
+        const result = await fetch(`/api/v1/devices/${device}`);
+        ups_status.value = result["ups.status"] || "";
+        ups_load.value = result["ups.load"] || 0;
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
 
     // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      const device = this.item.device || "";
+    fetchStatus();
 
-      const result = await this.fetch(`/api/v1/devices/${device}`).catch((e) =>
-        console.log(e),
-      );
-
-      this.ups_status = result["ups.status"] || "";
-      this.ups_load = result["ups.load"] || 0;
-    },
+    return {
+      ups_status,
+      ups_load,
+      status_text,
+      status_class,
+      load,
+      fetchStatus
+    };
   },
 };
 </script>

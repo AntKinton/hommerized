@@ -19,51 +19,60 @@
   </Generic>
 </template>
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Jellyfin",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    stats: null,
-    error: false,
-  }),
-  computed: {
-    streams: function () {
-      if (!this.stats) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const stats = ref(null);
+    const error = ref(false);
+
+    const streams = computed(() => {
+      if (!stats.value) {
         return "";
       }
       let nb_streams = 0;
-      for (let stream of this.stats) {
+      for (let stream of stats.value) {
         if ("NowPlayingItem" in stream) nb_streams++;
       }
       return nb_streams;
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+    });
 
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+    const fetchStatus = async () => {
       const headers = {
-        Authorization: `bearer ${this.item.apikey}`,
+        Authorization: `bearer ${props.item.apikey}`,
       };
       try {
-        const response = await this.fetch("/proxy/getSessions", { headers });
-        this.error = false;
-        this.stats = response;
+        const response = await fetch("/proxy/getSessions", { headers });
+        error.value = false;
+        stats.value = response;
       } catch (e) {
-        this.error = true;
+        error.value = true;
         console.error(e);
       }
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      stats,
+      error,
+      streams,
+      fetchStatus
+    };
   },
 };
 </script>

@@ -23,32 +23,27 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Scrutiny",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      passed: null,
-      failed: null,
-      unknown: null,
-      serverError: false,
-    };
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchSummary;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchSummary();
-  },
-  methods: {
-    fetchSummary: function () {
-      this.fetch(`/api/summary`)
+    const passed = ref(null);
+    const failed = ref(null);
+    const unknown = ref(null);
+    const serverError = ref(false);
+
+    const fetchSummary = () => {
+      fetch(`/api/summary`)
         .then((scrutinyData) => {
           const devices = Object.values(scrutinyData.data.summary);       
           const availableDevices = devices.filter(
@@ -56,22 +51,36 @@ export default {
               device.device.archived === false &&
               !device.device.DeletedAt
           );
-          this.passed =
+          passed.value =
             availableDevices.filter(
               (device) => 
                 device.device.device_status === 0)?.length || 0;
-          this.failed =
+          failed.value =
             availableDevices.filter(
               (device) =>
                 device.device.device_status > 0 &&
                 device.device.device_status <= 3)?.length || 0;
-          this.unknown = availableDevices.length - (this.passed + this.failed) || 0;
+          unknown.value = availableDevices.length - (passed.value + failed.value) || 0;
         })
         .catch((e) => {
           console.error(e);
-          this.serverError = true;
+          serverError.value = true;
         });
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchSummary);
+
+    // Initial data fetch
+    fetchSummary();
+
+    return {
+      passed,
+      failed,
+      unknown,
+      serverError,
+      fetchSummary
+    };
   },
 };
 </script>

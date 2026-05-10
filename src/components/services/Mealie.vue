@@ -18,51 +18,70 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Mealie",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    stats: null,
-    meal: null,
-  }),
-  computed: {
-    mealtext: function () {
-      if (this.meal && this.meal.length > 0) {
-        return `Today: ${this.meal[0].recipe.name}`;
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
+
+    const stats = ref(null);
+    const meal = ref(null);
+
+    const mealtext = computed(() => {
+      if (meal.value && meal.value.length > 0) {
+        return `Today: ${meal.value[0].recipe.name}`;
       }
       return null;
-    },
-    statsText: function () {
-      if (this.stats) {
-        return `Happily keeping ${this.stats.totalRecipes} recipes organized`;
+    });
+
+    const statsText = computed(() => {
+      if (stats.value) {
+        return `Happily keeping ${stats.value.totalRecipes} recipes organized`;
       }
       return null;
-    },
-  },
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+    });
+
+    const fetchStatus = async () => {
       const headers = {
-        Authorization: "Bearer " + this.item.apikey,
+        Authorization: "Bearer " + props.item.apikey,
         Accept: "application/json",
       };
 
-      if (this.item.subtitle != null) return;
+      if (props.item.subtitle != null) return;
 
-      this.meal = await this.fetch("/api/groups/mealplans/today", {
-        headers,
-      }).catch((e) => console.log(e));
-      this.stats = await this.fetch("/api/admin/about/statistics", {
-        headers,
-      }).catch((e) => console.log(e));
-    },
+      try {
+        meal.value = await fetch("/api/groups/mealplans/today", {
+          headers,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+
+      try {
+        stats.value = await fetch("/api/admin/about/statistics", {
+          headers,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchStatus();
+
+    return {
+      stats,
+      meal,
+      mealtext,
+      statsText,
+      fetchStatus
+    };
   },
 };
 </script>

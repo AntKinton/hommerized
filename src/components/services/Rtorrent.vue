@@ -23,119 +23,127 @@
 </template>
 
 <script>
-// Units to add to download and upload rates.
-const units = ["B", "kiB", "MiB", "GiB"];
-
-// Take the rate in bytes and keep dividing it by 1k until the lowest
-// value for which we have a unit is determined. Return the value with
-// up to two decimals as a string and unit/s appended.
-const displayRate = (rate) => {
-  let i = 0;
-
-  while (rate > 1000 && i < units.length) {
-    rate /= 1000;
-    i++;
-  }
-
-  return (
-    Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(
-      rate || 0,
-    ) + ` ${units[i]}/s`
-  );
-};
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
+import { formatSpeed } from '@/utils/formatters.js';
 
 export default {
   name: "RTorrent",
   props: { item: Object },
-  // Properties for download, upload, torrent count and errors.
-  data: () => ({ dl: null, ul: null, count: null, error: null }),
-  // Computed properties for the rate labels.
-  computed: {
-    downRate: function () {
-      return displayRate(this.dl);
-    },
-    upRate: function () {
-      return displayRate(this.ul);
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchAllData;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Fetch the initial values.
-    this.fetchAllData();
-  },
-  methods: {
+    // Properties for download, upload, torrent count and errors.
+    const dl = ref(null);
+    const ul = ref(null);
+    const count = ref(null);
+    const error = ref(null);
+
+    // Computed properties for rate labels.
+    const downRate = computed(() => {
+      return formatSpeed(dl.value);
+    });
+
+    const upRate = computed(() => {
+      return formatSpeed(ul.value);
+    });
+
     // Combined method for scheduler - fetches both rates and count
-    fetchAllData: async function () {
-      this.fetchRates();
-      this.fetchCount();
-    },
-    // Perform two calls to the XML-RPC service and fetch download
-    // and upload rates. Values are saved to the `ul` and `dl`
-    // properties.
-    fetchRates: async function () {
-      this.getRate("throttle.global_up.rate")
-        .then((ul) => (this.ul = ul))
-        .catch(() => (this.error = true));
+    const fetchAllData = async () => {
+      await fetchRates();
+      await fetchCount();
+    };
 
-      this.getRate("throttle.global_down.rate")
-        .then((dl) => (this.dl = dl))
-        .catch(() => (this.error = true));
-    },
-    // Perform a call to the XML-RPC service to fetch the number of
+    // Perform two calls to XML-RPC service and fetch download
+    // and upload rates. Values are saved to `ul` and `dl`
+    // properties.
+    const fetchRates = async () => {
+      await getRate("throttle.global_up.rate")
+        .then((ulRate) => (ul.value = ulRate))
+        .catch(() => (error.value = true));
+
+      await getRate("throttle.global_down.rate")
+        .then((dlRate) => (dl.value = dlRate))
+        .catch(() => (error.value = true));
+    };
+
+    // Perform a call to XML-RPC service to fetch number of
     // torrents.
-    fetchCount: async function () {
-      this.getCount().catch(() => (this.error = true));
-    },
-    // Fetch a numeric value from the XML-RPC service by requesting
-    // the specified method name and parsing the XML. The response
-    // is expected to adhere to the structure of a single numeric
+    const fetchCount = async () => {
+      await getCount().catch(() => (error.value = true));
+    };
+
+    // Fetch a numeric value from XML-RPC service by requesting
+    // specified method name and parsing XML. The response
+    // is expected to adhere to structure of a single numeric
     // value.
-    getRate: async function (methodName) {
-      return this.getXml(methodName).then((xml) =>
+    const getRate = async (methodName) => {
+      return await getXml(methodName).then((xml) =>
         parseInt(
           xml.getElementsByTagName("value")[0].firstChild.textContent,
           10,
         ),
       );
-    },
-    // Fetch the numer of torrents by requesting the download list
-    // and counting the number of entries therein.
-    getCount: async function () {
-      return this.getXml("download_list").then((xml) => {
+    };
+
+    // Fetch number of torrents by requesting download list
+    // and counting number of entries therein.
+    const getCount = async () => {
+      return await getXml("download_list").then((xml) => {
         const arrayEl = xml.getElementsByTagName("array");
-        this.count = arrayEl
+        count.value = arrayEl
           ? arrayEl[0].getElementsByTagName("value").length
           : 0;
       });
-    },
-    // Perform a call to the XML-RPC service and parse the response
+    };
+
+    // Perform a call to XML-RPC service and parse response
     // as XML, which is then returned.
-    getXml: async function (methodName) {
+    const getXml = async (methodName) => {
       const headers = { "Content-Type": "text/xml" };
 
-      if (this.item.username && this.item.password) {
+      if (props.item.username && props.item.password) {
         headers["Authorization"] =
-          `${this.item.username}:${this.item.password}`;
+          `${props.item.username}:${props.item.password}`;
       }
 
-      return fetch(`${this.item.xmlrpc.replace(/\/$/, "")}/RPC2`, {
+      const response = await fetch(`${props.item.xmlrpc.replace(/\/$/, "")}/RPC2`, {
         method: "POST",
         headers,
         body: `<methodCall><methodName>${methodName}</methodName></methodCall>`,
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw Error(response.statusText);
-          }
+      });
 
-          return response.text();
-        })
-        .then((text) =>
-          Promise.resolve(new DOMParser().parseFromString(text, "text/xml")),
-        );
-    },
+      if (!response.ok) {
+        throw Error(response.statusText);
+      }
+
+      const text = await response.text();
+      return new DOMParser().parseFromString(text, "text/xml");
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchAllData);
+
+    // Fetch initial values.
+    fetchAllData();
+
+    return {
+      dl,
+      ul,
+      count,
+      error,
+      downRate,
+      upRate,
+      fetchAllData,
+      fetchRates,
+      fetchCount,
+      getRate,
+      getCount,
+      getXml
+    };
   },
 };
 </script>

@@ -20,74 +20,91 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Emby",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    status: "",
-    albumCount: 0,
-    songCount: 0,
-    movieCount: 0,
-    seriesCount: 0,
-    episodeCount: 0,
-  }),
-  computed: {
-    embyCount: function () {
-      if (this.item.libraryType === "music")
-        return `${this.songCount} songs, ${this.albumCount} albums`;
-      else if (this.item.libraryType === "movies")
-        return `${this.movieCount} movies`;
-      else if (this.item.libraryType === "series")
-        return `${this.episodeCount} eps, ${this.seriesCount} series`;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const status = ref("");
+    const albumCount = ref(0);
+    const songCount = ref(0);
+    const movieCount = ref(0);
+    const seriesCount = ref(0);
+    const episodeCount = ref(0);
+
+    const embyCount = computed(() => {
+      if (props.item.libraryType === "music")
+        return `${songCount.value} songs, ${albumCount.value} albums`;
+      else if (props.item.libraryType === "movies")
+        return `${movieCount.value} movies`;
+      else if (props.item.libraryType === "series")
+        return `${episodeCount.value} eps, ${seriesCount.value} series`;
       else return `wrong library type 💀`;
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchAll;
+    });
 
-    // Initial data fetch
-    this.fetchAll();
-  },
-  methods: {
-    fetchAll: async function () {
-      this.fetchServerStatus();
+    const fetchAll = async () => {
+      await fetchServerStatus();
 
-      if (!this.item.subtitle) {
-        this.fetchServerMediaStats();
+      if (!props.item.subtitle) {
+        await fetchServerMediaStats();
       }
-    },
-    fetchServerStatus: async function () {
-      this.fetch("/System/info/public")
-        .then((response) => {
-          if (response.Id) this.status = "running";
-          else throw new Error();
-        })
-        .catch((e) => {
-          console.log(e);
-          this.status = "dead";
-        });
-    },
-    fetchServerMediaStats: async function () {
+    };
+
+    const fetchServerStatus = async () => {
+      try {
+        const response = await fetch("/System/info/public");
+        if (response.Id) status.value = "running";
+        else throw new Error();
+      } catch (e) {
+        console.log(e);
+        status.value = "dead";
+      }
+    };
+
+    const fetchServerMediaStats = async () => {
       const headers = {
-        "X-Emby-Token": this.item.apikey,
+        "X-Emby-Token": props.item.apikey,
       };
 
-      var data = await this.fetch("/items/counts", { headers }).catch((e) => {
+      try {
+        const data = await fetch("/items/counts", { headers });
+        albumCount.value = data.AlbumCount;
+        songCount.value = data.SongCount;
+        movieCount.value = data.MovieCount;
+        seriesCount.value = data.SeriesCount;
+        episodeCount.value = data.EpisodeCount;
+      } catch (e) {
         console.log(e);
-      });
+      }
+    };
 
-      this.albumCount = data.AlbumCount;
-      this.songCount = data.SongCount;
-      this.movieCount = data.MovieCount;
-      this.seriesCount = data.SeriesCount;
-      this.episodeCount = data.EpisodeCount;
-    },
+    // Initialize auto-update
+    initAutoUpdate(fetchAll);
+
+    // Initial data fetch
+    fetchAll();
+
+    return {
+      status,
+      albumCount,
+      songCount,
+      movieCount,
+      seriesCount,
+      episodeCount,
+      embyCount,
+      fetchAll,
+      fetchServerStatus,
+      fetchServerMediaStats
+    };
   },
 };
 </script>

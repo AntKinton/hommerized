@@ -21,47 +21,59 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Mylar",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => {
-    return {
-      upcoming: null,
-      wanted: null,
-      warnings: null,
-      errors: null,
-      serverError: false,
-    };
-  },
-  created: function () {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchConfig;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchConfig();
-  },
-  methods: {
-    fetchConfig: function () {
+    const upcoming = ref(null);
+    const wanted = ref(null);
+    const warnings = ref(null);
+    const errors = ref(null);
+    const serverError = ref(false);
+
+    const fetchConfig = () => {
       const handleError = (e) => {
         console.error(e);
-        this.serverError = true;
+        serverError.value = true;
       };
-      this.fetch(`/api?cmd=getUpcoming&apikey=${this.item.apikey}`)
+      
+      fetch(`/api?cmd=getUpcoming&apikey=${props.item.apikey}`)
         .then((upcoming) => {
-          this.upcoming = upcoming.length;
+          upcoming.value = upcoming.length;
         })
         .catch(handleError);
-      this.fetch(`/api?cmd=getWanted&apikey=${this.item.apikey}`)
+        
+      fetch(`/api?cmd=getWanted&apikey=${props.item.apikey}`)
         .then((wanted) => {
-          this.wanted = wanted.issues.length + wanted.annuals.length;
+          wanted.value = wanted.issues.length + wanted.annuals.length;
         })
         .catch(handleError);
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchConfig);
+
+    // Initial data fetch
+    fetchConfig();
+
+    return {
+      upcoming,
+      wanted,
+      warnings,
+      errors,
+      serverError,
+      fetchConfig
+    };
   },
 };
 </script>

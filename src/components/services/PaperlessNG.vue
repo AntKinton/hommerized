@@ -15,37 +15,49 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Paperless",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    api: null,
-  }),
-  created() {
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
-      if (this.item.subtitle != null) return;
+  setup(props) {
+    const {
+      fetch
+    } = useService(props.item);
 
-      const apikey = this.item.apikey;
+    const api = ref(null);
+
+    const fetchStatus = async () => {
+      if (props.item.subtitle != null) return;
+      
+      const apikey = props.item.apikey;
       if (!apikey) {
         console.error(
-          "apikey is not present in config.yml for the paperless entry!",
+          "apikey is not present in config.yml for paperless entry!",
         );
         return;
       }
-      this.api = await this.fetch("/api/documents/", {
-        headers: {
-          Authorization: "Token " + this.item.apikey,
-        },
-      }).catch((e) => console.log(e));
-    },
+      
+      try {
+        api.value = await fetch("/api/documents/", {
+          headers: {
+            Authorization: "Token " + props.item.apikey,
+          },
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchStatus();
+
+    return {
+      api,
+      fetchStatus
+    };
   },
 };
 </script>

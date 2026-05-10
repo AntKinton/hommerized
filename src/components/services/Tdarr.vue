@@ -27,41 +27,38 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Tdarr",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    stats: null,
-    error: false,
-  }),
-  computed: {
-    queue: function () {
-      if (!this.stats) {
-        return "";
-      }
-      return this.stats.table1Count;
-    },
-    errored: function () {
-      if (!this.stats) {
-        return "";
-      }
-      return this.stats.table6Count;
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
 
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+    const stats = ref(null);
+    const error = ref(false);
+
+    const queue = computed(() => {
+      if (!stats.value) {
+        return "";
+      }
+      return stats.value.table1Count;
+    });
+
+    const errored = computed(() => {
+      if (!stats.value) {
+        return "";
+      }
+      return stats.value.table6Count;
+    });
+
+    const fetchStatus = async () => {
       try {
         const options = {
           method: "POST",
@@ -80,14 +77,28 @@ export default {
             timeout: 1000,
           }),
         };
-        const response = await this.fetch(`/api/v2/cruddb`, options);
-        this.error = false;
-        this.stats = response;
+        const response = await fetch("/api/v2/cruddb", options);
+        error.value = false;
+        stats.value = response;
       } catch (e) {
-        this.error = true;
+        error.value = true;
         console.error(e);
       }
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      stats,
+      error,
+      queue,
+      errored,
+      fetchStatus
+    };
   },
 };
 </script>

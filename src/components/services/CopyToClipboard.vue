@@ -14,22 +14,28 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "CopyToClipboard",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    animate: false,
-  }),
-  methods: {
-    copy() {
-      navigator.clipboard.writeText(this.item.clipboard);
-      this.animate = true;
-    },
+  setup(props) {
+    useService(props.item);
+
+    const animate = ref(false);
+
+    const copy = () => {
+      navigator.clipboard.writeText(props.item.clipboard);
+      animate.value = true;
+    };
+
+    return {
+      animate,
+      copy
+    };
   },
 };
 </script>

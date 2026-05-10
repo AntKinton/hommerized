@@ -36,65 +36,79 @@
 </template>
 
 <script>
-import service from "@/mixins/service.js";
+import { ref, computed } from 'vue';
+import { useService } from '@/composables/useService.js';
 
 export default {
   name: "Miniflux",
-  mixins: [service],
   props: {
     item: Object,
   },
-  data: () => ({
-    unreadEntries: 0,
-    unreadFeeds: 0,
-    isHealthy: false,
-    loading: true,
-    style: "status",
-  }),
-  computed: {
-    status: function () {
-      if (!this.isHealthy) {
+  setup(props) {
+    const {
+      fetch,
+      initAutoUpdate
+    } = useService(props.item);
+
+    const unreadEntries = ref(0);
+    const unreadFeeds = ref(0);
+    const isHealthy = ref(false);
+    const loading = ref(true);
+    const style = ref("status");
+
+    const status = computed(() => {
+      if (!isHealthy.value) {
         return "Error";
       }
-      return this.unreadEntries > 0 ? "Unread" : "Online";
-    },
-    statusClass: function () {
-      return this.status.toLowerCase();
-    },
-  },
-  created() {
-    // Set up auto-update method for the scheduler
-    this.autoUpdateMethod = this.fetchStatus;
+      return unreadEntries.value > 0 ? "Unread" : "Online";
+    });
 
-    // Initial data fetch
-    this.fetchStatus();
-  },
-  methods: {
-    fetchStatus: async function () {
+    const statusClass = computed(() => {
+      return status.value.toLowerCase();
+    });
+
+    const fetchStatus = async () => {
       const headers = {
-        "X-Auth-Token": this.item.apikey,
+        "X-Auth-Token": props.item.apikey,
       };
 
       let counters;
       try {
-        counters = await this.fetch("/v1/feeds/counters", { headers });
-        this.isHealthy = true;
+        counters = await fetch("/v1/feeds/counters", { headers });
+        isHealthy.value = true;
       } catch (e) {
         console.log(e);
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
 
-      if (!this.isHealthy) {
+      if (!isHealthy.value) {
         return;
       }
 
       const unreads = Object.values(counters.unreads || {});
-      this.unreadFeeds = unreads.length;
-      this.unreadEntries = unreads.reduce((accumulator, value) => {
+      unreadFeeds.value = unreads.length;
+      unreadEntries.value = unreads.reduce((accumulator, value) => {
         return accumulator + value;
       }, 0);
-    },
+    };
+
+    // Initialize auto-update
+    initAutoUpdate(fetchStatus);
+
+    // Initial data fetch
+    fetchStatus();
+
+    return {
+      unreadEntries,
+      unreadFeeds,
+      isHealthy,
+      loading,
+      style,
+      status,
+      statusClass,
+      fetchStatus
+    };
   },
 };
 </script>
