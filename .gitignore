@@ -20,11 +20,18 @@ yarn-error.log*
 *.sln
 *.sw?
 
-# App configuration
+# Configuration files
 config.yml
+modules.yml
+policy-rules.yml
+groups-policy.yml
+
 
 .drone.yml
 
 # Specific Agent file
 CLAUDE.md
 GEMINI.md
+
+# AI Documentation
+AI-KEYS.md
