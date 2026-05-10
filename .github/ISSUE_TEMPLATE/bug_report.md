@@ -22,7 +22,7 @@ Please include any usefull information:
 If applicable, add screenshots to help explain your problem.
 
 **Configuration**
-If applicable, copy related homer yaml configuration here.
+If applicable, copy related hommerized (or homer) yaml configuration here.
 ```yml
 
 ```
