@@ -11,6 +11,7 @@ const MIN_INTERVAL_MS = TICK_INTERVAL_MS; // Minimum allowed update interval
 class UpdateScheduler {
   constructor() {
     this.registeredComponents = new Map();
+    this.frequencyGroups = new Map(); // Group by interval for optimization
     this.globalTimer = null;
     this.tickCount = 0;
   }
@@ -36,25 +37,44 @@ class UpdateScheduler {
       return;
     }
 
-    this.registeredComponents.set(componentId, {
+    const componentConfig = {
       component,
       interval: intervalSeconds,
       method: updateMethod,
       lastUpdate: 0,
-    });
+    };
+
+    this.registeredComponents.set(componentId, componentConfig);
+
+    // Add to frequency group for optimization
+    if (!this.frequencyGroups.has(intervalSeconds)) {
+      this.frequencyGroups.set(intervalSeconds, new Set());
+    }
+    this.frequencyGroups.get(intervalSeconds).add(componentId);
 
     this.startGlobalTimer();
-    console.log(
+    /*console.log(
       `UpdateScheduler: Registered component with ${intervalSeconds}s interval`,
-    );
+    );*/
   }
 
   unregister(component) {
     const componentId = this.generateComponentId(component);
+    const componentConfig = this.registeredComponents.get(componentId);
     const removed = this.registeredComponents.delete(componentId);
 
     if (removed) {
-      console.log("UpdateScheduler: Unregistered component");
+      //console.log("UpdateScheduler: Unregistered component");
+      
+      // Remove from frequency group
+      if (componentConfig && this.frequencyGroups.has(componentConfig.interval)) {
+        this.frequencyGroups.get(componentConfig.interval).delete(componentId);
+        
+        // Clean up empty frequency groups
+        if (this.frequencyGroups.get(componentConfig.interval).size === 0) {
+          this.frequencyGroups.delete(componentConfig.interval);
+        }
+      }
     }
 
     if (this.registeredComponents.size === 0) {
@@ -76,7 +96,7 @@ class UpdateScheduler {
         this.processUpdates();
       }, TICK_INTERVAL_MS);
 
-      console.log("UpdateScheduler: Global timer started");
+      //console.log("UpdateScheduler: Global timer started");
     }
   }
 
@@ -85,19 +105,26 @@ class UpdateScheduler {
       clearInterval(this.globalTimer);
       this.globalTimer = null;
       this.tickCount = 0;
-      console.log("UpdateScheduler: Global timer stopped");
+      //console.log("UpdateScheduler: Global timer stopped");
     }
   }
 
   processUpdates() {
-    for (const [, config] of this.registeredComponents) {
-      try {
-        if (this.tickCount - config.lastUpdate >= config.interval) {
-          config.method.call(config.component);
-          config.lastUpdate = this.tickCount;
+    // Process by frequency groups for better performance
+    for (const [interval, componentIds] of this.frequencyGroups) {
+      // Check if this frequency group should update this tick
+      if (this.tickCount % interval === 0) {
+        for (const componentId of componentIds) {
+          const config = this.registeredComponents.get(componentId);
+          if (config) {
+            try {
+              config.method.call(config.component);
+              config.lastUpdate = this.tickCount;
+            } catch (error) {
+              console.error("UpdateScheduler: Error during component update:", error);
+            }
+          }
         }
-      } catch (error) {
-        console.error("UpdateScheduler: Error during component update:", error);
       }
     }
   }
