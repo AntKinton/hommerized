@@ -2,11 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### 🐛 Bug Fixes
+
+- **docker:** Update entrypoint and ignore rules for clean container builds
+- **policy:** Handle disabled policies via module-extras and update defaults
+
+### 📚 Documentation
+
+- **core:** Expand documentation for layout, policies, and podman deployment
+
 ## [26.05.2] - 2026-05-14
 
 ### ⚙️ Miscellaneous Tasks
 
 - **config:** Ignore dev-dist directory
+- **release:** Update changelog for v26.05.2
 
 ### 🎨 Styling
 
