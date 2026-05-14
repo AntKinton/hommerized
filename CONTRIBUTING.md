@@ -17,7 +17,7 @@ UX and usability. If you are looking for a full featured dashboard, there are to
 
 ### Code of conduct and guidelines
 
-First of all, we expect everyone (contributors and maintainers alike) to respect the [Code of conduct](https://github.com/bastienwirtz/homer/blob/main/CODE_OF_CONDUCT.md). It is not a recommendation, it is mandatory.
+First of all, we expect everyone (contributors and maintainers alike) to respect the [Code of conduct](https://github.com/AntKinton/hommerized/blob/main/CODE_OF_CONDUCT.md). It is not a recommendation, it is mandatory.
 
 For all contributions, please respect the following guidelines:
 

@@ -22,7 +22,7 @@ You can either:
 > - **Do not** use env var to set the GID / UID of the user running container. Use the Docker `user` option.
 > - **Do not** use 0:0 as a user value, it would be a security risk, and it's not guaranty to work.
 
-Check this [thread](https://github.com/bastienwirtz/homer/issues/459) for more information about debugging
+Check this [thread](https://github.com/AntKinton/hommerized/issues/459) for more information about debugging
 permission issues.
 
 ## My service card doesn't work, nothing appears or offline status is displayed (pi-hole, sonarr, ping, ...)

@@ -4,19 +4,19 @@
 
 # Enable groups policy for access control
 groupsPolicy:
-  enabled: false
+  enabled: true
   policyFile: "/assets/config/policy-rules.yml"
   fallback: "allow"
 
 # More header configuration
-header-additional:
-  showUserName: false
-  showUserGroups: false
+header-additions:
+  showUserName: true
+  showUserGroups: true
 
 # More navbar configuration
-navbar-additional:
-  showLogoutItem: false
-  logoutEndpoint: "https://auth.your-domain.com/logout"
+navbar-additions:
+  showLogoutButton: true
+  logoutEndpoint: "https://auth.asgard.vpn/logout"
 
 # Additional enhanced modules can be added here
 # Examples:
@@ -26,3 +26,14 @@ navbar-additional:
 #   level: "debug"
 #   endpoint: "/api/logs"
 #
+# customThemes:
+#   enabled: true
+#   themesPath: "/assets/custom-themes"
+#
+# apiIntegrations:
+#   enabled: true
+#   endpoints:
+#     - name: "weather"
+#       url: "/api/weather"
+#     - name: "notifications"
+#       url: "/api/notifications"

@@ -13,7 +13,7 @@
  <strong>🔧 Hommerized Fork</strong> - Optimized for rootless Podman quadlet deployment
 </h4>
 <p align="center">
-  <a href="https://www.buymeacoffee.com/bastien" target="_blank"><img src="https://raw.githubusercontent.com/AntKinton/homerized/main/images/bmc-button_4him.svg" alt="Buy A Coffee for Bastien, Homer's father" height="41" width="174"></a>
+  <a href="https://www.buymeacoffee.com/bastien" target="_blank"><img src="https://raw.githubusercontent.com/AntKinton/homerized/main/images/bmc-button_4him.png" alt="Buy A Coffee for Bastien, Homer's father" height="41" width="174"></a>
 <p>
 <p align="center">
  <a href="https://opensource.org/licenses/Apache-2.0"><img
@@ -37,12 +37,9 @@
  <a href="https://vuejs.org/guide/extras/composition-api-faq.html"><img
   alt="Composition API"
   src="https://img.shields.io/badge/Composition_API-42D392?logo=vue.js&logoColor=white"></a>
- <a href="https://github.com/AntKinton/homerized/releases/latest/download/hommerized.zip"><img
-  alt="Download hommerized un-static build"
-  src="https://img.shields.io/badge/Download-hommerized.zip-orange"></a>
  <img
   alt="Version"
-  src="https://img.shields.io/badge/Version-26.04.2-blue">
+  src="https://img.shields.io/badge/Version-26.10.2-blue">
 </p>
 
 <p align="center">
@@ -204,4 +201,4 @@ Then your dashboard is ready to use in the `/dist` directory.
 ## Credits
 
 - Original project: [Bastien's Homer](https://github.com/bastienwirtz/homer)
-- My fork: [AntKinton's Hommerized](https://github.com/AntKinton/homerized)
+- My fork: [AntKinton's Hommerized](https://github.com/AntKinton/hommerized)
