@@ -1,5 +1,5 @@
 import { ref, computed, onBeforeUnmount } from 'vue';
-import { useConfigStore } from '../stores/config.js';
+import { useConfigStore } from '../stores/module-config.js';
 
 /**
  * Service composable to replace service.js mixin

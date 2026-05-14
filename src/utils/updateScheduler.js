@@ -1,6 +1,6 @@
 /**
  * This module provides a single-timer solution for managing automatic data updates
- * across all service components in Homer. Instead of each service component creating
+ * across all service components in Hommerized. Instead of each service component creating
  * its own setInterval timer, all components register with this centralized scheduler.
  *
  */
