@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "vite",
     "mock": "sirv dummy-data/ --cors",
-    "build": "vue-tsc --noEmit && vite build",
-    "build:skip-types": "vite build",
+    "build": "vite build",
+    "build:types": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --port 5050",
     "type-check": "vue-tsc --noEmit",
     "type-check:watch": "vue-tsc --noEmit --watch",
