@@ -216,4 +216,4 @@ The `/assets/manifest.json` can also be edited to change the app (pwa) name, des
 
 ## PWA Icons
 
-See icons documentation [here](https://github.com/AntKinton/hommerized/blob/main/public/assets/icons/README.md).
+See icons documentation [here](https://github.com/AntKinton/hommerized/blob/dev/public/assets/icons/README.md).

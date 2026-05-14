@@ -1,6 +1,6 @@
 # Development
 
-If you want to contribute to Homer, please read the [contributing guidelines](https://github.com/AntKinton/hommerized/blob/main/CONTRIBUTING.md) first. 
+If you want to contribute to Homer, please read the [contributing guidelines](https://github.com/AntKinton/hommerized/blob/dev/CONTRIBUTING.md) first. 
 
 ```sh
 pnpm install

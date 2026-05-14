@@ -1,7 +1,7 @@
 {
   "$id": "https://raw.githubusercontent.com/AntKinton/hommerized/main/.schema/config-schema.json",
   "$schema": "http://json-schema.org/draft-07/schema",
-  "description": "https://github.com/AntKinton/hommerized/blob/main/docs/configuration.md",
+  "description": "https://github.com/AntKinton/hommerized/blob/dev/docs/configuration.md",
   "examples": [],
   "title": "Hommerized Dashboard configuration",
   "type": "object",

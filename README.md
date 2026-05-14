@@ -115,7 +115,7 @@ Description=Hommerized Dashboard
 After=network-online.target
 
 [Container]
-Image=ghcr.io/AntKinton/hommerized:latest
+Image=ghcr.io/antkinton/hommerized:latest
 Name=hommerized
 PodmanArgs=--user=1000:1000
 Environment=INIT_ASSETS=1
@@ -147,7 +147,7 @@ systemctl --user status hommerized
 ```yaml
 services:
   hommerized:
-    image: ghcr.io/AntKinton/homerized:latest
+    image: ghcr.io/antkinton/hommerized:latest
     container_name: hommerized
     volumes:
       - ~/.local/share/hommerized/assets:/www/assets:Z # Make sure your local config directory exists
