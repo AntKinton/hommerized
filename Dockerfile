@@ -27,8 +27,8 @@ LABEL \
     org.opencontainers.image.ref.name="ghcr.io/antkinton/hommerized:${VERSION_TAG}" \
     org.opencontainers.image.version="$VERSION_TAG" \
     org.opencontainers.image.licenses="Apache-2.0 license" \
-    org.opencontainers.image.source="https://github.com/AntKinton/homerized" \
-    org.opencontainers.image.url="https://github.com/AntKinton/homerized/pkgs/container/hommerized"
+    org.opencontainers.image.source="https://github.com/AntKinton/hommerized" \
+    org.opencontainers.image.url="https://github.com/AntKinton/hommerized/pkgs/container/hommerized"
 
 ENV GID=1000 \
     UID=1000 \

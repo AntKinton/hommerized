@@ -1,6 +1,19 @@
-assets/*
-dockerfile
-*.md
-.git
-screenshot.png
 node_modules
+dist
+dev-dist
+.git
+*.md
+dockerfile
+screenshot.png
+
+# Ignore active configuration files in the image
+public/assets/config/*.yml
+!public/assets/config/*.yml.dist
+!public/assets/config/*.yml.sample
+
+# Ignore other local configs
+config.yml
+modules.yml
+policy-rules.yml
+groups-policy.yml
+module-extras.yml
