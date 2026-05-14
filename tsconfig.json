@@ -1,0 +1,60 @@
+{
+  "compilerOptions": {
+    // Migración gradual (comenzamos relajados)
+    "allowJs": true,
+    "checkJs": false,
+    "strict": false,
+    "noImplicitAny": false,
+    
+    // Vue 3 + Vite específico
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    
+    // Configuración de paths (ajusta a tu estructura)
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/stores/*": ["./src/stores/*"],
+      "@stores-ts/*": ["./src/stores/ts/*"],
+      "@/services/*": ["./src/services/*"],
+      "@services-ts/*": ["./src/services/ts/*"],
+      "@/composables/*": ["./src/composables/*"],
+      "@composables-ts/*": ["./src/composables/ts/*"],
+      "@utils-ts/*": ["./src/utils/ts/*"]
+    },
+    
+    // Tipos globales
+    "types": ["vite/client", "node"],
+    
+    // Output (Vite maneja esto, pero TypeScript lo necesita)
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true
+  },
+  
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.vue",
+    "src/**/*.js",    // Importante: incluir JS existente
+    "src/**/*.jsx"
+  ],
+  
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/legacy/**/*.js"  // Opcional: excluir si tienes código legacy
+  ],
+  
+  "vueCompilerOptions": {
+    "target": 3,
+    "strictTemplates": false  // Comenzamos false, luego true
+  }
+}

@@ -25,7 +25,7 @@
     <p>
       <a
         class="has-text-weight-bold has-text-danger-dark"
-        href="https://github.com/antkinton/hommerized/blob/main/docs/configuration.md#connectivity-checks"
+        href="https://github.com/AntKinton/hommerized/blob/dev/docs/configuration.md#connectivity-checks"
       >
         More information &rarr;
       </a>

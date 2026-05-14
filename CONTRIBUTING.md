@@ -17,7 +17,7 @@ UX and usability. If you are looking for a full featured dashboard, there are to
 
 ### Code of conduct and guidelines
 
-First of all, we expect everyone (contributors and maintainers alike) to respect the [Code of conduct](https://github.com/AntKinton/hommerized/blob/main/CODE_OF_CONDUCT.md). It is not a recommendation, it is mandatory.
+First of all, we expect everyone (contributors and maintainers alike) to respect the [Code of conduct](https://github.com/AntKinton/hommerized/blob/dev/CODE_OF_CONDUCT.md). It is not a recommendation, it is mandatory.
 
 For all contributions, please respect the following guidelines:
 
@@ -35,7 +35,7 @@ feel free to open an issue to present your idea.
 
 ### Working with AI Agents
 
-This repository include an [`AGENTS.md`](https://github.com/AntKinton/hommerized/blob/main/AGENTS.md) instruction file for agents. It use an [open format](https://agents.md/), which most agent should natively use for context. However, for specific agent like Claude Code or Gemini, you will have to specifically ask it to read the file or create symlink:  
+This repository include an [`AGENTS.md`](https://github.com/AntKinton/hommerized/blob/dev/AGENTS.md) instruction file for agents. It use an [open format](https://agents.md/), which most agent should natively use for context. However, for specific agent like Claude Code or Gemini, you will have to specifically ask it to read the file or create symlink:  
 
 ```sh
 ln -s AGENTS.md CLAUDE.md
@@ -59,10 +59,10 @@ When contributing, please ensure:
 ### How to submit a contribution
 
 The general process to submit a contribution is as follow:
-1. Take a look at the [development guideline](https://github.com/AntKinton/hommerized/blob/main/docs/development.md).
+1. Take a look at the [development guideline](https://github.com/AntKinton/hommerized/blob/dev/docs/development.md).
 2. Create your own fork of the code
 3. Do changes in your fork
-4. Make sure to fill the [pull request description](https://github.com/AntKinton/hommerized/blob/main/.github/PULL_REQUEST_TEMPLATE.md) properly.
+4. Make sure to fill the [pull request description](https://github.com/AntKinton/hommerized/blob/dev/.github/PULL_REQUEST_TEMPLATE.md) properly.
 5. Test authentication and group filtering features if relevant
 6. Verify Podman quadlet compatibility when applicable
 
