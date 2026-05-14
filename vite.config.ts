@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       __APP_VERSION__: JSON.stringify(version),
-      __BASED_ON__: JSON.stringify(basedOn),
+      __BASED_ON__: basedOn,
     },
     // CSS configuration to silence Dart Sass deprecation warnings
     css: {
