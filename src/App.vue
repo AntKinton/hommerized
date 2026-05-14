@@ -160,9 +160,11 @@ export default {
       filteredServices: 'getFilteredServices'
     }),
     showUserInfo: function () {
-      return this.user && (
-        this.shouldShowUserName || this.shouldShowUserGroups
-      );
+      if (!this.modulesInitialized || !this.authInitialized) {
+        return false;
+      }
+      
+      return Boolean(this.user && (this.shouldShowUserName || this.shouldShowUserGroups));
     },
     showLogoutButton() {
       if (!this.modulesInitialized || !this.authInitialized) {
