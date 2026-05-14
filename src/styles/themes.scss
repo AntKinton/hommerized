@@ -1,0 +1,216 @@
+// Theme system using pure CSS classes
+// This replaces the DynamicTheme component with static CSS classes
+
+// --- CENTRALIZED THEMES ---
+
+// Default theme (light)
+html.light,
+html:not(.dark) {
+  --highlight-primary: #3273dc;
+  --highlight-secondary: #209cee;
+  --highlight-hover: #363636;
+  --background: hsl(30, 8%, 95%);
+  --card-background: #ffffff; // Enforced pure white for light cards
+  --text: #363636;
+  --text-header: #1e40af;
+  --text-title: #363636;
+  --text-subtitle: #4a4a4a;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --card-shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.15);
+  --link: #3273dc;
+  --link-hover: #363636;
+  --navbar-bg: var(--highlight-primary);
+  --navbar-item: #ffffff;
+  --navbar-hover-bg: rgba(255, 255, 255, 0.15);
+  --burger-color: #ffffff;
+  --burger-hover-color: #ffffff;
+  --burger-bg: rgba(255, 255, 255, 0.1);
+  --burger-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --group-title-color: var(--highlight-primary);
+  
+  // Bulma 1.0 Burger Mapping
+  --bulma-navbar-burger-color: var(--burger-color);
+  --bulma-navbar-item-hover-color: var(--burger-hover-color);
+  --bulma-navbar-item-active-color: var(--burger-hover-color);
+
+  // Search & Icons
+  --search-bg: rgba(255, 255, 255, 0.2);
+  --search-border-focus: #ffffff;
+  --navbar-icon: rgba(255, 255, 255, 0.8);
+  --navbar-icon-hover: #ffffff;
+}
+
+// --- GLOBAL HEADER STYLE (Unifies all themes) ---
+header.hero {
+  background-color: var(--highlight-primary) !important;
+  color: white !important;
+  /* padding-top: env(safe-area-inset-top); REMOVED: Handled globally by #app-mount, prevents empty blue gaps */
+
+  .title,
+  .heading,
+  .subtitle {
+    color: white !important;
+  }
+
+}
+
+// Default theme (dark)
+html.dark,
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --highlight-primary: #1a1a1a;
+  --highlight-secondary: #2d2d2d;
+  --highlight-hover: #1a1a1a;
+  --background: #0a0a0a;
+  --card-background: #242424; // Elevated dark for cards
+  --text: #ffffff;
+  --text-header: #ffffff;
+  --text-title: #ffffff;
+  --text-subtitle: #b5b5b5;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --card-shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.6);
+  --link: #3273dc;
+  --link-hover: #ffffff;
+  --navbar-bg: #1a1a1a;
+  --navbar-item: #f5f5f5;
+  --navbar-hover-bg: rgba(255, 255, 255, 0.1);
+  --burger-color: #ffffff;
+  --burger-hover-color: #ffffff;
+  --burger-bg: rgba(255, 255, 255, 0.05);
+  --burger-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  --group-title-color: var(--text);
+
+  // Bulma 1.0 Burger Mapping
+  --bulma-navbar-burger-color: var(--burger-color);
+  --bulma-navbar-item-hover-color: var(--burger-hover-color);
+  --bulma-navbar-item-active-color: var(--burger-hover-color);
+
+  // Search & Icons
+  --search-bg: rgba(255, 255, 255, 0.1);
+  --search-border-focus: #3273dc;
+  --navbar-icon: #f5f5f5;
+  --navbar-icon-hover: #ffffff; // Pure white on hover
+}
+
+// Neon theme (light)
+html.theme-neon.light,
+html.theme-neon:not(.dark) {
+  --highlight-primary: #b5ff57;
+  --highlight-secondary: #b5ff57;
+  --highlight-hover: #e7e4e4;
+  --background: hsl(var(--bulma-scheme-h), var(--bulma-scheme-s), var(--bulma-scheme-main-l));
+  --card-background: #ffffff;
+  --text: #2d2d2d;
+  --text-header: #2d2d2d;
+  --text-title: #2d2d2d;
+  --text-subtitle: #768198;
+  --card-shadow: 0 2px 10px rgba(181, 255, 87, 0.2);
+  --card-shadow-hover: 0 5px 20px rgba(181, 255, 87, 0.4);
+  --link: #b5ff57;
+  --link-hover: #2d2d2d;
+  --navbar-bg: #ffffff;
+  --navbar-item: #1a1a1a;
+  --navbar-hover-bg: rgba(181, 255, 87, 0.15);
+  --burger-color: #1a1a1a;
+  --group-title-color: var(--highlight-primary);
+  --highlight-variant-inverted: #2d2d2d;
+
+  // Search & Icons
+  --search-bg: rgba(181, 255, 87, 0.25);
+  --search-border-focus: #90d33e; // Slightly darker green to contrast on white background
+  --navbar-icon: #1a1a1a;
+  --navbar-icon-hover: #90d33e;
+}
+
+// Neon theme (dark)
+html.theme-neon.dark,
+html.theme-neon[data-theme='dark'] {
+  --highlight-primary: #b5ff57;
+  --highlight-secondary: #b5ff57;
+  --highlight-hover: #1f2229;
+  --background: #121212;
+  --card-background: #1e1e1e;
+  --text: #ffffff;
+  --text-header: #ffffff;
+  --text-title: #ffffff;
+  --text-subtitle: #768198;
+  --card-shadow: 0 0 15px rgba(181, 255, 87, 0.1);
+  --card-shadow-hover: 0 0 25px rgba(181, 255, 87, 0.3);
+  --link: #ffffff;
+  --link-hover: #ffffff;
+  --navbar-bg: #0d0d0d;
+  --navbar-item: #ffffff;
+  --navbar-hover-bg: rgba(181, 255, 87, 0.1);
+  --burger-color: #b5ff57;
+  --group-title-color: var(--text);
+  --highlight-variant-inverted: #2d2d2d;
+
+  // Search & Icons
+  --search-bg: rgba(181, 255, 87, 0.1);
+  --search-border-focus: #b5ff57;
+  --navbar-icon: #ffffff;
+  --navbar-icon-hover: #b5ff57; // Neon glow
+}
+
+// Walkxcode theme (light)
+html.theme-walkxcode.light,
+html.theme-walkxcode:not(.dark) {
+  --highlight-primary: #111111;
+  --highlight-secondary: #fff5f2;
+  --highlight-hover: #bebebe;
+  --background: hsl(var(--bulma-scheme-h), 15%, var(--bulma-scheme-main-l));
+  --card-background: #ffffff;
+  --text: #000000;
+  --text-header: #000000;
+  --text-title: #000000;
+  --text-subtitle: #111111;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --card-shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.2);
+  --link: #3273dc;
+  --link-hover: #2e4053;
+  --navbar-bg: #ffffff;
+  --navbar-item: #111111;
+  --navbar-hover-bg: rgba(0, 0, 0, 0.05);
+  --burger-color: #111111;
+  --group-title-color: var(--highlight-primary);
+  --background-image: url("/assets/themes/walkxcode/wallpaper-light.webp");
+
+  // Search & Icons
+  --search-bg: rgba(0, 0, 0, 0.05);
+  --search-border-focus: #3273dc;
+  --navbar-icon: #111111;
+  --navbar-icon-hover: #3273dc;
+}
+
+// Walkxcode theme (dark)
+html.theme-walkxcode.dark,
+html.theme-walkxcode[data-theme='dark'] {
+  --highlight-primary: #3367d6;
+  --highlight-secondary: #4285f4;
+  --highlight-hover: #1f2347;
+  --background: #12152b;
+  --card-background: rgba(30, 34, 64, 0.9);
+  --text: #eaeaea;
+  --text-header: #fafafa;
+  --text-title: #fafafa;
+  --text-subtitle: #8b8d9c;
+  --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  --card-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.5);
+  --link: #ffffff;
+  --link-hover: #fafafa;
+  --navbar-bg: #1e2240;
+  --navbar-item: #eaeaea;
+  --navbar-hover-bg: #2a2f5a;
+  --burger-color: #4285f4;
+  --group-title-color: var(--text);
+  --background-image: url("/assets/themes/walkxcode/wallpaper.webp");
+  --border-radius: 1rem;
+
+  // Search & Icons
+  --search-bg: #2a2f5a; // Native deep blue theme background
+  --search-border-focus: #4285f4;
+  --navbar-icon: #eaeaea;
+  --navbar-icon-hover: #4285f4;
+}
+
+// End of Theme Variables Definitions

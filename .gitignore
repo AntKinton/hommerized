@@ -1,6 +1,7 @@
 .DS_Store
 node_modules
 /dist
+/dev-dist
 
 # local env files
 .env.local
@@ -35,3 +36,9 @@ GEMINI.md
 
 # AI Documentation
 AI-KEYS.md
+
+# Backup directory
+src/assets.backup
+
+# Custom styles directory (legacy)
+src/styles/custom-styles

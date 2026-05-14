@@ -21,7 +21,7 @@ function writeVersionPlugin() {
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  
+
   return {
     base: "",
     build: {
@@ -32,75 +32,84 @@ export default defineConfig(({ mode }) => {
       __BASED_ON__: JSON.stringify(basedOn),
     },
     server: {
-        host: "0.0.0.0",
+      host: "0.0.0.0",
+      port: 5173,
+      allowedHosts: env.VITE_ALLOWED_HOSTS
+        ? env.VITE_ALLOWED_HOSTS.split(',')
+        : ["localhost"],
+      hmr: {
+        overlay: true,
         port: 5173,
-        allowedHosts: env.VITE_ALLOWED_HOSTS 
-          ? env.VITE_ALLOWED_HOSTS.split(',') 
-          : ["localhost"],
+        // Dynamic HMR configuration based on environment
+        ...(env.VITE_HMR_HOST && {
+          clientPort: 443,
+          host: env.VITE_HMR_HOST,
+          protocol: 'wss'
+        }),
+        ...(!env.VITE_HMR_HOST && {
+          clientPort: 5173,
+          host: 'localhost'
+        })
+      },
+      watch: {
+        usePolling: false,
+        interval: 100,
+        ignored: ['**/node_modules/**', '**/dist/**']
+      }
     },
-  plugins: [
-    writeVersionPlugin(),
-    // Custom plugin to serve dummy-data JSON files without sourcemap injection
-    {
-      name: "dummy-data-json-handler",
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          if (req.url?.startsWith("/dummy-data/")) {
-            // Remove query parameters from URL to get the actual file path
-            const urlWithoutQuery = req.url.split("?")[0];
-            const filePath = path.join(process.cwd(), urlWithoutQuery);
-
-            if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-              res.end(fs.readFileSync(filePath, "utf8"));
-              return;
-            }
-          }
-          next();
-        });
+    // Added CSS configuration block to silence Dart Sass deprecation warnings
+    css: {
+      preprocessorOptions: {
+        scss: {
+          quietDeps: true,
+          silenceDeprecations: ['import', 'if-function', 'legacy-js-api']
+        }
+      }
+    },
+    plugins: [
+      writeVersionPlugin(),
+      vue(),
+      VitePWA({
+        registerType: "autoUpdate",
+        useCredentials: true,
+        manifestFilename: "assets/manifest.json",
+        devOptions: {
+          enabled: true, // Enable PWA in dev to allow testing standalone mode
+          type: 'module'
+        },
+        manifest: {
+          name: "Hommerized dashboard",
+          short_name: "Hommerized",
+          description: "Home Server Dashboard",
+          theme_color: "#1a1a1a",
+          background_color: "#1a1a1a",
+          start_url: "/",
+          scope: "/",
+          display: "standalone",
+          icons: [
+            {
+              src: "/assets/icons/pwa-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+            {
+              src: "/assets/icons/pwa-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+          ],
+        },
+        workbox: {
+          navigateFallback: null,
+        },
+      }),
+    ],
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
     },
-    vue(),
-    VitePWA({
-      registerType: "autoUpdate",
-      useCredentials: true,
-      manifestFilename: "assets/manifest.json",
-      manifest: {
-        name: "Hommerized dashboard",
-        short_name: "Hommerized",
-        description: "Home Server Dashboard",
-        theme_color: "#3367D6",
-        start_url: "../",
-        scope: "../",
-        icons: [
-          {
-            src: "./icons/pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "./icons/pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
-      },
-      workbox: {
-        navigateFallback: null,
-      },
-    }),
-  ],
-  resolve: {
-    alias: {
-      "~": fileURLToPath(new URL("./node_modules", import.meta.url)),
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: "modern-compiler",
-      },
-    },
-  },
   };
 });

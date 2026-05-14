@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bastienwirtz/homer/main/.schema/config-schema.json
+title: Hommerized
+subtitle: A homer fork with additional features
+logo: false
+header: true
+footer: '<p><a href="https://github.com/antkinton/hommerized">Hommerized</a> version 26.05.2 - A fork of homer with additional features made with <span class="has-text-danger">❤️</span> and powered by <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Forked from <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>' # you can set it to false
+
+theme: default
+columns: 3
+defaults:
+  layout: list
+
+# Optional message
+message:
+  style: style: "is-dark" # Custom style that respects global themes (alternatives: is-dark, is-light, is-primary, is-info, is-success, is-warning, is-danger)
+  title: "👋 Welcome!"
+  content: "Hommerized is a dead simple non-static HOMepage for your servER (or anything else) to keep your services and favorite links on hand, based on a simple yaml configuration file.<br /> Learn more at <a href='https://github.com/AntKinton/hommerized'>github.com/AntKinton/hommerized</a>"
+
+# Optional navbar
+# links: [] # Allows for navbar (dark mode, layout, and search) without any links
+links:
+  - name: "Contribute!"
+    icon: "fab fa-github"
+    url: "https://github.com/AntKinton/hommerized"
+    target: "_blank" # optional html a tag target attribute
+  - name: "Documentation"
+    icon: "fas fa-book"
+    url: "https://github.com/AntKinton/hommerized/blob/main/README.md#table-of-contents"
+  # this will link to a second homer page that will load config from additional-page.yml and keep default config values as in config.yml file
+  # see url field and assets/additional-page.yml.dist used in this example:
+  - name: "another page!"
+    icon: "fas fa-file-alt"
+    url: "#additional-page"
+
+connectivityCheck: false # Disable connectivity checks for services that support it
+# Some services examples that can be enabled on your instance
+services:
+  - name: Groupware
+    icon: fas fa-layer-group
+    items:
+      - name: Roundcube
+        type: Generic
+        logo: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/roundcube.png
+        url: https://roundmail.your-domain.com
+        target: _blank
+
+  - name: Services
+    icon: fas fa-server
+    items:
+      - name: Continuwuity/Matrix
+        type: MatrixServer
+        logo: https://cdn.jsdelivr.net/gh/selfhst/icons/png/continuwuity.png
+        url: https://matrix.your-domain.com
+        target: _blank
+  
+  - name: System
+    icon: fas fa-cogs
+    items:
+      - name: Adminer
+        type: Adminer
+        logo: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/adminer.png
+        url: https://adminer.your-domain.com
+        target: _blank
+
+  - name: Infra
+    icon: fas fa-network-wired
+    items:
+      - name: Headplane
+        type: Headplane
+        logo: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/headplane.png
+        url: https://headplane.your-domain.com/admin
+        target: _blank
+      
+  - name: Security
+    icon: fas fa-shield-alt
+    items:
+      - name: Vaultwarden
+        type: Vaultwarden
+        logo: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/vaultwarden.png
+        endpoint: /api/health-vault
+        url: https://vault.your-domain.com
+        target: _blank
+
+  - name: Development
+    icon: fas fa-code
+    items:
+      - name: Forgejo
+        type: Gitea
+        logo: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/forgejo.png
+        endpoint: /api/health-forgejo
+        url: https://forgejo.your-domain.com
+        target: _blank
+
