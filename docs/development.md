@@ -7,48 +7,43 @@ pnpm install
 pnpm dev
 ```
 
-## Custom services
+## Custom services (Adapters)
 
-Custom services are small VueJs component (see `src/components/services/`) that add little features to a classic, "static", dashboard item. It should be very simple.
-A dashboard can contain a lot of items, so performance is very important. 
+We are transitioning to a modular **Archetype/Adapter** architecture. Instead of creating new Vue components, you should now create a **Javascript Adapter** that defines the logic and selects a pre-defined **Archetype** (UI layout).
 
-The [`Generic`](https://github.com/AntKintonn/hommerized/blob/main/src/components/services/Generic.vue) service provides a typical card layout which
-you can extend to add specific features. Unless you want a completely different design, extended the generic service is the recommended way. It gives you 3 [slots](https://vuejs.org/v2/guide/components-slots.html#Named-Slots) to extend: `icon`, `content` and `indicator`. 
-Each one is **optional**, and will display the usual information if omitted.
+Available Archetypes in `src/components/archetypes/`:
+- `MetricCard`: Statistics, progress bars, numerical data.
+- `StatusCard`: UP/DOWN states, health checks.
+- `MediaCard`: Multimedia metadata, "Now Playing".
+- `NotificationCard`: Alert lists, RSS feeds.
+- `ActionCard`: Interactive buttons and actions.
+- `WeatherCard`: Meteorological data.
 
-Each service must implement the `item` [property](https://vuejs.org/v2/guide/components-props.html) and bind it the Generic component if used.
+### Adapter Skeleton
 
-### Skeleton
+Create your adapter in `src/adapters/[ServiceName].js`:
 
-```Vue
-<template>
-  <Generic :item="item">
-    <template #icon>
-      <!-- left area containing the icon -->
-    </template>
-    <template #content>
-      <!-- main area containing the title, subtitle, ... -->
-    </template>
-    <template #indicator>
-      <!-- top right area, empty by default -->
-    </template>
-  </Generic>
-</template>
-
-<script>
-import Generic from "./Generic.vue";
+```javascript
+import { fetchWrapper } from '../utils/fetchWrapper.js';
 
 export default {
-  name: "MyNewService",
-  props: {
-    item: Object,
-  },
-  components: {
-    Generic,
+  archetype: 'StatusCard', // Choose from list above
+  
+  async fetchData(item) {
+    const data = await fetchWrapper(item.url);
+    
+    return {
+      status: data.online ? 'up' : 'down',
+      metrics: [
+        { label: 'Version', value: data.version }
+      ]
+    };
   }
 };
-</script>
 ```
+
+> [!TIP]
+> The `type: Generic` is still maintained for backward compatibility. If you are creating a complex UI that doesn't fit any archetype, you can still create a Vue component in `src/components/service-components/`.
 
 ## Themes
 

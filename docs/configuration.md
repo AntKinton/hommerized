@@ -1,6 +1,6 @@
 # Configuration
 
-Homer relies on a single [yaml](http://yaml.org/) configuration file, located in the `/assets` directory.  
+Homer relies on a single [yaml](http://yaml.org/) configuration file, located in the `/assets/config` directory.  
 `.dist` sample configuration files are available to help you get started. Alternatively, the example below can be
 copied into the config file.
 
@@ -29,7 +29,7 @@ header: true # Set to false to hide the header
 # Optional: Different hotkey for search, defaults to "/"
 # hotkey:
 #   search: "Shift"
-footer: '<p><a href="https://github.com/AntKinton/hommerized">Hommerized</a> version 26.05.2 - A fork of Homer with additional features made with <span class="has-text-danger">❤️</span> and powered by <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Forked from <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>' # set false if you want to hide it.
+footer: '<p><a href="https://github.com/AntKinton/hommerized">Hommerized</a> version 26.05.3 - A fork of Homer with additional features made with <span class="has-text-danger">❤️</span> and powered by <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Forked from <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>' # set false if you want to hide it.
 
 columns: "3" # "auto" or number (must be a factor of 12: 1, 2, 3, 4, 6, 12)
 connectivityCheck: true # whether you want to display a message when the apps are not accessible anymore (VPN disconnected for example).
@@ -157,12 +157,12 @@ services:
   - name: "Other group"
     icon: "fas fa-heartbeat"
     items:
-      - name: "Pi-hole"
+      - name: Pi-hole"
         logo: "assets/tools/sample.png"
         # subtitle: "Network-wide Ad Blocking" # optional, if no subtitle is defined, PiHole statistics will be shown
         tag: "other"
         url: "http://192.168.0.151/admin"
-        type: "PiHole" # optional, loads a specific component that provides extra features. MUST MATCH a file name (without file extension) available in `src/components/services`
+        type: "PiHole" # optional, loads a specific component that provides extra features. MUST MATCH a file name (without file extension) available in `src/components/service-components/`
         target: "_blank" # optional html a tag target attribute
         # class: "green" # optional custom CSS class for card, useful with custom stylesheet
         # background: red # optional color for card to set color directly without custom stylesheet

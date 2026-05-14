@@ -4,13 +4,21 @@ Smart cards provide specific integration for external services. They display add
 
 Each service integration has different requirements and may need additional configuration parameters (see card list below).
 
+> [!NOTE]
+> **Architecture Migration in Progress**: We are currently transitioning from monolithic service components to a modular **Archetype/Adapter** architecture.
+> 
+> *   **Compatibility**: The `type: Generic` is maintained for backward compatibility and as a universal fallback for any service in your `config.yml`.
+> *   **Service Status**: See the [Service Classification Roadmap](SERVICE_CLASSIFICATION.md) for details on which services have been ported.
+> *   **Collaborate**: We welcome any help! If you want to contribute by porting an existing service, adding a new one, or improving the project, please check our [Development Guide](development.md) and feel free to submit a Pull Request.
+
+
 > [!WARNING]  
-> Your `config.yml` file is exposed at `/assets/config.yml` via HTTP. Any sensitive information (like API keys)
+> Your `config.yml` file is exposed at `/assets/config/config.yml` via HTTP. Any sensitive information (like API keys)
 > in this file is visible to anyone who can access your Homer instance. Only include API keys if your Homer
 > instance is protected by authentication or access controls **or use a proxy like [`CORSair`](https://github.com/bastienwirtz/corsair)
 >  to inject your credentials safely**, using environment variable on the server side.
 
-Available services are located in `src/components/`:
+Available services are located in `src/components/service-components/`:
 
 - [Common options](#common-options)
 - [AdGuard Home](#adguard-home)
@@ -181,7 +189,7 @@ Auto refresh is supported by this integration.
 ## Gatus
 
 The Gatus service displays information about the configured services from the defined Gatus server.
-Two lines are needed in the config.yml :
+Two lines are needed in the `assets/config/config.yml`:
 
 ```yaml
   type: "Gatus"
@@ -348,7 +356,7 @@ Auto refresh is supported by this integration.
 ## Lidarr, Prowlarr, Sonarr, Readarr and Radarr
 
 Displays Activity (blue), Missing (purple) Warning (orange) or Error (red) notifications bubbles from the Lidarr, Readarr, Radarr or Sonarr application.
-Two lines are needed in the `config.yml`:
+Two lines are needed in the `assets/config/config.yml`:
 
 ```yaml
 - name: "Lidarr"

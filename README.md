@@ -2,7 +2,7 @@
  <img
   width="180"
   alt="A zombified Homer's donut"
-  src="https://raw.githubusercontent.com/AntKinton/homerized/main/public/logo.png">
+  src="https://raw.githubusercontent.com/AntKinton/homerized/dev/public/logo.png">
     <br/>
     Hommerized
 </h1>
@@ -13,7 +13,7 @@
  <strong>🔧 Hommerized Fork</strong> - Optimized for rootless Podman quadlet deployment
 </h4>
 <p align="center">
-  <a href="https://www.buymeacoffee.com/bastien" target="_blank"><img src="https://raw.githubusercontent.com/AntKinton/homerized/main/images/bmc-button_4him.png" alt="Buy A Coffee for Bastien, Homer's father" height="41" width="174"></a>
+  <a href="https://www.buymeacoffee.com/bastien" target="_blank"><img src="https://raw.githubusercontent.com/AntKinton/homerized/dev/images/bmc-button_4him.png" alt="Buy A Coffee for Bastien, Homer's father" height="41" width="174"></a>
 <p>
 <p align="center">
  <a href="https://opensource.org/licenses/Apache-2.0"><img

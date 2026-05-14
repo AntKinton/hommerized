@@ -134,6 +134,7 @@ access_control:
         - "group:developers"
         - "group:database-team"
       policy: one_factor
+      # The policy engine must be enabled in assets/config/module-extras.yml for these rules to take effect.
 
     # Email - only for mail team
     - domain: mail.yourdomain.com
@@ -424,7 +425,9 @@ auth.yourdomain.com {
 
 ## Hommerized Configuration
 
-Update your `assets/config.yml` to enable authentication:
+Update your `assets/config/config.yml` to enable authentication:
+
+> Your `config.yml` file is exposed at `/assets/config/config.yml` via HTTP. Any sensitive information (like API keys) must be handled securely. Additionally, if no rule matches, the `fallback` setting in `assets/config/module-extras.yml` determines if the service is shown or hidden.
 
 ```yaml
 # Authentication settings

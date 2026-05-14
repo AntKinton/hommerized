@@ -67,7 +67,7 @@ Name=hommerized
 PodmanArgs=--user=1000:1000
 Environment=INIT_ASSETS=1
 PublishPort=8080:8080
-Volume=%h/.local/share/hommerized/assets:/www/assets:Z
+Volume=%h/.local/share/hommerized/config:/www/assets/config:Z
 
 [Service]
 Restart=always
@@ -77,10 +77,10 @@ RestartSec=5
 WantedBy=default.target
 ```
 
-### 3. Create Data Directory
+### 3. Create Configuration Directory
 
 ```sh
-mkdir -p ~/.local/share/hommerized/assets
+mkdir -p ~/.local/share/hommerized/config
 ```
 
 ### 4. Enable and Start Service
@@ -186,8 +186,7 @@ Use bind mounts for configuration persistence:
 
 ```ini
 [Container]
-Volume=%h/.local/share/hommerized/assets:/www/assets:Z
-Volume=%h/.local/share/hommerized/config:/www/config:Z
+Volume=%h/.local/share/hommerized/config:/www/assets/config:Z
 ```
 
 ### Named Volumes
@@ -196,7 +195,7 @@ For data that doesn't need host access:
 
 ```ini
 [Container]
-Volume=hommerized-data:/www/assets
+Volume=hommerized-data:/www/assets/config
 ```
 
 ### SELinux Considerations
@@ -267,7 +266,7 @@ podman logs hommerized
 
 #### Permission Issues
 
-Ensure proper permissions on data directories:
+Ensure proper permissions on configuration directories:
 
 ```sh
 # Fix ownership
@@ -310,7 +309,7 @@ services:
     image: antkinton/hommerized:latest
     container_name: hommerized
     volumes:
-      - ./assets:/www/assets
+      - ./config:/www/assets/config
     ports:
       - "8080:8080"
     environment:
@@ -328,7 +327,7 @@ After=network-online.target
 [Container]
 Image=ghcr.io/antkinton/hommerized:latest
 Name=hommerized
-Volume=%h/hommerized/assets:/www/assets:Z
+Volume=%h/.local/share/hommerized/config:/www/assets/config:Z
 PublishPort=8080:8080
 Environment=INIT_ASSETS=1
 
@@ -339,7 +338,7 @@ Restart=always
 WantedBy=default.target
 ```
 
-### Data Migration
+### Configuration Migration
 
 ```sh
 # Stop Docker container
@@ -455,8 +454,8 @@ DATE=$(date +%Y%m%d_%H%M%S)
 
 mkdir -p "$BACKUP_DIR"
 
-# Backup data
-tar -czf "$BACKUP_DIR/assets-$DATE.tar.gz" "$HOME/.local/share/hommerized/assets"
+# Backup configuration
+tar -czf "$BACKUP_DIR/config-$DATE.tar.gz" "$HOME/.local/share/hommerized/config"
 
 # Backup configuration
 cp "$HOME/.config/containers/systemd/hommerized.container" "$BACKUP_DIR/hommerized-$DATE.container"

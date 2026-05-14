@@ -17,7 +17,7 @@ This Hommerized extension allows filtering services based on authenticated user 
    - Manages authentication and policies
    - Filters services by group
 
-2. **Policy Configuration** (`assets/groups-policy.yml`)
+2. **Policy Configuration** (`assets/config/policy-rules.yml`)
    - Defines groups and permissions
    - Maps services to groups
 
@@ -34,7 +34,7 @@ In your `config.yml`:
 ```yaml
 groupPolicies:
   enabled: true
-  policyFile: "/assets/groups-policy.yml"
+  policyFile: "/assets/config/policy-rules.yml"
   fallback: "allow"  # allow, deny
   showUserInfo: true
   showLogoutItem: true
@@ -61,7 +61,7 @@ your-homer-domain.com {
 
 ### **3. Define Policies**
 
-In `assets/groups-policy.yml`:
+In `assets/config/policy-rules.yml`:
 
 ```yaml
 # User groups
@@ -296,8 +296,8 @@ The logout functionality is implemented in:
 ## 📝 **Complete Example**
 
 See example files:
-- `public/assets/config.yml` - Configuration with policies enabled
-- `public/assets/groups-policy.yml` - Example group policies
+- `public/assets/config/config.yml` - Configuration with policies enabled
+- `public/assets/config/policy-rules.yml` - Example group policies
 
 ## 🤝 **Contributions**
 
