@@ -36,6 +36,7 @@ commit_parsers = [
   { message = "^perf", group = "⚡ Performance" },
   { message = "^style", group = "🎨 Styling" },
   { message = "^test", group = "🧪 Testing" },
+  { message = "^ci", group = "🏗️ Continuous Integration" },
   { message = "^build.*deps", group = "📦 Dependencies" },
   { message = "^build|^chore", group = "⚙️ Miscellaneous Tasks" },
   { message = ".*", group = "👽 Other Changes" },
