@@ -35,3 +35,9 @@ GEMINI.md
 
 # AI Documentation
 AI-KEYS.md
+
+# Backup directory
+src/assets.backup
+
+# Custom styles directory (legacy)
+src/styles/custom-styles

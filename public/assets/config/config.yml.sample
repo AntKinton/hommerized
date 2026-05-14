@@ -3,7 +3,7 @@ title: Hommerized
 subtitle: A homer fork with additional features
 logo: false
 header: true
-footer: '<p>Hommerized version 26.4.2 - A fork of homer with additional features made with <span class="has-text-danger">❤️</span> and powered by <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Forked from <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>' # you can set it to false
+footer: '<p><a href="https://github.com/antkinton/hommerized">Hommerized</a> version 26.05.2 - A fork of homer with additional features made with <span class="has-text-danger">❤️</span> and powered by <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Forked from <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>' # you can set it to false
 
 theme: default
 columns: 3
@@ -12,7 +12,7 @@ defaults:
 
 # Optional message
 message:
-  style: "is-dark" # See https://bulma.io/documentation/components/message/#colors for styling options.
+  style: style: "is-dark" # Custom style that respects global themes (alternatives: is-dark, is-light, is-primary, is-info, is-success, is-warning, is-danger)
   title: "👋 Welcome!"
   content: "Hommerized is a dead simple non-static HOMepage for your servER (or anything else) to keep your services and favorite links on hand, based on a simple yaml configuration file.<br /> Learn more at <a href='https://github.com/AntKinton/hommerized'>github.com/AntKinton/hommerized</a>"
 
