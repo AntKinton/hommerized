@@ -191,7 +191,7 @@ export default {
   watch: {
     isDark: {
       immediate: true,
-      handler(dark) {
+      handler() {
         this.configStore.applyTheme(this.configStore.get('defaults.colorTheme', 'auto'));
       }
     },
