@@ -10,8 +10,7 @@
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/adguardhome.js and archetypes/StatusCard.vue -->
+  <div><!-- This component is now just a configuration wrapper --></div>
 </template>
 
 <script>
