@@ -1,0 +1,297 @@
+// 1. Initial variables and functions
+@import "bulma/sass/utilities/functions.scss";
+@import "bulma/sass/utilities/initial-variables.scss";
+
+// 2. Bulma 1.0 base variables (CSS Variables)
+:root {
+  --bulma-scheme-h: 220;
+  --bulma-scheme-s: 25%;
+  --bulma-scheme-main-l: 88%;
+  --bulma-scheme-main-bis-l: 96%;
+  --bulma-scheme-main-ter-l: 94%;
+  --bulma-scheme-invert-l: 9%;
+  
+  --bulma-text-h: var(--bulma-scheme-h);
+  --bulma-text-s: var(--bulma-scheme-s);
+  --bulma-text-l: 29%;
+  --bulma-text-strong-l: 21%;
+  --bulma-text-weak-l: 71%;
+  
+  --bulma-background-h: var(--bulma-scheme-h);
+  --bulma-background-s: var(--bulma-scheme-s);
+  --bulma-background-l: var(--bulma-scheme-main-l);
+  
+  --bulma-border-h: var(--bulma-scheme-h);
+  --bulma-border-s: var(--bulma-scheme-s);
+  --bulma-border-l: 86%;
+  --bulma-border-light-l: 93%;
+  --bulma-border-lighter-l: 96%;
+  
+  --bulma-primary-h: 217;
+  --bulma-primary-s: 71%;
+  --bulma-primary-l: 53%;
+  --bulma-primary-invert-l: 100%;
+  
+  --bulma-link-h: var(--bulma-primary-h);
+  --bulma-link-s: var(--bulma-primary-s);
+  --bulma-link-l: var(--bulma-primary-l);
+  --bulma-link-invert-l: var(--bulma-primary-invert-l);
+  
+  --bulma-info-h: 204;
+  --bulma-info-s: 86%;
+  --bulma-info-l: 53%;
+  --bulma-info-invert-l: 100%;
+  --bulma-info-light-l: 94%;
+}
+
+html[data-theme="dark"] {
+  --bulma-scheme-main-l: 9%;
+  --bulma-scheme-main-bis-l: 13%;
+  --bulma-scheme-main-ter-l: 17%;
+  --bulma-scheme-invert-l: 100%;
+  
+  --bulma-text-l: 87%;
+  --bulma-text-strong-l: 100%;
+  --bulma-text-weak-l: 57%;
+  
+  --bulma-background-l: var(--bulma-scheme-main-l);
+  
+  --bulma-border-l: 29%;
+  --bulma-border-light-l: 36%;
+  --bulma-border-lighter-l: 43%;
+  
+  --bulma-info-light-l: 23%;
+}
+
+// 3. CUSTOM OVERRIDES: Bridge between app and Bulma
+$family-sans-serif: "Noto Sans", "Ubuntu", sans-serif;
+
+$primary: var(--highlight-primary, var(--bulma-link));
+$info: var(--highlight-secondary, var(--bulma-info));
+$success: var(--status-online, var(--bulma-success));
+$warning: var(--status-loading, var(--bulma-warning));
+$danger: var(--status-offline, var(--bulma-danger));
+
+$body-background-color: var(--background, var(--bulma-scheme-main));
+$text: var(--text, var(--bulma-text));
+$text-strong: var(--text-header, var(--bulma-text-strong));
+
+$title-color: var(--text-title, var(--bulma-text-strong));
+$subtitle-color: var(--text-subtitle, var(--bulma-text-weak));
+
+$card-background-color: var(--card-background, var(--bulma-scheme-main));
+$card-radius: 5px;
+$card-content-padding: 0.5rem 0.75rem;
+
+// 4. Derived variables & Bulma Components Core
+@import "bulma/sass/utilities/derived-variables.scss";
+@import "bulma/sass/utilities/mixins.scss";
+@import "bulma/sass/utilities/css-variables.scss";
+
+@import "bulma/sass/base/_index.scss";
+@import "bulma/sass/elements/button.scss";
+@import "bulma/sass/elements/content.scss";
+@import "bulma/sass/elements/image.scss";
+@import "bulma/sass/elements/title.scss";
+@import "bulma/sass/elements/icon.scss";
+@import "bulma/sass/elements/tag.scss";
+@import "bulma/sass/layout/container.scss";
+@import "bulma/sass/layout/section.scss";
+@import "bulma/sass/layout/footer.scss";
+@import "bulma/sass/layout/hero.scss";
+@import "bulma/sass/grid/columns.scss";
+@import "bulma/sass/grid/grid.scss";
+@import "bulma/sass/components/navbar.scss";
+@import "bulma/sass/components/card.scss";
+@import "bulma/sass/components/message.scss";
+@import "bulma/sass/helpers/spacing.scss";
+@import "bulma/sass/helpers/typography.scss";
+@import "bulma/sass/helpers/flexbox.scss";
+
+// 5. DASHBOARD SPECIFIC STYLES
+.card-media-left {
+  .image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  img {
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--bulma-radius-medium, 0.375rem);
+  }
+  i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bulma-text);
+  }
+}
+
+.card-content {
+  padding: 0.75rem 1rem !important;
+  
+  .media {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-height: 48px !important;
+  }
+  
+  .media-left {
+    flex-shrink: 0 !important;
+    margin-right: 0.75rem !important;
+    align-self: center !important;
+  }
+  
+  .media-content {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    align-self: center !important;
+  }
+  
+  .media-right {
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+    align-self: center !important;
+  }
+  
+  .title, .subtitle {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    margin-bottom: 0 !important;
+  }
+  
+  .title {
+    font-size: 0.9rem !important;
+    line-height: 1.2;
+  }
+  
+  .subtitle {
+    font-size: 0.75rem !important;
+    line-height: 1.2;
+    margin-top: 0.125rem !important;
+  }
+  
+  .tags {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.25rem !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+// 5.1 GRID LAYOUT (Handled in main.scss)
+
+
+.card-image {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--bulma-radius-medium, 0.375rem);
+}
+
+.card-icon {
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bulma-text);
+  background-color: var(--bulma-scheme-main-ter);
+  border-radius: var(--bulma-radius-medium, 0.375rem);
+}
+
+.card-quicklink-icon {
+  font-size: 0.75rem;
+  width: 1em;
+  text-align: center;
+  color: var(--bulma-text);
+}
+
+.card-quicklinks {
+  float: right;
+  position: relative;
+  z-index: 10;
+
+  a {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+    margin-left: 6px;
+    border-radius: var(--bulma-radius-large, 1rem);
+    background-color: var(--bulma-scheme-main-bis);
+    color: var(--bulma-text);
+    z-index: 9999;
+    pointer-events: all;
+    transition: all 0.2s ease;
+    text-decoration: none;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px var(--bulma-shadow, 0 0.25rem 0.5rem 0 0.21rem rgba(10, 10, 10, 0.1));
+    }
+
+    i { margin-right: 2px; }
+  }
+}
+
+.card-link-disabled {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+  color: var(--bulma-text-weak);
+
+  &:hover { text-decoration: none; }
+}
+
+.card.has-background {
+  transition: background-color 0.3s ease;
+}
+
+.card-error {
+  border: 1px solid var(--bulma-danger);
+  background-color: var(--bulma-danger-light, rgba(255, 58, 58, 0.24));
+  color: var(--bulma-danger-invert);
+}
+
+@media (max-width: 768px) {
+  .card-quicklinks {
+    float: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    justify-content: flex-end;
+
+    a {
+      margin-left: 0;
+      font-size: 0.7rem;
+      padding: 2px 4px;
+    }
+  }
+
+  .card-media-left .image {
+    img, i {
+      width: 40px;
+      height: 40px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .card-quicklinks a {
+    font-size: 0.65rem;
+    padding: 2px 3px;
+  }
+
+  .card-media-left .image {
+    img, i {
+      width: 36px;
+      height: 36px;
+    }
+  }
+}
