@@ -4,6 +4,7 @@ import { parse } from "yaml";
 export const usePoliciesStore = defineStore('policies', {
   state: () => ({
     policies: null,
+    enabled: true, // Master switch for filtering
     initialized: false,
     // Cached filtered services for performance
     filteredServices: null,
@@ -20,21 +21,12 @@ export const usePoliciesStore = defineStore('policies', {
         return obj && obj[key] !== undefined ? obj[key] : defaultValue;
       }, state.policies);
     },
-    getFilteredServices: (state) => {
-      console.log('🎯 PolicyStore.getFilteredServices() called, returning:', state.filteredServices);
-      return state.filteredServices;
-    },
-    // Legacy getters for backward compatibility - simplified using get()
-    currentPolicies: (state) => state.policies,
-    getPolicyGroupInfo: (state) => (groupName) => {
-      return state.get(`groups.${groupName}`, null);
-    },
-    getAllPolicyGroups: (state) => {
-      return state.get('groups', {});
-    },
-    // Performance-optimized getters
     getFilteredServices: (state) => state.filteredServices,
     hasFilteredServices: (state) => state.filteredServices !== null,
+    // Legacy getters for backward compatibility
+    currentPolicies: (state) => state.policies,
+    getPolicyGroupInfo: (state) => (groupName) => state.get(`groups.${groupName}`, null),
+    getAllPolicyGroups: (state) => state.get('groups', {}),
   },
 
   actions: {
@@ -71,10 +63,10 @@ export const usePoliciesStore = defineStore('policies', {
     getDefaultPolicies() {
       return {
         groups: {
-          default: { name: "Default", description: "Default access" }
+          all: { name: "All", description: "Allow all" }
         },
         servicePolicies: {
-          default: { allowedGroups: ["default"], services: ["*"] }
+          default: { allowedGroups: ["*"], services: ["*"] }
         }
       };
     },
@@ -95,10 +87,10 @@ export const usePoliciesStore = defineStore('policies', {
 
     updatePolicy(path, value) {
       if (!this.policies) return;
-      
+
       const keys = path.split('.');
       let current = this.policies;
-      
+
       // Navigate to the parent object
       for (let i = 0; i < keys.length - 1; i++) {
         if (!current[keys[i]]) {
@@ -106,7 +98,7 @@ export const usePoliciesStore = defineStore('policies', {
         }
         current = current[keys[i]];
       }
-      
+
       // Set the value using Vue.set-like approach for reactivity
       const lastKey = keys[keys.length - 1];
       current[lastKey] = value;
@@ -130,12 +122,16 @@ export const usePoliciesStore = defineStore('policies', {
 
       // Apply policy filtering
       if (userGroups.length > 0) {
+        console.log('🎯 PolicyStore: Filtering with user groups:', userGroups);
         filtered = filtered.map(group => {
-          const filteredItems = group.items.filter(item => 
-            this.hasAccessToService(item.name, group.name, userGroups)
-          );
+          const filteredItems = group.items.filter(item => {
+            const access = this.hasAccessToService(item.name, group.name, userGroups);
+            if (!access) console.log(`🚫 PolicyStore: Access DENIED for ${item.name} in group ${group.name}`);
+            return access;
+          });
 
           if (filteredItems.length === 0) {
+            console.log(`⚠️ PolicyStore: Group ${group.name} hidden because all items were filtered out.`);
             return null;
           }
 
@@ -144,6 +140,8 @@ export const usePoliciesStore = defineStore('policies', {
             items: filteredItems
           };
         }).filter(group => group !== null);
+      } else {
+        console.log('🎯 PolicyStore: No user groups, allowing all services.');
       }
 
       // Apply search filtering
@@ -155,7 +153,7 @@ export const usePoliciesStore = defineStore('policies', {
             const descMatch = item.desc?.toLowerCase().includes(term);
             const tagMatch = item.tag?.toLowerCase().includes(term);
             const logoMatch = item.logo?.toLowerCase().includes(term);
-            
+
             return nameMatch || descMatch || tagMatch || logoMatch;
           });
 
@@ -176,20 +174,29 @@ export const usePoliciesStore = defineStore('policies', {
     },
 
     hasAccessToService(serviceName, groupName, userGroups) {
-      if (!this.policies || userGroups.length === 0) {
-        return true; // No policies or groups = allow all
+      // If policy engine is disabled or no user groups, allow all
+      if (!this.enabled || !this.policies || userGroups.length === 0) {
+        return true; 
       }
 
       // Find policy for this service group
       const policyMapping = this.findPolicyForService(serviceName, groupName);
+      
+      // FALLBACK logic: If no specific policy is defined for this service/group,
+      // we allow it by default (this corresponds to fallback: "allow" in config)
       if (!policyMapping) {
-        return false;
+        // console.log(`ℹ️ PolicyStore: No policy for ${serviceName}, allowing by fallback.`);
+        return true; 
       }
 
-      // Check if user has access to mapped group
-      return userGroups.some(userGroup => 
-        policyMapping.allowedGroups.includes(userGroup)
-      );
+      const hasAccess = policyMapping.allowedGroups.includes('*') || 
+                       userGroups.some(userGroup => policyMapping.allowedGroups.includes(userGroup));
+      
+      if (!hasAccess) {
+        console.log(`🚫 PolicyStore: Access DENIED for ${serviceName}. Required: ${policyMapping.allowedGroups.join(', ')}. User has: ${userGroups.join(', ')}`);
+      }
+
+      return hasAccess;
     },
 
     findPolicyForService(serviceName, groupName) {
@@ -200,7 +207,13 @@ export const usePoliciesStore = defineStore('policies', {
         return this._servicePolicyIndex.get(serviceName);
       }
 
-      // 2. Search for policy by group mapping directly (without expensive get() splits)
+      // 2. Search for policy by group mapping directly
+      // Note: We use the group title as a key in the servicePolicies if no explicit mapping exists
+      if (groupName && this.policies.servicePolicies[groupName]) {
+        return this.policies.servicePolicies[groupName];
+      }
+
+      // 3. Check for group mapping in the policies config
       if (groupName && this.policies.groupTitleMapping) {
         const policyMappingKey = this.policies.groupTitleMapping[groupName];
         if (policyMappingKey && this.policies.servicePolicies[policyMappingKey]) {
@@ -208,7 +221,7 @@ export const usePoliciesStore = defineStore('policies', {
         }
       }
 
-      // 3. Fallback to generic wildcard/default policies if explicitly defined
+      // 4. Fallback to generic wildcard/default policies if explicitly defined
       if (this._servicePolicyIndex && this._servicePolicyIndex.has('*')) {
         return this._servicePolicyIndex.get('*');
       }

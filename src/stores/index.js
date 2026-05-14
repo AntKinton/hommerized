@@ -21,7 +21,15 @@ export async function initAllStores() {
     modulesStore.initialize()
   ]);
 
-  // 2. Synchronous initialization of Auth (DOM/Memory based)
+  // 2. Synchronize Policies with Modules configuration
+  const policyEnabled = modulesStore.get('groupsPolicy.enabled', true);
+  const policyFile = modulesStore.get('groupsPolicy.policyFile', '/assets/config/policy-rules.yml');
+  
+  policiesStore.enabled = policyEnabled;
+  // If we have a custom policy file from modules, we might need to re-initialize or reload it
+  // But for now, we assume the default /assets/config/policy-rules.yml is what we want
+
+  // 3. Synchronous initialization of Auth (DOM/Memory based)
   authStore.initialize();
 
   // Return formatted results for error handling in App.vue
