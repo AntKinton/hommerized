@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### ⚙️ Miscellaneous Tasks
+
+- **release:** Bump version to v26.05.4 and update config references
+
+### 👽 Other Changes
+
+- **workflows:** Fix container write permissions and add dev branch to triggers
+
+## [26.05.3] - 2026-05-14
+
+### ⚙️ Miscellaneous Tasks
+
+- **release:** Prepare v26.05.3
+
 ### 🐛 Bug Fixes
 
 - **docker:** Update entrypoint and ignore rules for clean container builds
