@@ -9,12 +9,12 @@ groupsPolicy:
   fallback: "allow"
 
 # More header configuration
-header-additional:
+header-additions:
   showUserName: false
   showUserGroups: false
 
 # More navbar configuration
-navbar-additional:
+navbar-additions:
   showLogoutButton: false
   logoutEndpoint: "https://auth.your-domain.com/logout"
 
