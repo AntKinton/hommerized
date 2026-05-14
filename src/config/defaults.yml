@@ -1,0 +1,26 @@
+# Default configuration
+
+title: "Dashboard"
+subtitle: "Hommerized"
+
+header: true
+footer: '<p><a href="https://github.com/antkinton/hommerized">Hommerized</a> version 26.05.2 - A fork of homer with additional features made with <span class="has-text-danger">❤️</span> and powered by <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Forked from <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>' # you can set it to false
+
+columns: 3
+connectivityCheck: true
+
+defaults:
+  # columns, list
+  layout: columns
+  # auto, light, dark
+  colorTheme: auto
+
+theme: default
+colors: ~
+
+message: ~
+links: []
+services: []
+
+proxy: ~
+
