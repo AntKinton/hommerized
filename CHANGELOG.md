@@ -2,7 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
-## [26.05.1] - 2026-05-10
+## [26.05.2] - 2026-05-14
+
+### ⚙️ Miscellaneous Tasks
+
+- **config:** Ignore dev-dist directory
+
+### 🎨 Styling
+
+- **ui:** Remove legacy SCSS, migrate to native Bulma, and update core layout components
+
+### 👽 Other Changes
+
+- Add architecture blueprints and assets
+- Modularize state management
+- Implement dynamic service engine
+- Cleanup UI and remove legacy components
+- V26.05.2 architecture rework
+
+### 📚 Documentation
+
+- **core:** Add architecture blueprints and update PWA/branding assets
+
+### 🚀 Features
+
+- **architecture:** Implement dynamic ServiceHandler, base adapters, and archetypes
+
+### 🚜 Refactor
+
+- **state:** Modularize Pinia stores and update build config
+
+## [26.05.1] - 2026-05-11
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -48,7 +78,7 @@ All notable changes to this project will be documented in this file.
 - Lint updates
 - **deps-dev:** Bump vite from 8.0.3 to 8.0.5
 - **services:** Remove deprecated error component
-- **ci:** Remove obsolete dockerhub workflow
+- **release:** Prepare v26.05.1, setup git-cliff and clean CI
 
 ### 🐛 Bug Fixes
 
