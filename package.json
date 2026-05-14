@@ -9,8 +9,11 @@
   "scripts": {
     "dev": "vite",
     "mock": "sirv dummy-data/ --cors",
-    "build": "vite build",
+    "build": "vue-tsc --noEmit && vite build",
+    "build:skip-types": "vite build",
     "preview": "vite preview --port 5050",
+    "type-check": "vue-tsc --noEmit",
+    "type-check:watch": "vue-tsc --noEmit --watch",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/"
   },
@@ -25,6 +28,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/tsconfig": "^0.9.1",
     "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "~10.9.1",
@@ -32,9 +36,11 @@
     "prettier": "^3.8.3",
     "sass-embedded": "^1.99.0",
     "sirv-cli": "^3.0.1",
+    "typescript": "^6.0.3",
     "vite": "^8.0.11",
     "vite-plugin-pwa": "^1.3.0",
     "vue-eslint-parser": "^10.4.0",
+    "vue-tsc": "^3.2.9",
     "workbox-build": "^7.4.1",
     "workbox-window": "^7.4.1"
   },
