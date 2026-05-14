@@ -1,6 +1,6 @@
 {
   "name": "hommerized",
-  "version": "26.05.3",
+  "version": "26.05.4",
   "type": "module",
   "basedOn": {
     "name": "homer",
