@@ -26,7 +26,7 @@ export async function fetchAdGuardHomeStatus(endpoint, fetchFn) {
         blockedPercentage: parseFloat(blockedPercentage)
       }
     };
-  } catch (error) {
+  } catch (_error) {
     // Fallback to basic status if stats fail
     try {
       const statusData = await apiCall('control/status');
@@ -41,14 +41,14 @@ export async function fetchAdGuardHomeStatus(endpoint, fetchFn) {
           blockedPercentage: 0
         }
       };
-    } catch (statusError) {
-      throw new Error('Failed to fetch AdGuard Home status');
+    } catch (_statusError) {
+      throw new Error('Failed to fetch AdGuard Home status', { cause: _statusError });
     }
   }
 }
 
 export async function fetchPiHoleStatus(endpoint, apiKey, fetchFn) {
-  const apiCall = fetchFn || fetch;
+  const apiCall = fetchFn || globalThis.fetch;
   
   try {
     // Get summary statistics
@@ -81,7 +81,7 @@ export async function fetchPiHoleStatus(endpoint, apiKey, fetchFn) {
         color: 'is-primary'
       }
     ];
-  } catch (error) {
-    throw new Error('Failed to fetch PiHole status');
+  } catch (_error) {
+    throw new Error('Failed to fetch PiHole status', { cause: _error });
   }
 }

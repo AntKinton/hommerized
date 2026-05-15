@@ -32,8 +32,7 @@ export const useModulesStore = defineStore('modules', {
           this.config = parse(modulesYamlText);
         } else {
           this.config = this.getDefaultConfig();
-        }
-      } catch (error) {
+      } catch (_error) {
         // Fallback silently without throwing to keep initialization fast
         this.config = this.getDefaultConfig();
       } finally {

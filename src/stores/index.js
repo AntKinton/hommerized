@@ -23,7 +23,6 @@ export async function initAllStores() {
 
   // 2. Synchronize Policies with Modules configuration
   const policyEnabled = modulesStore.get('groupsPolicy.enabled', true);
-  const policyFile = modulesStore.get('groupsPolicy.policyFile', '/assets/config/policy-rules.yml');
   
   policiesStore.enabled = policyEnabled;
   // If we have a custom policy file from modules, we might need to re-initialize or reload it

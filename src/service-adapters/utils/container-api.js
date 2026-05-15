@@ -62,7 +62,7 @@ export async function fetchPortainerContainerStatus(endpoint, username, password
           
           totalRunning += containers.filter(c => c.State === 'running').length;
           totalStopped += containers.filter(c => c.State !== 'running').length;
-        } catch (e) {
+        } catch (_error) {
           console.warn(`Failed to fetch containers for endpoint ${env.Id}`);
         }
       }

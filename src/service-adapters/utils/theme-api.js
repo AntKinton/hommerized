@@ -1,9 +1,7 @@
 // src/adapters/utils/theme-api.js
 // Utility for Theme Management API normalization
 
-export async function fetchThemeStatus(endpoint, fetchFn) {
-  const apiCall = fetchFn || fetch;
-  
+export async function fetchThemeStatus() {
   try {
     // ThemeChooser doesn't need API calls - it's a client-side utility
     // We'll return current theme state

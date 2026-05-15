@@ -36,6 +36,7 @@
 <script>
 export default {
   name: "StatusService",
+  emits: ["network-status-update"],
   data: function () {
     return {
       offline: false,
@@ -83,8 +84,6 @@ export default {
       }
 
       // Check if the current URL is reachable
-      let that = this;
-
       const aliveCheckUrl = new URL(window.location.href);
       aliveCheckUrl.searchParams.set("t", String(new Date().valueOf()));
 
@@ -93,7 +92,7 @@ export default {
         cache: "no-store",
         redirect: "manual",
       })
-        .then(function (response) {
+        .then((response) => {
           // opaqueredirect means request has been redirected, to auth provider probably
           if (
             (response.type === "opaqueredirect" && !response.ok) ||
@@ -101,13 +100,13 @@ export default {
           ) {
             window.location.href = aliveCheckUrl.toString();
           }
-          that.offline = !response.ok;
+          this.offline = !response.ok;
         })
-        .catch(function () {
-          that.offline = true;
+        .catch(() => {
+          this.offline = true;
         })
-        .finally(function () {
-          that.$emit("network-status-update", that.offline);
+        .finally(() => {
+          this.$emit("network-status-update", this.offline);
         });
     },
   },

@@ -31,11 +31,6 @@ export default {
     },
   },
   emits: ["search-open", "search-focus", "search-cancel", "input"],
-  data() {
-    return {
-      _keyListener: null
-    };
-  },
   setup() {
     const policiesStore = usePoliciesStore();
     const authStore = useAuthStore();
@@ -47,8 +42,13 @@ export default {
       configStore
     };
   },
+  data() {
+    return {
+      keyListener: null
+    };
+  },
   mounted() {
-    this._keyListener = function (event) {
+    this.keyListener = function (event) {
       if (!this.hasFocus() && event.key === this.hotkey) {
         event.preventDefault();
         this.focus();
@@ -57,7 +57,7 @@ export default {
         this.cancel();
       }
     };
-    document.addEventListener("keydown", this._keyListener.bind(this));
+    document.addEventListener("keydown", this.keyListener.bind(this));
 
     // fill search from get parameter.
     const search = new URLSearchParams(window.location.search).get("search");
@@ -69,7 +69,7 @@ export default {
     }
   },
   beforeUnmount() {
-    document.removeEventListener("keydown", this._keyListener);
+    document.removeEventListener("keydown", this.keyListener);
   },
   methods: {
     open: function (target = null) {
