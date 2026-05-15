@@ -34,8 +34,13 @@
 
 // Fade In Intro
 @keyframes dashboardFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 // Apply fade-in to the main wrapper
@@ -49,13 +54,13 @@ html {
   zoom: 0.79; // High-density interface scaling
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  
+
   @media screen and (max-width: 768px) {
     zoom: 0.75; // Proportional high-density mobile scaling
   }
 }
 
-html, 
+html,
 body {
   height: 100vh;
   height: -webkit-fill-available;
@@ -92,19 +97,23 @@ main#main-section {
   background-image: var(--background-image);
   background-size: cover;
   background-attachment: fixed;
-  
-  .section, main#main-section, .app-layout-wrapper {
+
+  .section,
+  main#main-section,
+  .app-layout-wrapper {
     background-color: transparent !important;
   }
 }
 
 // --- TYPOGRAPHY ---
 // We exclude .hero elements to allow Bulma's contextual colors (is-link, is-dark) to work
-:not(.hero) .title, :not(.hero) .group-title {
+:not(.hero) .title,
+:not(.hero) .group-title {
   color: var(--text-title);
 }
 
-:not(.hero) .subtitle, :not(.hero) .heading {
+:not(.hero) .subtitle,
+:not(.hero) .heading {
   color: var(--text-subtitle);
 }
 
@@ -116,7 +125,7 @@ main#main-section {
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
   transition: opacity 0.3s ease;
-  
+
   &:hover {
     opacity: 0.7;
   }
@@ -130,11 +139,11 @@ main#main-section {
   background-color: var(--card-background);
   box-shadow: var(--card-shadow);
   border: none;
-  
+
   // Hardware-accelerated smooth transitions
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
-              box-shadow 0.3s ease;
-  
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+
   &:hover {
     transform: scale(1.015); // Reduced zoom for consistency
     box-shadow: var(--card-shadow-hover);
@@ -150,18 +159,32 @@ main#main-section {
   box-shadow: var(--card-shadow) !important;
   border-radius: var(--bulma-card-radius, 0.75rem);
   overflow: hidden;
-  
+
   .card-header {
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    background-color: rgba(0,0,0,0.02);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.02);
   }
-  
-  &.is-info { border-left-color: var(--bulma-info); }
-  &.is-success { border-left-color: var(--bulma-success); }
-  &.is-warning { border-left-color: var(--bulma-warning); }
-  &.is-danger { border-left-color: var(--bulma-danger); }
-  &.is-dark { border-left-color: var(--bulma-dark); }
-  
+
+  &.is-info {
+    border-left-color: var(--bulma-info);
+  }
+
+  &.is-success {
+    border-left-color: var(--bulma-success);
+  }
+
+  &.is-warning {
+    border-left-color: var(--bulma-warning);
+  }
+
+  &.is-danger {
+    border-left-color: var(--bulma-danger);
+  }
+
+  &.is-dark {
+    border-left-color: var(--bulma-dark);
+  }
+
   .title {
     color: var(--text-title) !important;
   }
@@ -174,13 +197,14 @@ main#main-section {
 
 .dark .message-banner {
   .card-header {
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    background-color: rgba(255,255,255,0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.02);
   }
 }
 
 // Layout-specific adjustments
 .layout-vertical-services .card {
+
   // Extremely subtle zoom for list layout
   &:hover {
     transform: scale(1.003); // Almost invisible zoom for vertical list
@@ -191,7 +215,7 @@ main#main-section {
 
 // Navbar Hover Overlay (Custom Bulma Native Rule)
 .navbar-link:not(.is-arrowless):after {
-    border-color: var(--highlight-primary);
+  border-color: var(--highlight-primary);
 }
 
 // --- NAVBAR ICON BUTTONS ---
@@ -201,14 +225,15 @@ main#main-section {
     color: var(--navbar-icon) !important;
     transition: color 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   // General hover effect on icons
   &:hover .icon {
     color: var(--navbar-icon-hover) !important;
   }
-  
+
   // Pop effect (scale) only for interactive buttons (Layout, Theme, etc.)
-  &[name], &[aria-label] {
+  &[name],
+  &[aria-label] {
     &:hover .icon {
       transform: scale(1.15);
     }
@@ -235,7 +260,7 @@ main#main-section {
     background-color: var(--search-bg) !important;
     color: var(--navbar-item) !important;
     transition: all 0.3s ease !important;
-    height: 2.25em; 
+    height: 2.25em;
     padding-left: 1.5em !important;
 
     &::placeholder {
@@ -245,14 +270,14 @@ main#main-section {
 
     &:focus {
       background-color: transparent !important;
-      box-shadow: 0 0 0 1.5px var(--search-border-focus) !important; 
+      box-shadow: 0 0 0 1.5px var(--search-border-focus) !important;
     }
   }
 
   .icon.is-left {
     color: var(--navbar-icon) !important;
     opacity: 0.6;
-    height: 2.25em !important; 
+    height: 2.25em !important;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -275,7 +300,7 @@ main#main-section {
 
 // --- SERVICES CONTAINER: MULTI-LAYOUT ENGINE ---
 .services-container {
-  
+
   // 1. COMMON CARD BASE
   .card {
     background-color: var(--card-background);
@@ -283,12 +308,12 @@ main#main-section {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
     overflow: hidden;
-    
+
     .service-media {
       display: flex;
       align-items: center;
       width: 100%;
-      
+
       .service-media-left {
         flex-shrink: 0;
         display: flex;
@@ -314,7 +339,7 @@ main#main-section {
         align-items: center;
         justify-content: center;
         margin: 0;
-        
+
         .service-logo {
           object-fit: contain;
           max-width: 100%;
@@ -337,6 +362,7 @@ main#main-section {
 
     .service-quick-links {
       margin-top: 0.5rem;
+
       .tag {
         margin-bottom: 0 !important;
       }
@@ -344,7 +370,7 @@ main#main-section {
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: var(--card-shadow-hover, 0 8px 15px rgba(0,0,0,0.1));
+      box-shadow: var(--card-shadow-hover, 0 8px 15px rgba(0, 0, 0, 0.1));
     }
   }
 
@@ -353,13 +379,15 @@ main#main-section {
     .card .card-content {
       padding: 0.75rem 1rem !important;
     }
+
     .service-media {
       flex-direction: row !important;
       align-items: center !important;
       gap: 1rem;
-      
+
       .service-media-left {
         margin-right: 1rem; // Add margin back for list layout
+
         figure.service-logo-container {
           width: 2.5rem !important;
           height: 2.5rem !important;
@@ -382,15 +410,18 @@ main#main-section {
   .is-layout-columns {
     .card {
       height: 100%;
+
       .card-content {
         padding: 1.25rem !important;
       }
+
       .service-media {
         flex-direction: row !important;
         gap: 1.25rem;
-        
+
         .service-media-left {
           margin-right: 1.25rem; // Add margin back for column layout
+
           figure.service-logo-container {
             width: 3.2rem !important;
             height: 3.2rem !important;
@@ -399,7 +430,7 @@ main#main-section {
 
         .service-media-content {
           overflow: hidden;
-          
+
           .service-title {
             font-size: 1.15rem !important;
             margin-bottom: 0.2rem !important;
@@ -422,6 +453,7 @@ main#main-section {
 
   // 4. GRID LAYOUT (Launcher 1:1)
   .fixed-grid {
+
     // When combined with .grid on the same element
     &.grid {
       gap: 0.5rem;
@@ -449,7 +481,7 @@ main#main-section {
       align-items: center !important;
       border-radius: 1.8em !important;
       margin: 0 auto !important;
-      
+
       .card-content {
         padding: 0 !important;
         width: 100% !important;
@@ -471,7 +503,9 @@ main#main-section {
           overflow: visible !important;
 
           // Forced horizontal stack centering
-          .service-media-left, .service-media-content, .service-media-right {
+          .service-media-left,
+          .service-media-content,
+          .service-media-right {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
@@ -502,11 +536,12 @@ main#main-section {
           }
         }
 
-        .service-subtitle, .service-quick-links {
+        .service-subtitle,
+        .service-quick-links {
           display: none !important;
         }
       }
-      
+
       .service-tag {
         bottom: 0.8em;
         right: 0.8em;
@@ -520,9 +555,9 @@ main#main-section {
   background-color: var(--navbar-bg) !important;
   transition: all 0.3s ease;
   min-height: 3.25rem;
-  
+
   // Clean up internal container
-  & > .container {
+  &>.container {
     padding-left: 0 !important;
     padding-right: 0 !important;
     // DO NOT use display: flex here; it breaks mobile menu stacking
@@ -539,7 +574,7 @@ main#main-section {
 
 .navbar-brand {
   min-height: 3.25rem;
-  
+
   // Only force 100% width on mobile so the burger right-alignment works.
   // On desktop, it needs to shrink to fit the navbar-menu next to it.
   @media screen and (max-width: 1023px) {
@@ -551,7 +586,7 @@ main#main-section {
   color: var(--navbar-item) !important;
   border-radius: 8px !important; // Matches burger and group tag aesthetic
   margin: 0.25rem 0.125rem !important; // Forces physical separation between items so hovers are distinct
-  
+
   &:hover {
     background-color: var(--navbar-hover-bg) !important;
   }
@@ -566,7 +601,7 @@ main#main-section {
   height: 3.25rem;
   width: 3.25rem;
   position: relative;
-  
+
   // Explicit span dimensions and positions to bypass broken Bulma variables
   span {
     background-color: currentColor !important;
@@ -577,13 +612,22 @@ main#main-section {
     position: absolute !important;
     transform-origin: center !important;
     transition: all 0.3s ease !important;
-    
+
     // Middle lines (form the cross)
-    &:nth-child(1), &:nth-child(2) { top: calc(50% - 1px) !important; }
+    &:nth-child(1),
+    &:nth-child(2) {
+      top: calc(50% - 1px) !important;
+    }
+
     // Top line
-    &:nth-child(3) { top: calc(50% - 7px) !important; }
+    &:nth-child(3) {
+      top: calc(50% - 7px) !important;
+    }
+
     // Bottom line
-    &:nth-child(4) { top: calc(50% + 5px) !important; }
+    &:nth-child(4) {
+      top: calc(50% + 5px) !important;
+    }
   }
 
   &:hover {
@@ -593,12 +637,22 @@ main#main-section {
   // Active state (cross animation)
   &.is-active {
     background-color: var(--navbar-hover-bg) !important;
+
     span {
       background-color: var(--bulma-navbar-item-active-color) !important;
-      
-      &:nth-child(1) { transform: rotate(-45deg) !important; }
-      &:nth-child(2) { transform: rotate(45deg) !important; }
-      &:nth-child(3), &:nth-child(4) { opacity: 0 !important; }
+
+      &:nth-child(1) {
+        transform: rotate(-45deg) !important;
+      }
+
+      &:nth-child(2) {
+        transform: rotate(45deg) !important;
+      }
+
+      &:nth-child(3),
+      &:nth-child(4) {
+        opacity: 0 !important;
+      }
     }
   }
 }
@@ -611,10 +665,12 @@ main#main-section {
     .card {
       border-radius: 0;
     }
+
     .column div:first-of-type .card {
       border-top-left-radius: var(--border-radius);
       border-top-right-radius: var(--border-radius);
     }
+
     .column div:last-child .card {
       border-bottom-left-radius: var(--border-radius);
       border-bottom-right-radius: var(--border-radius);
@@ -625,9 +681,17 @@ main#main-section {
     border-radius: var(--border-radius);
   }
 
-  .group-title { font-weight: 800; }
-  .titles { font-weight: 700; }
-  .subtitle { font-weight: 500; }
+  .group-title {
+    font-weight: 800;
+  }
+
+  .titles {
+    font-weight: 700;
+  }
+
+  .subtitle {
+    font-weight: 500;
+  }
 }
 
 // Neon refinements
@@ -651,6 +715,7 @@ main#main-section {
 
     // Mobile-only smooth background fade to transparent
     @media screen and (max-width: 1023px) {
+
       // MAX specificity to defeat theme !important rules
       #app-mount #app &.is-collapsed-header {
         background-image: none !important;
@@ -660,7 +725,9 @@ main#main-section {
         transition: background-color 0.2s ease-out;
 
         // Keep everything inside transparent to let the header's background shine through
-        .navbar, .hero-foot, .navbar-menu {
+        .navbar,
+        .hero-foot,
+        .navbar-menu {
           background: transparent !important;
           background-color: transparent !important;
           background-image: none !important;
@@ -681,10 +748,10 @@ main#main-section {
 /* --- VUE NATIVE TRANSITION FOR HERO-BODY --- */
 .hero-body {
   overflow: hidden;
-  max-height: 250px; 
+  max-height: 250px;
   opacity: 1;
-  flex-shrink: 1 !important; 
-  min-height: 0 !important; 
+  flex-shrink: 1 !important;
+  min-height: 0 !important;
 }
 
 .header-collapse-enter-active,
@@ -719,11 +786,12 @@ main#main-section {
     display: inline;
     margin: 0;
   }
-  
+
   figure.image {
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
+
     img {
       object-fit: contain;
       max-width: 100%;
@@ -738,6 +806,7 @@ main#main-section {
 // Maximum priority overrides for .fixed-grid layout to override global bulma-config.scss rules
 
 @layer utilities {
+
   // Reset and force centering in fixed-grid using semantic classes
   .services-container .fixed-grid .card .card-content {
     display: flex !important;
@@ -745,7 +814,9 @@ main#main-section {
     align-items: center !important;
     padding: 0 !important;
 
-    .service-media-left, .service-media-content, .service-media-right {
+    .service-media-left,
+    .service-media-content,
+    .service-media-right {
       margin: 0 !important;
       padding: 0 !important;
       width: 100% !important;
@@ -773,24 +844,24 @@ main#main-section {
 
     // Robust centering and wrapping for the title
     p.title.service-title {
-      font-size: 1.7em !important; 
+      font-size: 1.7em !important;
       --bulma-title-size: 1.7em !important;
       text-align: center !important;
       line-height: 1.1 !important;
       white-space: normal !important;
       margin: 0 !important;
-      
+
       // Preferred wrapping (seeks slashes/spaces first)
-      word-break: break-word !important; 
-      overflow-wrap: anywhere !important; 
+      word-break: break-word !important;
+      overflow-wrap: anywhere !important;
       hyphens: auto !important;
-      
+
       // Multiline clamping (max 2 lines)
       display: -webkit-box !important;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
-      
-      overflow: hidden !important; 
+
+      overflow: hidden !important;
       width: 100% !important;
       max-width: 100% !important;
       flex-shrink: 0 !important;
@@ -799,7 +870,7 @@ main#main-section {
 
     // Centering and containment for icons/logos (any figure in service-media-left)
     .service-media-left figure {
-      width: 3.8em !important; 
+      width: 3.8em !important;
       height: 3.8em !important;
       margin: 0 auto !important;
       display: flex !important;
@@ -817,7 +888,7 @@ main#main-section {
         image-rendering: -webkit-optimize-contrast; // Keep icons sharp
       }
     }
-    
+
     // Support for FontAwesome icons in any semantic media element
     .icon {
       margin-left: auto !important;
