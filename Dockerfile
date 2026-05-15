@@ -18,17 +18,17 @@ RUN pnpm build
 FROM alpine:3.23
 
 ARG VERSION_TAG=latest
-
+ARG BUILD_SHA=unknown
 LABEL \
-    org.label-schema.schema-version="1.0" \
-    org.label-schema.version="$VERSION_TAG" \
-    org.opencontainers.image.title="Hommerized Image" \
+    org.opencontainers.image.title="hommerized" \
     org.opencontainers.image.description="A dead simple un-static HOMMepage for your servERIZED to keep your services on hand, from a simple yaml configuration file. Optimized for rootless Podman quadlet deployment." \
-    org.opencontainers.image.ref.name="ghcr.io/antkinton/hommerized:${VERSION_TAG}" \
-    org.opencontainers.image.version="$VERSION_TAG" \
-    org.opencontainers.image.licenses="Apache-2.0 license" \
+    org.opencontainers.image.url="https://github.com/AntKinton/hommerized" \
     org.opencontainers.image.source="https://github.com/AntKinton/hommerized" \
-    org.opencontainers.image.url="https://github.com/AntKinton/hommerized/pkgs/container/hommerized"
+    org.opencontainers.image.documentation="https://github.com/AntKinton/hommerized/blob/dev/README.md" \
+    org.opencontainers.image.licenses="Apache-2.0" \
+    org.opencontainers.image.authors="AntKinton" \
+    org.opencontainers.image.version="${VERSION_TAG}" \
+    org.opencontainers.image.revision="${BUILD_SHA}"
 
 ENV GID=1000 \
     UID=1000 \
