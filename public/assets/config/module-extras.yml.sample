@@ -4,18 +4,27 @@
 
 # Enable groups policy for access control
 groupsPolicy:
-  enabled: false
+  enabled: true
   policyFile: "/assets/config/policy-rules.yml"
   fallback: "allow"
 
+# Authentication Service Configuration
+authService:
+  enabled: true
+  mockInDev: true
+  devUser:
+    user: "dev-admin"
+    name: "Development Administrator"
+    groups: ["gamma-admins", "alpha-team"]
+
 # More header configuration
 header-additions:
-  showUserName: false
-  showUserGroups: false
+  showUserName: true
+  showUserGroups: true
 
 # More navbar configuration
 navbar-additions:
-  showLogoutButton: false
+  showLogoutButton: true
   logoutEndpoint: "https://auth.your-domain.com/logout"
 
 # Additional enhanced modules can be added here
