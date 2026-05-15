@@ -32,8 +32,7 @@ export default {
       return {
         user: this.authStore.user,
         name: this.authStore.name,
-        groups: this.authStore.groups,
-        policies: this.authStore.policies
+        groups: this.authStore.groups
       };
     },
     shouldShow() {

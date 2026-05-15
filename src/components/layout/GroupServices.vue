@@ -89,7 +89,8 @@ export default {
     
     // Acceso directo a los stores usando getters existentes
     const currentConfig = computed(() => configStore.currentConfig);
-    const filteredServices = computed(() => policiesStore.getFilteredServices);
+    /** @type {import('vue').ComputedRef<ServiceGroup[]>} */
+    const filteredServices = computed(() => /** @type {any} */ (policiesStore.getFilteredServices));
     
     // Obtener proxy y columns del configStore
     const proxy = computed(() => configStore.get('proxy'));
@@ -102,7 +103,7 @@ export default {
     
     return {
       currentConfig,
-      filteredServices,
+      filteredServices: /** @type {any} */ (filteredServices),
       currentLayout,
       proxy,
       columns

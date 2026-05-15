@@ -64,7 +64,7 @@ export default {
     size: {
       type: String,
       default: 'medium',
-      validator: value => ['small', 'medium', 'large'].includes(value)
+      validator: (/** @type {string} */ value) => ['small', 'medium', 'large'].includes(value)
     },
     fullscreen: {
       type: Boolean,

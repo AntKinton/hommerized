@@ -55,7 +55,7 @@ export default {
     size: {
       type: String,
       default: 'medium',
-      validator: value => ['small', 'medium', 'large'].includes(value)
+      validator: (/** @type {string} */ value) => ['small', 'medium', 'large'].includes(value)
     },
     fullscreen: {
       type: Boolean,
@@ -68,7 +68,7 @@ export default {
     progress: {
       type: Number,
       default: 0,
-      validator: value => value >= 0 && value <= 100
+      validator: (/** @type {number} */ value) => value >= 0 && value <= 100
     },
     showRetry: {
       type: Boolean,

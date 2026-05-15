@@ -73,8 +73,12 @@ import { ref, onMounted, computed } from 'vue';
 export default {
   name: 'WeatherCard',
   props: { 
-    item: Object,
-    adapter: Object
+    item: { 
+      /** @type {import('vue').PropType<ServiceItem>} */
+      type: Object, 
+      required: true 
+    },
+    adapter: { type: Object, required: true }
   },
   setup(props) {
     const weather = ref(null);
@@ -87,6 +91,8 @@ export default {
     const windUnit = computed(() => weather.value?.current?.wind_unit || 'km/h');
     const pressure = computed(() => weather.value?.current?.pressure || '--');
     const unit = computed(() => weather.value?.units?.temperature || 'C');
+    
+    const forecast = computed(() => weather.value?.forecast || null);
 
     const temperatureClass = computed(() => {
       const temp = parseFloat(currentTemp.value);
@@ -119,7 +125,8 @@ export default {
       windUnit,
       pressure,
       unit,
-      temperatureClass
+      temperatureClass,
+      forecast
     };
   }
 }
