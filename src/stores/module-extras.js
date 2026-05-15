@@ -19,6 +19,11 @@ export const useModulesStore = defineStore('modules', {
     shouldShowUserGroups: (state) => state.config?.["header-additions"]?.showUserGroups || false,
     shouldShowLogoutButton: (state) => state.config?.["navbar-additions"]?.showLogoutButton || false,
     getLogoutEndpoint: (state) => state.config?.["navbar-additions"]?.logoutEndpoint || null,
+    
+    // Auth Service getters
+    isAuthEnabled: (state) => state.config?.authService?.enabled !== false,
+    shouldMockInDev: (state) => state.config?.authService?.mockInDev || false,
+    getDevUser: (state) => state.config?.authService?.devUser || null,
   },
 
   actions: {
