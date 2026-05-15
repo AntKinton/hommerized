@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/adminer.js
 import { fetchAdminerStatus } from './utils/service-status-api.js';
 
