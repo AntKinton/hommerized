@@ -2,7 +2,7 @@
   "compilerOptions": {
     // Migración gradual (comenzamos relajados)
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
     "strict": false,
     "noImplicitAny": false,
     
@@ -34,7 +34,7 @@
     
     // Output (Vite maneja esto, pero TypeScript lo necesita)
     "noEmit": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true
