@@ -40,8 +40,8 @@ export const useConfigStore = defineStore('config', {
             const yamlText = await response.text();
             config = parse(yamlText);
           }
-        } catch (error) {
-          console.log(error);
+        } catch (_error) {
+          // ignore
         }
 
         // Handle additional pages
@@ -54,8 +54,8 @@ export const useConfigStore = defineStore('config', {
               const pageConfig = parse(pageYamlText);
               config = Object.assign(config, pageConfig);
             }
-          } catch (error) {
-            console.log(error);
+          } catch (_error) {
+            // ignore
           }
         }
 
@@ -69,7 +69,7 @@ export const useConfigStore = defineStore('config', {
 
           const storedTheme = localStorage.getItem('colorTheme');
           if (storedTheme) this.config.defaults.colorTheme = JSON.parse(storedTheme);
-        } catch (e) {
+        } catch (_error) {
           // ignore parsing errors
         }
 

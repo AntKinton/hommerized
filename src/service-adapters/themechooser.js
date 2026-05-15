@@ -2,7 +2,7 @@
 export default {
   archetype: 'ActionCard',
   
-  async getControls(item) {
+  async getControls(_item) {
     // Get current theme from localStorage or default
     const currentTheme = localStorage.getItem('bulma-theme') || 'default';
     
