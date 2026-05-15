@@ -2,7 +2,7 @@
 // Utility for DNS/Ad-blocking API normalization (AdGuardHome, PiHole)
 
 export async function fetchAdGuardHomeStatus(endpoint, fetchFn) {
-  const apiCall = fetchFn || fetch;
+  const apiCall = fetchFn || globalThis.fetch;
   
   try {
     // Get protection status
@@ -60,12 +60,13 @@ export async function fetchPiHoleStatus(endpoint, apiKey, fetchFn) {
       ? ((summaryData.ads_blocked_today * 100) / summaryData.dns_queries_today).toFixed(2)
       : '0';
     
+    const blockedNum = parseFloat(blockedPercentage);
     return [
       {
         label: 'Blocked',
         value: `${blockedPercentage}%`,
-        percentage: parseFloat(blockedPercentage),
-        color: blockedPercentage > 10 ? 'is-danger' : blockedPercentage > 5 ? 'is-warning' : 'is-success'
+        percentage: blockedNum,
+        color: blockedNum > 10 ? 'is-danger' : blockedNum > 5 ? 'is-warning' : 'is-success'
       },
       {
         label: 'Queries',
