@@ -34,12 +34,16 @@ v-if="configStore.currentConfig?.header" class="hero is-small is-sticky"
 
         <div class="hero-foot">
           <NavbarContainer :open="showMenu" :links="configStore.currentConfig.links" @navbar-toggle="toggleMenu">
-            <ToggleDarkMode />
-            <ToggleLayout />
             <ServiceBySearch
-class="navbar-item is-inline-block-mobile" :hotkey="searchHotkey()"
-              @search-focus="showMenu = true" />
-            <LogoutButton v-if="showLogoutButton" />
+              class="nav-search-bar navbar-item is-inline-block-mobile"
+              :hotkey="searchHotkey()"
+              @search-focus="showMenu = true"
+            />
+            <div class="nav-actions-wrapper">
+              <ToggleDarkMode class="nav-action-item" />
+              <ToggleLayout class="nav-action-item" />
+              <LogoutButton v-if="showLogoutButton" class="nav-action-item" />
+            </div>
           </NavbarContainer>
         </div>
       </header>
