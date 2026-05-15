@@ -5,10 +5,10 @@
 
       <!-- Header & Navigation -->
       <header
-v-if="configStore.currentConfig?.header" class="hero is-small is-sticky"
+        v-if="configStore.currentConfig?.header" class="hero is-sticky"
         :class="{ 'is-collapsed-header': isHeaderCollapsed }">
-        <transition name="header-collapse">
-          <div v-show="!isHeaderCollapsed" class="hero-body pb-0 pt-5">
+        <div class="header-collapse-wrapper">
+          <div class="hero-body pb-0 pt-5">
             <div class="container">
               <div class="is-flex is-align-items-center">
                 <div v-if="configStore.currentConfig.logo || configStore.currentConfig.icon" class="mr-4">
@@ -30,7 +30,7 @@ v-if="configStore.currentConfig?.header" class="hero is-small is-sticky"
               </div>
             </div>
           </div>
-        </transition>
+        </div>
 
         <div class="hero-foot">
           <NavbarContainer :open="showMenu" :links="configStore.currentConfig.links" @navbar-toggle="toggleMenu">
@@ -145,6 +145,8 @@ export default {
       showMenu: false,
       isHeaderCollapsed: false,
       lastScrollPosition: 0,
+      minScrollSinceExpanded: 0, // Tracks the highest point (min scrollY) reached
+      lastTouchY: 0,
       scrollLock: false,
     };
   },
@@ -267,10 +269,17 @@ export default {
   mounted() {
     // Capture phase true ensures we catch scroll events even if a child div is the one scrolling
     window.addEventListener('scroll', this.onScroll, true);
+    // Intent detection for wheel and touch at the bottom
+    window.addEventListener('wheel', this.onIntentAtBottom, { passive: true });
+    window.addEventListener('touchmove', this.onIntentAtBottom, { passive: true });
+    // Initialize the ceiling to the current position
+    this.minScrollSinceExpanded = window.pageYOffset || document.documentElement.scrollTop || 0;
   },
   beforeUnmount() {
     window.onhashchange = null;
     window.removeEventListener('scroll', this.onScroll, true);
+    window.removeEventListener('wheel', this.onIntentAtBottom);
+    window.removeEventListener('touchmove', this.onIntentAtBottom);
   },
   methods: {
     retryInitialization() {
@@ -298,21 +307,19 @@ export default {
     onScroll(event) {
       if (this.scrollLock) return;
 
-      // Get scroll from window, or from the specific div that triggered the scroll
       let currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop || 0;
 
       if (event && event.target && event.target.scrollTop !== undefined) {
-        // If a large internal container is scrolling, use its scroll position
         if (event.target.scrollHeight > 500) {
           currentScrollPosition = Math.max(currentScrollPosition, event.target.scrollTop);
         }
       }
 
-      if (currentScrollPosition < 0) return; // Prevent negative scroll bounce issues on iOS/Mac
+      if (currentScrollPosition < 0) return;
 
       const delta = currentScrollPosition - this.lastScrollPosition;
 
-      // If we are at the very top edge, force expansion
+      // Force expansion at the very top
       if (currentScrollPosition < 50) {
         if (this.isHeaderCollapsed) {
           this.isHeaderCollapsed = false;
@@ -323,31 +330,66 @@ export default {
       }
 
       if (delta > 0) {
-        // Scrolling DOWN: Hide when scrolling down moderately (ignores 1-14px micro-wobbles)
-        if (delta > 15 && !this.isHeaderCollapsed) {
+        // Scrolling DOWN
+        // Rule: Only collapse if we are far from top AND we have moved 
+        // at least 150px DOWN from the highest point reached during expansion.
+        const isFarFromTop = currentScrollPosition > 250;
+        const netDownMovement = currentScrollPosition - this.minScrollSinceExpanded;
+        
+        if (isFarFromTop && netDownMovement > 150 && !this.isHeaderCollapsed) {
           this.isHeaderCollapsed = true;
           this.lockScroll();
         }
       } else if (delta < 0) {
-        // Scrolling UP: ONLY unhide on VERY FAST HARD swipe
-        // A slow scroll will have a delta of 1-60px per frame and will be completely ignored.
-        // A hard swipe generates >160px per frame.
-        if (Math.abs(delta) > 160 && this.isHeaderCollapsed) {
+        // Scrolling UP
+        const isApproachingTop = currentScrollPosition < 150;
+        const isIntentionalUp = Math.abs(delta) > 20;
+        
+        if ((isApproachingTop || isIntentionalUp) && this.isHeaderCollapsed) {
           this.isHeaderCollapsed = false;
+          this.minScrollSinceExpanded = currentScrollPosition; // Reset ceiling
           this.lockScroll();
+        } else if (!this.isHeaderCollapsed) {
+          // If already expanded, update the "ceiling" if we reach a new high point
+          this.minScrollSinceExpanded = Math.min(this.minScrollSinceExpanded, currentScrollPosition);
         }
       }
 
       this.lastScrollPosition = currentScrollPosition;
     },
+    // Detect intent to scroll "past" the bottom to trigger collapse
+    onIntentAtBottom(event) {
+      if (this.scrollLock || this.isHeaderCollapsed) return;
+
+      const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop || 0;
+      // If we are within 40px of the bottom
+      const isAtBottom = window.innerHeight + currentScrollPosition >= document.documentElement.scrollHeight - 40;
+
+      if (isAtBottom) {
+        let isScrollingDown = false;
+        
+        if (event.type === 'wheel') {
+          isScrollingDown = event.deltaY > 0;
+        } else if (event.type === 'touchmove' && event.touches.length > 0) {
+          const touchY = event.touches[0].clientY;
+          if (this.lastTouchY && this.lastTouchY > touchY + 10) { // Significant swipe up (content down)
+            isScrollingDown = true;
+          }
+          this.lastTouchY = touchY;
+        }
+
+        if (isScrollingDown) {
+          this.isHeaderCollapsed = true;
+          this.lockScroll();
+        }
+      }
+    },
     lockScroll() {
       this.scrollLock = true;
-      // 350ms perfectly covers the 300ms CSS transition.
-      // This prevents the browser's automatic layout adjustments (while expanding) from triggering a false "scroll down"
       setTimeout(() => {
         this.scrollLock = false;
         this.lastScrollPosition = window.pageYOffset || document.documentElement.scrollTop || 0;
-      }, 350);
+      }, 500); // 500ms is enough with the new anchor logic
     }
   },
 };

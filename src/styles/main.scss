@@ -779,10 +779,13 @@ main#main-section {
     position: sticky;
     top: 0;
     z-index: 40;
-    transition: padding 0.3s ease-out;
+    // Cleaned up header: no more padding transitions, just color and blur
+    transition: 
+      background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
     &.is-collapsed-header {
-      padding-top: 0 !important;
+      min-height: 0 !important; // Ensure it can collapse fully
     }
 
     // Mobile-only smooth background fade to transparent
@@ -794,7 +797,7 @@ main#main-section {
         background-color: color-mix(in srgb, var(--navbar-bg, var(--highlight-primary)), transparent 55%) !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
-        transition: background-color 0.2s ease-out;
+        // Transition is now inherited from the global header rule above for perfect sync
 
         // Keep everything inside transparent to let the header's background shine through
         .navbar,
@@ -817,29 +820,32 @@ main#main-section {
   }
 }
 
-/* --- VUE NATIVE TRANSITION FOR HERO-BODY --- */
-.hero-body {
-  overflow: hidden;
-  max-height: 250px;
+/* --- MODERN GRID-BASED HEADER COLLAPSE --- */
+.header-collapse-wrapper {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: 
+    grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s ease-out,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   opacity: 1;
-  flex-shrink: 1 !important;
-  min-height: 0 !important;
+  transform: translateY(0);
 }
 
-.header-collapse-enter-active,
-.header-collapse-leave-active {
-  transition: all 0.3s ease-out;
-  overflow: hidden;
+.hero-body {
+  overflow: hidden; 
+  min-height: 0;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem !important; // Controlled padding
 }
 
-.header-collapse-enter-from,
-.header-collapse-leave-to {
-  max-height: 0px !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  opacity: 0 !important;
+// State when collapsed
+.is-collapsed-header {
+  .header-collapse-wrapper {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-15px);
+    pointer-events: none;
+  }
 }
 
 // --- GROUP HEADERS (Used in GroupDescription.vue) ---
