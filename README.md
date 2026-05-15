@@ -39,7 +39,7 @@
   src="https://img.shields.io/badge/Composition_API-42D392?logo=vue.js&logoColor=white"></a>
  <img
   alt="Version"
-  src="https://img.shields.io/badge/Version-26.05.4-blue">
+  src="https://img.shields.io/badge/Version-26.05.5-blue">
 </p>
 
 <p align="center">
