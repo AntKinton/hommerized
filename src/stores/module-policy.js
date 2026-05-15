@@ -152,11 +152,12 @@ export const usePoliciesStore = defineStore('policies', {
         filtered = filtered.map(group => {
           const filteredItems = group.items.filter(item => {
             const nameMatch = item.name?.toLowerCase().includes(term);
+            const subtitleMatch = item.subtitle?.toLowerCase().includes(term);
             const descMatch = item.desc?.toLowerCase().includes(term);
             const tagMatch = item.tag?.toLowerCase().includes(term);
-            const logoMatch = item.logo?.toLowerCase().includes(term);
+            const urlMatch = item.url?.toLowerCase().includes(term);
 
-            return nameMatch || descMatch || tagMatch || logoMatch;
+            return nameMatch || subtitleMatch || descMatch || tagMatch || urlMatch;
           });
 
           if (filteredItems.length === 0) {
