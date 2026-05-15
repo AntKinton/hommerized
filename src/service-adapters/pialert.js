@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/pialert.js
 import { fetchPiAlertStatus } from './utils/network-monitoring-api.js';
 

@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/tautulli.js
 import { fetchTautulliStatus } from './utils/media-activity-api.js';
 

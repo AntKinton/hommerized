@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/openhab.js
 import { fetchOpenHABStatus } from './utils/home-automation-api.js';
 

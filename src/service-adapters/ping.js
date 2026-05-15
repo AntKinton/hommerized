@@ -9,7 +9,7 @@ export default {
     
     try {
       const startTime = Date.now();
-      const response = await fetch(item.url);
+      await fetch(item.url);
       const endTime = Date.now();
       
       // Calculate ping time in milliseconds
