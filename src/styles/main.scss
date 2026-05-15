@@ -267,7 +267,7 @@ main#main-section {
       border-radius: 8px !important;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       box-shadow: none !important;
-      
+
       // Minimalist Search Icon SVG (Integrated)
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
@@ -289,6 +289,7 @@ main#main-section {
     }
   }
 }
+
 // --- SERVICE LINK WRAPPER (Semantic root) ---
 .service-link-wrapper {
   display: block;
@@ -613,10 +614,12 @@ main#main-section {
       padding: 1.25rem 1rem 0.5rem !important;
       border: none !important;
 
-      .field, .control, input {
+      .field,
+      .control,
+      input {
         width: 100% !important;
       }
-      
+
       input {
         height: 2.8rem !important; // Taller for mobile
       }
@@ -780,7 +783,7 @@ main#main-section {
     top: 0;
     z-index: 40;
     // Cleaned up header: no more padding transitions, just color and blur
-    transition: 
+    transition:
       background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
       backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -824,7 +827,7 @@ main#main-section {
 .header-collapse-wrapper {
   display: grid;
   grid-template-rows: 1fr;
-  transition: 
+  transition:
     grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.3s ease-out,
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -833,7 +836,7 @@ main#main-section {
 }
 
 .hero-body {
-  overflow: hidden; 
+  overflow: hidden;
   min-height: 0;
   padding: 1.5rem 1.5rem 0.5rem 1.5rem !important; // Controlled padding
 }

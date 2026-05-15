@@ -4,8 +4,7 @@
     <div class="app-layout-wrapper is-flex is-flex-direction-column">
 
       <!-- Header & Navigation -->
-      <header
-        v-if="configStore.currentConfig?.header" class="hero is-sticky"
+      <header v-if="configStore.currentConfig?.header" class="hero is-sticky"
         :class="{ 'is-collapsed-header': isHeaderCollapsed }">
         <div class="header-collapse-wrapper">
           <div class="hero-body pb-0 pt-5">
@@ -34,11 +33,8 @@
 
         <div class="hero-foot">
           <NavbarContainer :open="showMenu" :links="configStore.currentConfig.links" @navbar-toggle="toggleMenu">
-            <ServiceBySearch
-              class="nav-search-bar navbar-item is-inline-block-mobile"
-              :hotkey="searchHotkey()"
-              @search-focus="showMenu = true"
-            />
+            <ServiceBySearch class="nav-search-bar navbar-item is-inline-block-mobile" :hotkey="searchHotkey()"
+              @search-focus="showMenu = true" />
             <div class="nav-actions-wrapper">
               <ToggleDarkMode class="nav-action-item" />
               <ToggleLayout class="nav-action-item" />
@@ -51,8 +47,7 @@
       <!-- Main Content Area -->
       <main id="main-section" class="section">
         <div class="container">
-          <ErrorDisplay
-v-if="initializationError" title="Initialization Error"
+          <ErrorDisplay v-if="initializationError" title="Initialization Error"
             :message="initializationError.message || 'Failed to load the dashboard.'"
             :details="initializationError.stack" size="medium" fullscreen @retry="retryInitialization" />
           <template v-else-if="loaded">
@@ -172,7 +167,7 @@ export default {
       if (!this.modulesInitialized || !this.authInitialized) {
         return false;
       }
-      
+
       return Boolean(this.user && (this.shouldShowUserName || this.shouldShowUserGroups));
     },
     showLogoutButton() {
@@ -335,7 +330,7 @@ export default {
         // at least 150px DOWN from the highest point reached during expansion.
         const isFarFromTop = currentScrollPosition > 250;
         const netDownMovement = currentScrollPosition - this.minScrollSinceExpanded;
-        
+
         if (isFarFromTop && netDownMovement > 150 && !this.isHeaderCollapsed) {
           this.isHeaderCollapsed = true;
           this.lockScroll();
@@ -344,7 +339,7 @@ export default {
         // Scrolling UP
         const isApproachingTop = currentScrollPosition < 150;
         const isIntentionalUp = Math.abs(delta) > 20;
-        
+
         if ((isApproachingTop || isIntentionalUp) && this.isHeaderCollapsed) {
           this.isHeaderCollapsed = false;
           this.minScrollSinceExpanded = currentScrollPosition; // Reset ceiling
@@ -367,7 +362,7 @@ export default {
 
       if (isAtBottom) {
         let isScrollingDown = false;
-        
+
         if (event.type === 'wheel') {
           isScrollingDown = event.deltaY > 0;
         } else if (event.type === 'touchmove' && event.touches.length > 0) {
