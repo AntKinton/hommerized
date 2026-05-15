@@ -10,8 +10,7 @@
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/radarr.js and archetypes/MediaCard.vue -->
+  <div />
 </template>
 
 <script>
