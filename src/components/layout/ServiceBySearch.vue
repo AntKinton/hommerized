@@ -2,15 +2,12 @@
   <div class="navbar-item">
     <form role="search" @submit.prevent>
       <div class="field">
-        <p class="control has-icons-left">
+        <div class="control">
           <input
-id="search" ref="search" name="search" type="search" class="input is-rounded" placeholder="Search..."
+            id="search" ref="search" name="search" type="search" class="input is-rounded" placeholder="Search services..."
             :value="value" @input.stop="search($event.target.value)" @keydown.enter.exact.prevent="open()"
             @keydown.alt.enter.prevent="open('_blank')" />
-          <span class="icon is-small is-left">
-            <i class="fas fa-search"></i>
-          </span>
-        </p>
+        </div>
       </div>
     </form>
   </div>
