@@ -4,13 +4,20 @@ import { useConfigStore } from '../stores/module-config.js';
 /**
  * Service composable to replace service.js mixin
  * Provides reactive service functionality with better IDE support
+ * @param {any} item
+ * @param {any} proxy
  */
 export function useService(item, proxy = null) {
+  /** @type {ServiceItem} */
+  const srvItem = item;
+  /** @type {any} */
+  const srvProxy = proxy;
+
   // Initialize Pinia store
   const configStore = useConfigStore();
   
   // Reactive state
-  const endpoint = ref(item.endpoint || item.url);
+  const endpoint = ref(srvItem.endpoint || srvItem.url);
   const isLoading = ref(false);
   const error = ref(null);
   
@@ -24,9 +31,10 @@ export function useService(item, proxy = null) {
   
   const updateInterval = computed(() => {
     // Use service-specific interval if defined
-    if (item.updateIntervalMs !== undefined) {
-      const interval = item.updateIntervalMs;
-      return interval === false || interval === 0 ? 0 : parseInt(interval, 10) || 0;
+    if (srvItem.updateIntervalMs !== undefined) {
+      const interval = srvItem.updateIntervalMs;
+      if (interval === false || interval === 0) return 0;
+      return (typeof interval === 'string' ? parseInt(interval, 10) : interval) || 0;
     }
 
     // Use global auto-update configuration
@@ -39,21 +47,22 @@ export function useService(item, proxy = null) {
 
   // Fetch function with proper proxy/credential precedence
   const fetch = async (path, init = {}, json = true) => {
+    /** @type {RequestInit} */
     const options = { ...init };
 
     // Priority: Item > Proxy > Default
     // Credentials
-    if (item.useCredentials !== undefined) {
-      options.credentials = item.useCredentials === true ? 'include' : 'omit';
-    } else if (proxy?.useCredentials) {
+    if (srvItem.useCredentials !== undefined) {
+      options.credentials = srvItem.useCredentials === true ? 'include' : 'omit';
+    } else if (srvProxy?.useCredentials) {
       options.credentials = 'include';
     }
 
     // Headers
-    if (item.headers !== undefined && !!item.headers) {
-      options.headers = item.headers;
-    } else if (proxy?.headers && !!proxy.headers) {
-      options.headers = proxy.headers;
+    if (srvItem.headers !== undefined && !!srvItem.headers) {
+      options.headers = srvItem.headers;
+    } else if (srvProxy?.headers && !!srvProxy.headers) {
+      options.headers = srvProxy.headers;
     }
 
     // URL construction
@@ -68,11 +77,11 @@ export function useService(item, proxy = null) {
     error.value = null;
     
     try {
-      const response = await fetch(url, options);
+      const response = await globalThis.fetch(url, options);
       
       let success = response.ok;
-      if (Array.isArray(item.successCodes)) {
-        success = item.successCodes.includes(response.status);
+      if (Array.isArray(srvItem.successCodes)) {
+        success = srvItem.successCodes.includes(response.status);
       }
 
       if (!success) {
@@ -100,7 +109,7 @@ export function useService(item, proxy = null) {
     const interval = updateInterval.value;
     if (interval > 0) {
       import('@/utils/updateScheduler.js').then(scheduler => {
-        scheduler.default.register({ item, interval, updateMethod });
+        scheduler.default.register({ item: srvItem, interval, updateMethod });
       });
     }
   };
@@ -108,7 +117,7 @@ export function useService(item, proxy = null) {
   // Automatic cleanup when component unmounts
   onBeforeUnmount(() => {
     import('@/utils/updateScheduler.js').then(scheduler => {
-      scheduler.default.unregister({ item });
+      scheduler.default.unregister({ item: srvItem });
     });
   });
 

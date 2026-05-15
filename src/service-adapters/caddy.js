@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/caddy.js
 import { fetchCaddyStatus } from './utils/service-status-api.js';
 

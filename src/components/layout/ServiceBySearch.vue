@@ -3,7 +3,8 @@
     <form role="search" @submit.prevent>
       <div class="field">
         <p class="control has-icons-left">
-          <input id="search" ref="search" name="search" type="search" class="input is-rounded" placeholder="Search..."
+          <input
+id="search" ref="search" name="search" type="search" class="input is-rounded" placeholder="Search..."
             :value="value" @input.stop="search($event.target.value)" @keydown.enter.exact.prevent="open()"
             @keydown.alt.enter.prevent="open('_blank')" />
           <span class="icon is-small is-left">

@@ -10,8 +10,7 @@
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/continuwuity.js and archetypes/StatusCard.vue -->
+  <div />
 </template>
 
 <script>
@@ -25,33 +24,3 @@ export default {
   }
 };
 </script>
-      return fetchOk.value ? "online" : "offline";
-    });
-
-    const fetchStatus = async () => {
-      try {
-        const response = await fetch("/_matrix/client/versions");
-        fetchOk.value = true;
-        versionstring.value = response.versions?.continuwuity?.version || "Unknown";
-      } catch (e) {
-        fetchOk.value = false;
-        console.log(e);
-      }
-    };
-
-    // Initialize auto-update
-    initAutoUpdate(fetchStatus);
-
-    // Initial data fetch
-    fetchStatus();
-
-    return {
-      fetchOk,
-      versionstring,
-      status,
-      fetchStatus
-    };
-  },
-};
-</script>
-

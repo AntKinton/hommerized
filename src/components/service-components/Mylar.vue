@@ -10,8 +10,7 @@
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/mylar.js and archetypes/StatusCard.vue -->
+  <div />
 </template>
 
 <script>
@@ -23,16 +22,5 @@ export default {
     item: Object,
     proxy: String
   }
-    fetchConfig();
-
-    return {
-      upcoming,
-      wanted,
-      warnings,
-      errors,
-      serverError,
-      fetchConfig
-    };
-  },
 };
 </script>

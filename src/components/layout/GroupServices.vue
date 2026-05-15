@@ -66,8 +66,7 @@
 </template>
 
 <script>
-import { computed, watch, ref } from 'vue';
-import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
 import { useConfigStore } from '@/stores/module-config.js';
 import { usePoliciesStore } from '@/stores/module-policy.js';
 // import StatusLoading from './StatusLoading.vue';
@@ -84,7 +83,7 @@ export default {
   props: {
     // Componente completamente autónomo - no necesita props externos
   },
-  setup(props) {
+  setup() {
     const configStore = useConfigStore();
     const policiesStore = usePoliciesStore();
     

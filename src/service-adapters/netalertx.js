@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/netalertx.js
 import { fetchNetAlertxStatus } from './utils/network-monitoring-api.js';
 

@@ -24,6 +24,29 @@ export async function fetchPrometheusStatus(endpoint) {
   };
 }
 
+export async function fetchGatusStatus(endpoint) {
+  const res = await fetch(`${endpoint}/api/v1/checks`);
+  if (!res.ok) throw new Error('Failed to fetch Gatus status');
+  const data = await res.json();
+  
+  // Count check results
+  const totalChecks = data.results?.length || 0;
+  const passedChecks = data.results?.filter(check => check.status === 'pass').length || 0;
+  const failedChecks = data.results?.filter(check => check.status === 'fail').length || 0;
+  
+  // Normalize data for StatusCard archetype
+  return {
+    status: failedChecks > 0 ? 'error' : passedChecks === totalChecks ? 'healthy' : 'warning',
+    title: `${passedChecks}/${totalChecks} checks`,
+    subtitle: failedChecks > 0 ? `${failedChecks} failed` : 'All passing',
+    details: {
+      total: totalChecks,
+      passed: passedChecks,
+      failed: failedChecks
+    }
+  };
+}
+
 export async function fetchScrutinyStatus(endpoint, fetchFn) {
   const apiCall = fetchFn || fetch;
   
@@ -49,7 +72,7 @@ export async function fetchScrutinyStatus(endpoint, fetchFn) {
         failed,
         unknown,
         total: checks.length,
-        pools: pools.length,
+        poolsCount: pools.length,
         checks,
         pools
       }
@@ -65,7 +88,7 @@ export async function fetchScrutinyStatus(endpoint, fetchFn) {
         failed: 0,
         unknown: 0,
         total: 0,
-        pools: 0
+        poolsCount: 0
       }
     };
   }

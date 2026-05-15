@@ -4,55 +4,23 @@
   This service now uses the Adapter + Archetype pattern.
   No Vue logic needed here - just configuration!  
   The Service.vue component will:
-  1. Load ../adapters/docuseal.js (data mapping logic)
+  1. Load ../service-adapters/docuseal.js (data mapping logic)
   2. Load StatusCard archetype (visual presentation)
   3. Connect adapter data to archetype UI
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/docuseal.js and archetypes/StatusCard.vue -->
+  <div />
 </template>
 
 <script>
-import { ref } from 'vue';
-import { useService } from '@/composables/useService.js';
-
+// This component is now just a placeholder for new architecture
+// The real work is done by Service.vue + docuseal.js + StatusCard.vue
 export default {
   name: "Docuseal",
   props: {
     item: Object,
-  },
-  setup(props) {
-    const {
-      fetch
-    } = useService(props.item);
-
-    const status = ref(null);
-    const versionstring = ref(null);
-
-    const fetchStatus = async () => {
-      const params = {
-        cache: "no-cache",
-      };
-      try {
-        const response = await fetch("/version", params, false);
-        status.value = "online";
-        versionstring.value = response;
-      } catch (e) {
-        status.value = "offline";
-        console.log(e);
-      }
-    };
-
-    fetchStatus();
-
-    return {
-      status,
-      versionstring,
-      fetchStatus
-    };
-  },
+    proxy: String
+  }
 };
 </script>
-

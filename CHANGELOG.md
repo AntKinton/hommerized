@@ -2,63 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-
-### ⚙️ Miscellaneous Tasks
-
-- **release:** Bump version to v26.05.4 and update config references
-
-### 👽 Other Changes
-
-- **workflows:** Fix container write permissions and add dev branch to triggers
-
-## [26.05.3] - 2026-05-14
-
-### ⚙️ Miscellaneous Tasks
-
-- **release:** Prepare v26.05.3
-
-### 🐛 Bug Fixes
-
-- **docker:** Update entrypoint and ignore rules for clean container builds
-- **policy:** Handle disabled policies via module-extras and update defaults
-
-### 📚 Documentation
-
-- **core:** Expand documentation for layout, policies, and podman deployment
-
-## [26.05.2] - 2026-05-14
-
-### ⚙️ Miscellaneous Tasks
-
-- **config:** Ignore dev-dist directory
-- **release:** Update changelog for v26.05.2
-
-### 🎨 Styling
-
-- **ui:** Remove legacy SCSS, migrate to native Bulma, and update core layout components
-
-### 👽 Other Changes
-
-- Add architecture blueprints and assets
-- Modularize state management
-- Implement dynamic service engine
-- Cleanup UI and remove legacy components
-- V26.05.2 architecture rework
-
-### 📚 Documentation
-
-- **core:** Add architecture blueprints and update PWA/branding assets
-
-### 🚀 Features
-
-- **architecture:** Implement dynamic ServiceHandler, base adapters, and archetypes
-
-### 🚜 Refactor
-
-- **state:** Modularize Pinia stores and update build config
-
-## [26.05.1] - 2026-05-11
+## [26.05.4] - 2026-05-14
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -105,6 +49,23 @@ All notable changes to this project will be documented in this file.
 - **deps-dev:** Bump vite from 8.0.3 to 8.0.5
 - **services:** Remove deprecated error component
 - **release:** Prepare v26.05.1, setup git-cliff and clean CI
+- **config:** Ignore dev-dist directory
+- **release:** Update changelog for v26.05.2
+- **release:** Prepare v26.05.3
+- **release:** Bump version to v26.05.4 and update config references
+- **changelog:** Update for v26.05.4
+- **config:** Update cliff template to hide sorting tags in changelog
+- **config:** Remove vite .js config and ignore backup
+- **config:** Setup typescript environment and configuration
+
+### 🎨 Styling
+
+- **ui:** Remove legacy SCSS, migrate to native Bulma, and update core layout components
+
+### 🏗️ Continuous Integration
+
+- **workflows:** Fix container write permissions and add dev branch to triggers
+- **container:** Fix metadata and update changelog config
 
 ### 🐛 Bug Fixes
 
@@ -149,6 +110,8 @@ All notable changes to this project will be documented in this file.
 - Simplify scheduler implementation
 - Documentation rebase fuckup -_-
 - **hyperHDR:** Missing return
+- **docker:** Update entrypoint and ignore rules for clean container builds
+- **policy:** Handle disabled policies via module-extras and update defaults
 
 ### 👽 Other Changes
 
@@ -169,6 +132,11 @@ All notable changes to this project will be documented in this file.
 - Implement authentication and access policies
 - Refactor and expand service integrations
 - Integrate UI and features layer
+- Add architecture blueprints and assets
+- Modularize state management
+- Implement dynamic service engine
+- Cleanup UI and remove legacy components
+- V26.05.2 architecture rework
 
 ### 📚 Documentation
 
@@ -202,6 +170,10 @@ All notable changes to this project will be documented in this file.
 - Add agent instructions file.
 - Add section about favicon #1024
 - Add deployment and architecture guides
+- **core:** Add architecture blueprints and update PWA/branding assets
+- **core:** Expand documentation for layout, policies, and podman deployment
+- Update documentation, links and config schema for v26.05.4
+- Consolidate documentation and assets refinement for v26.05.4
 
 ### 📦 Dependencies
 
@@ -240,6 +212,7 @@ All notable changes to this project will be documented in this file.
 - Scheduler migration for netalertx
 - **auth:** Implement Authelia integration, group policies and user session UI
 - **services:** Integrate Adminer, Caddy, PostgreSQL and new modules
+- **architecture:** Implement dynamic ServiceHandler, base adapters, and archetypes
 
 ### 🚜 Refactor
 
@@ -247,5 +220,6 @@ All notable changes to this project will be documented in this file.
 - **core:** Migrate to Pinia state and Composition API
 - **ui:** Update global layout, error handling and base components
 - **services:** Migrate 69+ existing services to Composition API
+- **state:** Modularize Pinia stores and update build config
 
 

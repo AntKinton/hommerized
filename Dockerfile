@@ -4,7 +4,7 @@ FROM --platform=$BUILDPLATFORM node:24-alpine3.23 AS build-stage
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
-RUN corepack enable && corepack use pnpm@10
+RUN corepack enable && corepack use pnpm@10.33.0
 
 WORKDIR /app
 

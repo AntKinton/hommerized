@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/emby.js
 import { fetchEmbyStatus } from './utils/media-server-api.js';
 

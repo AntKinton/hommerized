@@ -6,7 +6,7 @@
       <p class="mt-5">
         <a
           class="button is-primary has-text-weight-black"
-          href="https://github.com/AntKinton/hommerized/blob/main/docs/configuration.md#configuration"
+          href="https://github.com/AntKinton/hommerized/blob/dev/docs/configuration.md#configuration"
           target="_blank"
         >
           Get started &rarr;

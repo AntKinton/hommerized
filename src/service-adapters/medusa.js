@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/medusa.js
 import { fetchMedusaStatus } from './utils/task-queue-api.js';
 

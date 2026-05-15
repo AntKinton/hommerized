@@ -343,3 +343,43 @@ function formatBytes(bytes) {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
+
+/**
+ * Generic helper for simple status/version checks
+ * @param {any} service 
+ * @param {Function} fetcher 
+ * @param {Object} options 
+ */
+export async function serviceStatusApi(service, fetcher, options = {}) {
+  const { endpoint = '/', versionPath = 'version' } = options;
+  
+  try {
+    const data = await fetcher(endpoint);
+    let version = 'Unknown';
+    
+    if (typeof versionPath === 'function') {
+      version = versionPath(data);
+    } else if (typeof versionPath === 'string') {
+      version = versionPath.split('.').reduce((obj, key) => obj && obj[key], data) || 'Unknown';
+    }
+
+    return {
+      status: 'active',
+      title: 'Online',
+      subtitle: version !== 'Unknown' ? `Version ${version}` : 'Service running',
+      details: {
+        version,
+        data
+      }
+    };
+  } catch (error) {
+    return {
+      status: 'error',
+      title: 'Offline',
+      subtitle: 'Connection failed',
+      details: {
+        error: error.message
+      }
+    };
+  }
+}

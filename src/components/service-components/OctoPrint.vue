@@ -10,8 +10,7 @@
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/octoprint.js and archetypes/StatusCard.vue -->
+  <div />
 </template>
 
 <script>
@@ -22,61 +21,6 @@ export default {
   props: {
     item: Object,
     proxy: String
-  },
-  data() {
-    return {
-      printTime: '',
-      printTimeLeft: '',
-      completion: '',
-      state: '',
-      printer: '',
-      error: '',
-      display: '',
-      statusClass: '',
-      fetchAll: () => {},
-      fetchStatus: () => {},
-      fetchPrinterStatus: () => {},
-      formatTime: (secs) => {
-        const days = Math.floor(secs / (60 * 60 * 24));
-        const hours = Math.floor((secs % (60 * 60 * 24)) / (60 * 60));
-        const minutes = Math.floor((secs % (60 * 60)) / 60);
-        const formattedHrs = hours.toString().padStart(2, '0');
-        const formattedMins = minutes.toString().padStart(2, '0');
-        const formattedSecs = (secs % 60).toString().padStart(2, '0');
-
-        if (days > 0) {
-          return `${days}d ${formattedHrs}h ${formattedMins}m`;
-        } else if (hours > 0) {
-          return `${formattedHrs}h ${formattedMins}m ${formattedSecs}s`;
-        } else if (minutes > 0) {
-          return `${formattedMins}m ${formattedSecs}s`;
-        } else {
-          return `${secs} seconds`;
-        }
-        return `${secs} seconds`;
-      }
-    };
-
-    // Initialize auto-update
-    initAutoUpdate(fetchAll);
-
-    // Initial data fetch
-    fetchAll();
-
-    return {
-      printTime,
-      printTimeLeft,
-      completion,
-      state,
-      printer,
-      error,
-      display,
-      statusClass,
-      fetchAll,
-      fetchStatus,
-      fetchPrinterStatus,
-      formatTime
-    };
-  },
+  }
 };
 </script>
