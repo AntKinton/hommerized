@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/olivetin.js
 export default {
   archetype: 'StatusCard',
