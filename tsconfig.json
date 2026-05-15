@@ -16,8 +16,7 @@
     "allowSyntheticDefaultImports": true,
     
     // Configuración de paths (ajusta a tu estructura)
-    "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
+
     "paths": {
       "@/*": ["./src/*"],
       "@/types/*": ["./src/types/*"],
