@@ -1,9 +1,13 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from "vite-plugin-pwa"
+import { fileURLToPath } from 'url'
 import path from 'path'
 import fs from 'fs'
 import process from 'process'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // @ts-ignore
 import { version, basedOn } from "./package.json"
@@ -33,16 +37,22 @@ export default defineConfig(({ mode }) => {
       target: 'es2020',
       rollupOptions: {
         output: {
-          manualChunks: {
-            'vendor': ['vue', 'pinia'],
-            'bulma': ['bulma']
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('vue') || id.includes('pinia')) {
+                return 'vendor';
+              }
+              if (id.includes('bulma')) {
+                return 'bulma';
+              }
+            }
           }
         }
       }
     },
     define: {
       __APP_VERSION__: JSON.stringify(version),
-      __BASED_ON__: basedOn,
+      __BASED_ON__: JSON.stringify(basedOn),
     },
     // CSS configuration to silence Dart Sass deprecation warnings
     css: {

@@ -17,6 +17,7 @@
     
     // Configuración de paths (ajusta a tu estructura)
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["./src/*"],
       "@/types/*": ["./src/types/*"],
@@ -33,6 +34,7 @@
     "types": ["vite/client", "node"],
     
     // Output (Vite maneja esto, pero TypeScript lo necesita)
+    "noEmit": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
