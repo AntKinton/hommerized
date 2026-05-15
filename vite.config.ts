@@ -9,7 +9,7 @@ import process from 'process'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// @ts-ignore
+
 import { version, basedOn } from "./package.json"
 
 /**
