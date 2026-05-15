@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/tdarr.js
 import { fetchTdarrStatus } from './utils/task-queue-api.js';
 

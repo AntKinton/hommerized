@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/postgresql.js
 export default {
   archetype: 'StatusCard',

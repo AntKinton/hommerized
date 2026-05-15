@@ -1,3 +1,4 @@
+import { useService } from "../composables/useService.js";
 // src/adapters/paperlessng.js
 import { fetchPaperlessNGStatus } from './utils/service-status-api.js';
 
