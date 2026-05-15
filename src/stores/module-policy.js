@@ -3,45 +3,52 @@ import { parse } from "yaml";
 
 export const usePoliciesStore = defineStore('policies', {
   state: () => ({
+    /** @type {PolicyConfig | null} */
     policies: null,
     enabled: true, // Master switch for filtering
     initialized: false,
-    // Cached filtered services for performance
+    /** @type {ServiceGroup[] | null} */
     filteredServices: null,
     lastFilterHash: null,
+    /** @type {Map<string, any> | null} */
+    _servicePolicyIndex: null,
   }),
 
   getters: {
     isInitialized: (state) => state.initialized,
-    // Safely get a specific policy value using path notation
-    get: (state) => (path, defaultValue = null) => {
-      console.log('🔍 PolicyStore.get() called with path:', path, 'state.policies:', state.policies);
-      if (!state.policies) return defaultValue;
-      return path.split('.').reduce((obj, key) => {
-        return obj && obj[key] !== undefined ? obj[key] : defaultValue;
-      }, state.policies);
-    },
     getFilteredServices: (state) => state.filteredServices,
     hasFilteredServices: (state) => state.filteredServices !== null,
     // Legacy getters for backward compatibility
     currentPolicies: (state) => state.policies,
-    getPolicyGroupInfo: (state) => (groupName) => state.get(`groups.${groupName}`, null),
-    getAllPolicyGroups: (state) => state.get('groups', {}),
   },
 
   actions: {
+    // Utility method moved to actions to avoid TS confusion with getters returning functions
+    get(path, defaultValue = null) {
+      if (!this.policies) return defaultValue;
+      return path.split('.').reduce((obj, key) => {
+        return obj && obj[key] !== undefined ? obj[key] : defaultValue;
+      }, this.policies);
+    },
+
+    getPolicyGroupInfo(groupName) { 
+      return this.get(`groups.${groupName}`, null); 
+    },
+
+    getAllPolicyGroups() { 
+      return this.get('groups', {}); 
+    },
+
     async initialize(policyFile = '/assets/config/policy-rules.yml') {
       if (this.initialized) return;
 
       // If no policy file provided, don't initialize - allow normal access
       if (!policyFile) {
-        //console.log('No policy file provided - policies disabled, allowing normal access');
         this.initialized = true;
         return;
       }
 
       try {
-        //console.log('Loading policies from:', policyFile);
         const response = await fetch(policyFile);
         if (response.ok) {
           const yamlText = await response.text();
@@ -57,7 +64,6 @@ export const usePoliciesStore = defineStore('policies', {
 
       this._buildPolicyIndex();
       this.initialized = true;
-      //console.log('PoliciesStore initialized with restrictions');
     },
 
     getDefaultPolicies() {
@@ -118,20 +124,18 @@ export const usePoliciesStore = defineStore('policies', {
         return this.filteredServices; // Return cached result
       }
 
+      /** @type {ServiceGroup[]} */
       let filtered = services;
 
       // Apply policy filtering
       if (userGroups.length > 0) {
-        console.log('🎯 PolicyStore: Filtering with user groups:', userGroups);
         filtered = filtered.map(group => {
           const filteredItems = group.items.filter(item => {
             const access = this.hasAccessToService(item.name, group.name, userGroups);
-            if (!access) console.log(`🚫 PolicyStore: Access DENIED for ${item.name} in group ${group.name}`);
             return access;
           });
 
           if (filteredItems.length === 0) {
-            console.log(`⚠️ PolicyStore: Group ${group.name} hidden because all items were filtered out.`);
             return null;
           }
 
@@ -140,8 +144,6 @@ export const usePoliciesStore = defineStore('policies', {
             items: filteredItems
           };
         }).filter(group => group !== null);
-      } else {
-        console.log('🎯 PolicyStore: No user groups, allowing all services.');
       }
 
       // Apply search filtering
@@ -183,19 +185,14 @@ export const usePoliciesStore = defineStore('policies', {
       const policyMapping = this.findPolicyForService(serviceName, groupName);
       
       // FALLBACK logic: If no specific policy is defined for this service/group,
-      // we allow it by default (this corresponds to fallback: "allow" in config)
+      // we allow it by default
       if (!policyMapping) {
-        // console.log(`ℹ️ PolicyStore: No policy for ${serviceName}, allowing by fallback.`);
         return true; 
       }
 
       const hasAccess = policyMapping.allowedGroups.includes('*') || 
                        userGroups.some(userGroup => policyMapping.allowedGroups.includes(userGroup));
       
-      if (!hasAccess) {
-        console.log(`🚫 PolicyStore: Access DENIED for ${serviceName}. Required: ${policyMapping.allowedGroups.join(', ')}. User has: ${userGroups.join(', ')}`);
-      }
-
       return hasAccess;
     },
 
@@ -208,7 +205,6 @@ export const usePoliciesStore = defineStore('policies', {
       }
 
       // 2. Search for policy by group mapping directly
-      // Note: We use the group title as a key in the servicePolicies if no explicit mapping exists
       if (groupName && this.policies.servicePolicies[groupName]) {
         return this.policies.servicePolicies[groupName];
       }
