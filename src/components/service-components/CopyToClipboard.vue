@@ -4,14 +4,13 @@
   This service now uses the Adapter + Archetype pattern.
   No Vue logic needed here - just configuration!  
   The Service.vue component will:
-  1. Load ../adapters/copytoclipboard.js (data mapping logic)
+  1. Load ../service-adapters/copytoclipboard.js (data mapping logic)
   2. Load ActionCard archetype (visual presentation)
   3. Connect adapter data to archetype UI
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/copytoclipboard.js and archetypes/ActionCard.vue -->
+  <div />
 </template>
 
 <script>

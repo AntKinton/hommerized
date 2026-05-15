@@ -10,8 +10,7 @@
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/themechooser.js and archetypes/ActionCard.vue -->
+  <div />
 </template>
 
 <script>

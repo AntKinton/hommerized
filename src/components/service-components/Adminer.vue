@@ -10,7 +10,7 @@
 -->
 
 <template>
-  <div><!-- This component is now just a configuration wrapper --></div>
+  <div />
 </template>
 
 <script>

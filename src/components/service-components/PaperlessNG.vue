@@ -10,8 +10,7 @@
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/paperlessng.js and archetypes/MetricCard.vue -->
+  <div />
 </template>
 
 <script>
