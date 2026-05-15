@@ -640,6 +640,33 @@ header.hero.is-sticky {
 
 header.hero.is-sticky.is-collapsed-header {
   padding-top: 0 !important;
+
+  // Mobile-only smooth background fade to transparent
+  @media screen and (max-width: 1023px) {
+    // Attack the variables themselves to defeat theme-level !important rules
+    &.is-collapsed-header {
+      --navbar-bg: transparent !important;
+      --highlight-primary: transparent !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      transition: background 0.2s ease-out;
+
+      .navbar:not(.is-active), .hero-foot {
+        background: transparent !important;
+        background-color: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      // Restore background with premium blur when menu is OPEN
+      .navbar.is-active {
+        background-color: var(--navbar-bg) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
 }
 
 /* --- VUE NATIVE TRANSITION FOR HERO-BODY --- */

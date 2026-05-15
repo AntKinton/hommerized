@@ -1,5 +1,5 @@
 <template>
-  <nav v-cloak v-if="links" class="navbar" role="navigation" aria-label="main navigation">
+  <nav v-cloak v-if="links" class="navbar" :class="{ 'is-active': showMenu }" role="navigation" aria-label="main navigation">
     <div class="container">
       <div class="navbar-brand">
         <a
