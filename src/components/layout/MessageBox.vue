@@ -2,7 +2,7 @@
   <div v-if="show" class="card message-banner mb-6" :class="getMessageClasses()">
     <header v-if="message.title || message.icon" class="card-header is-shadowless">
       <div class="card-header-title is-flex is-align-items-center py-3">
-        <span class="icon is-medium mr-2" v-if="message.icon">
+        <span v-if="message.icon" class="icon is-medium mr-2">
           <i :class="['fas', message.icon]"></i>
         </span>
         <span class="title is-5 mb-0">{{ message.title }}</span>

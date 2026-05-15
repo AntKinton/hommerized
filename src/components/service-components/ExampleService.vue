@@ -14,10 +14,11 @@
             </span>
           </div>
 
-          <button @click="fetchData" 
-                  class="button is-primary is-small" 
+          <button
+class="button is-primary is-small" 
                   :class="{ 'is-loading': isLoading }" 
-                  :disabled="isLoading">
+                  :disabled="isLoading" 
+                  @click="fetchData">
             Refresh Data
           </button>
         </div>
