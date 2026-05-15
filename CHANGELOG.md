@@ -2,6 +2,114 @@
 
 All notable changes to this project will be documented in this file.
 
+## [26.05.5] - 2026-05-15
+
+### ⚙️ Miscellaneous Tasks
+
+- **release:** Update changelog for v26.05.4
+- **deps:** Upgrade to latest bleeding edge versions and sync lockfile
+- Sync with latest dev before selective hardening
+- Merge TS infrastructure hardening into dev
+- Sync with latest dev before selective hardening
+- Merge normalized service adapters into dev
+- Sync with latest dev before selective hardening
+- Merge hardened policy store into dev
+- Merge UI typing fixes into dev
+- Merge final CI/CD fixes into dev
+- Final pipeline stabilization
+- Merge Dockerfile improvements into dev
+- Apply GHCR description fix
+- Apply final CI/CD and GHCR stabilization
+- Major CI/CD upgrade to actions 2026 versions
+- Final audit and synchronization of all CI/CD workflows
+- **release:** Bump version and update assets for new feature set
+
+### 🎨 Styling
+
+- Apply automatic lint fixes
+- **navbar:** Implement uniform mobile transparency and background inheritance
+- **search:** Modernize search bar with integrated SVG and premium focus effects
+- **navbar:** Group mobile action items and enhance search bar semantics in App.vue
+
+### 🏗️ Continuous Integration
+
+- **container:** Fix build failure and force Node.js 24
+- **container:** Standardize stable dependency versions
+- Force Node.js 24 globally across all workflows
+- **container:** Fix __BASED_ON__ undefined error and format workflows
+
+### 🐛 Bug Fixes
+
+- **build:** Sync pnpm-lock.yaml with package.json version bump
+- **ci:** Resolve Docker build failure and update GitHub Actions to Node.js 24
+- **components:** Standardize service component templates and repair corruption
+- **components:** Repair corrupted OctoPrint and HyperHDR components
+- **core:** Remove unused code and imports
+- Resolve UI template typing errors and restore search functionality
+- Final lint cleanup and CI/CD compatibility improvements
+- Resolve syntax error in module-extras and perfect ESLint rules
+- Standardize Dockerfile OCI labels and metadata
+- Ensure image description is propagated to manifest index annotations
+- Resolve GHCR description via index annotations and force Node 24
+- Resolve GHCR description via index annotations and force Node 24
+- Final OCI-compliant metadata stabilization for GHCR
+- Return to stable Docker V2 manifest format for container metadata
+- **ui:** Harden showUserInfo visibility to prevent race conditions
+- **config:** Correct plural naming in module-extras sample
+- **policy:** Refine search logic to include URLs and subtitles while removing logo noise
+
+### 👽 Other Changes
+
+- **services:** Fix template and lint errors in service components
+- **core:** Fix lint errors in App.vue
+- **layout:** Remove unused imports in GroupServices.vue
+- Infrastructure hardening and configuration stabilization
+- Global type definitions and eslint standardization
+- Service components template cleanup and repair
+- Infrastructure hardening and configuration stabilization
+- Global type definitions and eslint standardization
+- Service components template cleanup and repair
+- Adapter loading normalization and missing migrations
+- Repair remaining corrupted service components
+- Fix missing imports in service adapters
+- Cleanup unused code and imports
+- Normalize service adapters and core cleanup
+- Implement strict linting and modern TS configuration
+- Implement strict linting and modern TS configuration (including auto-fixes)
+- Harden showUserInfo visibility and race condition protection
+- Fix plural naming in module-extras sample
+- Implement configurable auth service and development mock system (resolving conflicts)
+- Integrate configurable auth service for a better accuracy on visual tests
+- Implement mobile navbar transparency and glassmorphism
+- Modernize search bar with integrated SVG and premium focus effects
+- Implement Proposal 3 search-first mobile layout
+- Feat(ui) silky smooth header collapse animation and intent detection
+
+### 📦 Dependencies
+
+- **deps:** Add @types/node for infrastructure stabilization
+
+### 🚀 Features
+
+- **ui:** Implement smooth mobile navbar transparency with active state legibility
+- **auth:** Implement configurable auth service and dev mock support
+- **navbar:** Implement dynamic mobile transparency and theme integration
+- **ui:** Implement smooth 1-step header collapse with dynamic ceiling and intent detection
+- **ui:** Finalize smooth 1-step header collapse with optimized vertical symmetry and intent detection
+
+### 🚜 Refactor
+
+- **infra:** Stabilize TypeScript and Vite configuration
+- **types:** Define global constants for TypeScript and ESLint
+- **adapters:** Standardize adapter loading and complete missing migrations
+- **adapters:** Add missing useService imports to service adapters
+- **adapters:** Mass import useService and cleanup unused variables
+- **lint:** Upgrade to typescript-eslint and implement strict flat config
+- **dx:** Cleanup TS configuration and resolve linting warnings in stores
+- Harden TS infrastructure and global fetch logic
+- Normalize service adapters and resolve duplicate status helpers
+- Harden policy store with strict types and optimized filtering actions
+
 ## [26.05.4] - 2026-05-14
 
 ### ⚙️ Miscellaneous Tasks
