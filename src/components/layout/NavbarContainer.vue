@@ -50,7 +50,11 @@ export default {
       type: Boolean,
       default: false,
     },
-    links: Array,
+    links: {
+      /** @type {import('vue').PropType<LinkItem[]>} */
+      type: Array,
+      default: () => [],
+    },
   },
   emits: ["navbar-toggle"],
   computed: {

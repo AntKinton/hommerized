@@ -85,10 +85,10 @@ export default {
       // Check if the current URL is reachable
       let that = this;
 
-      const aliveCheckUrl = new URL(window.location);
-      aliveCheckUrl.searchParams.set("t", new Date().valueOf());
+      const aliveCheckUrl = new URL(window.location.href);
+      aliveCheckUrl.searchParams.set("t", String(new Date().valueOf()));
 
-      return fetch(aliveCheckUrl, {
+      return fetch(aliveCheckUrl.toString(), {
         method: "HEAD",
         cache: "no-store",
         redirect: "manual",
@@ -99,7 +99,7 @@ export default {
             (response.type === "opaqueredirect" && !response.ok) ||
             [401, 403].indexOf(response.status) != -1
           ) {
-            window.location.href = aliveCheckUrl;
+            window.location.href = aliveCheckUrl.toString();
           }
           that.offline = !response.ok;
         })

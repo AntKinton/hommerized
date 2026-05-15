@@ -267,6 +267,9 @@ export default {
     window.removeEventListener('scroll', this.onScroll, true);
   },
   methods: {
+    retryInitialization() {
+      window.location.reload();
+    },
     toggleMenu() {
       this.showMenu = !this.showMenu;
       // Re-use our existing anti-flicker lock to ignore DOM layout jumps when the menu opens/closes
