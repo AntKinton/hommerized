@@ -59,6 +59,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
+          outputs: |
+            type=image,name=target,annotation-index.org.opencontainers.image.description=A dead simple un-static HOMMepage for your servERIZED to keep your services on hand, from a simple yaml configuration file. Optimized for rootless Podman quadlet deployment.
           platforms: linux/amd64,linux/arm64/v8
+          provenance: false
+          sbom: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
