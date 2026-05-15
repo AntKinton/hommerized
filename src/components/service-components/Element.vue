@@ -4,14 +4,13 @@
   This service now uses the Adapter + Archetype pattern.
   No Vue logic needed here - just configuration!  
   The Service.vue component will:
-  1. Load ../adapters/element.js (data mapping logic)
+  1. Load ../service-adapters/element.js (data mapping logic)
   2. Load StatusCard archetype (visual presentation)
   3. Connect adapter data to archetype UI
 -->
 
 <template>
-  <!-- This component is now just a configuration wrapper -->
-  <!-- All logic moved to adapters/element.js and archetypes/StatusCard.vue -->
+  <div />
 </template>
 
 <script>
@@ -25,5 +24,3 @@ export default {
   }
 };
 </script>
-</script>
-
