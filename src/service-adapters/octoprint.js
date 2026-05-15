@@ -7,7 +7,7 @@ export default {
       const response = await fetcher("/api/job");
       const printer = await fetcher("/api/printer");
       
-      const isPrinting = response.state === "Printing";
+      
       
       return {
         status: printer ? "online" : "offline",
