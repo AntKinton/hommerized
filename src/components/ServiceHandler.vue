@@ -48,7 +48,7 @@ export default {
 
       try {
         // Dynamically import only the pure JS logic
-        const module = await import(`../adapters/${serviceType}.js`);
+        const module = await import(`../service-adapters/${serviceType}.js`);
         serviceAdapter.value = module.default;
 
         // Select the UI layout based on the adapter's configuration
