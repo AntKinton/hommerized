@@ -4,7 +4,8 @@
     <div class="app-layout-wrapper is-flex is-flex-direction-column">
 
       <!-- Header & Navigation -->
-      <header v-if="configStore.currentConfig?.header" class="hero is-small is-sticky"
+      <header
+v-if="configStore.currentConfig?.header" class="hero is-small is-sticky"
         :class="{ 'is-collapsed-header': isHeaderCollapsed }">
         <transition name="header-collapse">
           <div v-show="!isHeaderCollapsed" class="hero-body pb-0 pt-5">
@@ -35,7 +36,8 @@
           <NavbarContainer :open="showMenu" :links="configStore.currentConfig.links" @navbar-toggle="toggleMenu">
             <ToggleDarkMode />
             <ToggleLayout />
-            <ServiceBySearch class="navbar-item is-inline-block-mobile" :hotkey="searchHotkey()"
+            <ServiceBySearch
+class="navbar-item is-inline-block-mobile" :hotkey="searchHotkey()"
               @search-focus="showMenu = true" />
             <LogoutButton v-if="showLogoutButton" />
           </NavbarContainer>
@@ -45,7 +47,8 @@
       <!-- Main Content Area -->
       <main id="main-section" class="section">
         <div class="container">
-          <ErrorDisplay v-if="initializationError" title="Initialization Error"
+          <ErrorDisplay
+v-if="initializationError" title="Initialization Error"
             :message="initializationError.message || 'Failed to load the dashboard.'"
             :details="initializationError.stack" size="medium" fullscreen @retry="retryInitialization" />
           <template v-else-if="loaded">

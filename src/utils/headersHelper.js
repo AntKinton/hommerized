@@ -8,12 +8,15 @@ export function getHeaders() {
   if (typeof window !== 'undefined') {
     // 1. Prioridad: Datos inyectados por Caddy (Usando el nombre de index.html)
     const authData = window.__AUTH_HEADERS__;
+    const isTemplate = (val) => typeof val === 'string' && val.startsWith('{{');
     
-    if (authData && authData.user) {
+    if (authData && authData.user && !isTemplate(authData.user)) {
       return {
         user: authData.user,
         // Caddy devuelve los grupos como string separado por comas
-        groups: authData.groups ? authData.groups.split(',').map(g => g.trim()) : [],
+        groups: Array.isArray(authData.groups) 
+          ? authData.groups 
+          : (authData.groups ? authData.groups.split(',').map(g => g.trim()) : []),
         name: authData.name,
         email: authData.email
       };

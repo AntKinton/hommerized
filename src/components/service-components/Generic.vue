@@ -28,7 +28,8 @@
               </p>
               
               <div v-if="item.quick" class="tags service-quick-links">
-                <a v-for="(link, linkIndex) in item.quick" :key="linkIndex"
+                <a
+v-for="(link, linkIndex) in item.quick" :key="linkIndex"
                    class="tag is-rounded is-small service-quick-link"
                    :style="link.color ? `background-color: ${link.color}; color: #fff;` : ''"
                    :href="link.url" :target="link.target" rel="noreferrer"

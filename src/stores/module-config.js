@@ -133,7 +133,7 @@ export const useConfigStore = defineStore('config', {
         document.documentElement.setAttribute('data-theme', theme);
       }
 
-      let isDark = false;
+      let isDark;
       if (theme === 'dark') {
         isDark = true;
       } else if (theme === 'light') {

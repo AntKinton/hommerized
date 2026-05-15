@@ -84,14 +84,14 @@ export default {
     }
   },
   emits: ['retry'],
-  methods: {
-    refreshPage() {
-      window.location.reload();
-    }
-  },
   computed: {
     sizeClass() {
       return `is-${this.size}`;
+    }
+  },
+  methods: {
+    refreshPage() {
+      window.location.reload();
     }
   }
 }
