@@ -776,48 +776,48 @@ main#main-section {
   }
 }
 
-// --- STICKY & COLLAPSIBLE HEADER (Headroom logic) ---
 @layer theme {
   header.hero.is-sticky {
     position: sticky;
     top: 0;
     z-index: 40;
-    // Cleaned up header: no more padding transitions, just color and blur
+    background-color: transparent !important; // Transparent when expanded
     transition:
       background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
       backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
     &.is-collapsed-header {
-      min-height: 0 !important; // Ensure it can collapse fully
+      min-height: 3.25rem !important;
+      height: 3.25rem !important;
+      
+      // Production-Grade Glassmorphism
+      background-color: rgba(20, 20, 20, 0.45) !important;
+      background-color: color-mix(in srgb, var(--navbar-bg, #1a1a1a), transparent 55%) !important;
+      
+      -webkit-backdrop-filter: blur(12px) !important;
+      backdrop-filter: blur(12px) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
 
-    // Mobile-only smooth background fade to transparent
-    @media screen and (max-width: 1023px) {
+    // Zero out padding/margins to allow the grid wrapper to reach true 0px height
+    .hero-body {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
 
-      // MAX specificity to defeat theme !important rules
-      #app-mount #app &.is-collapsed-header {
-        background-image: none !important;
-        background-color: color-mix(in srgb, var(--navbar-bg, var(--highlight-primary)), transparent 55%) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        // Transition is now inherited from the global header rule above for perfect sync
+    .navbar {
+      min-height: 3.25rem !important;
+      background: transparent !important;
 
-        // Keep everything inside transparent to let the header's background shine through
-        .navbar,
-        .hero-foot,
-        .navbar-menu {
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          backdrop-filter: none !important;
-          -webkit-backdrop-filter: none !important;
-          border: none !important;
-        }
-
-        // Just add the border to the navbar when active, but keep it transparent
-        .navbar.is-active {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
+      .container {
+        min-height: 3.25rem !important;
+        display: flex !important;
+        align-items: center;
+        background: transparent !important;
+      }
+      
+      .navbar-menu {
+         background: transparent !important;
       }
     }
   }
