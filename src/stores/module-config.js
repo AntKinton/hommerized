@@ -202,7 +202,7 @@ export const useConfigStore = defineStore('config', {
         title: "Dashboard",
         subtitle: "Hommerized",
         header: true,
-        footer: '<p><a href="https://github.com/AntKinton/hommerized">Hommerized</a> version 26.05.5 - A fork of Homer with additional features made with <span class="has-text-danger">❤️</span> and powered by <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Forked from <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>',
+        footer: '<p><a href="https://github.com/AntKinton/hommerized">Hommerized</a> version 26.05.6 - A fork of Homer with additional features made with <span class="has-text-danger">❤️</span> and powered by <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Forked from <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>',
         columns: "3",
         connectivityCheck: true,
         theme: "default",
