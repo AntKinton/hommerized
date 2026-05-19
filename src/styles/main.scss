@@ -781,43 +781,134 @@ main#main-section {
     position: sticky;
     top: 0;
     z-index: 40;
-    background-color: transparent !important; // Transparent when expanded
     transition:
       background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
       backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
-    &.is-collapsed-header {
-      min-height: 3.25rem !important;
-      height: 3.25rem !important;
-      
-      // Production-Grade Glassmorphism
+    // Keep inner navbar elements transparent so the header's background styling dictates the look
+    .navbar,
+    .hero-foot {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      border: none !important;
+    }
+
+    // --- 1. UNIFIED GLASSMORPHIC BEHAVIOR ON ACTIVE MOBILE MENU ---
+    // When the mobile active menu is open, the entire header container handles 100% of the glassmorphism.
+    // This solves rendering layer bugs and completely removes the line of separation!
+    &:has(.navbar-menu.is-active) {
+      height: auto !important;
       background-color: rgba(20, 20, 20, 0.45) !important;
       background-color: color-mix(in srgb, var(--navbar-bg, #1a1a1a), transparent 55%) !important;
-      
       -webkit-backdrop-filter: blur(12px) !important;
       backdrop-filter: blur(12px) !important;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
     }
 
-    // Zero out padding/margins to allow the grid wrapper to reach true 0px height
-    .hero-body {
-      padding: 0 !important;
-      margin: 0 !important;
+    // --- 2. COLLAPSED STATE GLASSMORPHISM ---
+    &.is-collapsed-header {
+      // Allow auto expansion if the mobile menu is active (which uses relative positioning)
+      &:has(.navbar-menu.is-active) {
+        height: auto !important;
+      }
+      
+      // Restrict height to 4.5rem ONLY when the mobile menu is closed
+      &:not(:has(.navbar-menu.is-active)) {
+        min-height: 4.5rem !important;
+        height: 4.5rem !important;
+        
+        background-color: rgba(20, 20, 20, 0.45) !important;
+        background-color: color-mix(in srgb, var(--navbar-bg, #1a1a1a), transparent 55%) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        backdrop-filter: blur(12px) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+      }
+
+      // Zero out padding/margins ONLY when collapsed to allow the grid wrapper to reach true 0px height
+      .hero-body {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
     }
 
+    // --- 3. NAVBAR LAYOUT AND FLOW OVERRIDES ---
     .navbar {
       min-height: 3.25rem !important;
       background: transparent !important;
 
       .container {
         min-height: 3.25rem !important;
-        display: flex !important;
-        align-items: center;
         background: transparent !important;
+        
+        @media screen and (min-width: 1024px) {
+          display: flex !important;
+          align-items: center !important;
+        }
       }
       
       .navbar-menu {
-         background: transparent !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+
+        @media screen and (max-width: 1023px) {
+          &.is-active {
+            // Absolute game changer: static/relative positioning keeps the dropdown inside the physical flow
+            // of the parent header. The parent header's backdrop-filter renders seamlessly across the whole surface!
+            position: relative !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            
+            // Absolutely transparent to delegate 100% of the backdrop styling and blur to the parent header
+            background-color: transparent !important;
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            
+            // Extra spacing adjustments for list items
+            padding: 0.5rem 1rem 1.5rem 1rem !important;
+          }
+        }
+        @media screen and (min-width: 1024px) {
+          background: transparent !important;
+          background-color: transparent !important;
+        }
+      }
+    }
+
+    // --- 4. CENTERING ADJUSTMENTS WHEN COLLAPSED ---
+    &.is-collapsed-header {
+      // Apply height restrictions to inner containers ONLY when the mobile menu is closed
+      &:not(:has(.navbar-menu.is-active)) {
+        .navbar {
+          min-height: 4.5rem !important;
+          height: 4.5rem !important;
+
+          .container {
+            min-height: 4.5rem !important;
+            height: 4.5rem !important;
+          }
+        }
+      }
+
+      // Always keep the navbar brand top bar at 4.5rem high to preserve centering of burger/logo
+      .navbar {
+        .navbar-brand {
+          min-height: 4.5rem !important;
+          height: 4.5rem !important;
+          display: flex !important;
+          align-items: center !important;
+        }
+
+        .navbar-burger {
+          margin-top: auto !important;
+          margin-bottom: auto !important;
+        }
       }
     }
   }
@@ -848,6 +939,9 @@ main#main-section {
     opacity: 0;
     transform: translateY(-15px);
     pointer-events: none;
+    min-height: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
 }
 
