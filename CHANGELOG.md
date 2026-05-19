@@ -8,11 +8,13 @@ All notable changes to this project will be documented in this file.
 
 - **git:** Ignore eslintcache and release script guide
 - **release:** Prepare v26.05.6
+- **changelog:** Update CHANGELOG.md for v26.05.6 navbar fix
 
 ### 🐛 Bug Fixes
 
 - **pwa:** Ignore index.html in workbox caching to prevent caching stale resources
 - **navbar:** Center items in 4.5rem header and unify relative glass mobile menu
+- **pwa:** Ignore yml and yaml config files in workbox precache manifest
 
 ### 👽 Other Changes
 
@@ -21,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - Refactor(release) bump version to 26.05.6 across configs and docs
 - Feat(navbar) implement production-grade mobile navbar transparency and glassmorphism
 - Fix(navbar) resolve mobile dropdown cut-offs and glassmorphism rendering layers
+- Fix(pwa) exclude dynamic yml/yaml configs from service worker caching
 
 ### 🚀 Features
 
