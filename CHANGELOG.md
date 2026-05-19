@@ -7,10 +7,12 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - **git:** Ignore eslintcache and release script guide
+- **release:** Prepare v26.05.6
 
 ### 🐛 Bug Fixes
 
 - **pwa:** Ignore index.html in workbox caching to prevent caching stale resources
+- **navbar:** Center items in 4.5rem header and unify relative glass mobile menu
 
 ### 👽 Other Changes
 
@@ -18,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Feat(error) format ErrorDisplay and sticky header components
 - Refactor(release) bump version to 26.05.6 across configs and docs
 - Feat(navbar) implement production-grade mobile navbar transparency and glassmorphism
+- Fix(navbar) resolve mobile dropdown cut-offs and glassmorphism rendering layers
 
 ### 🚀 Features
 
