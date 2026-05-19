@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [26.05.6] - 2026-05-19
+
+### ⚙️ Miscellaneous Tasks
+
+- **git:** Ignore eslintcache and release script guide
+
+### 🐛 Bug Fixes
+
+- **pwa:** Ignore index.html in workbox caching to prevent caching stale resources
+
+### 👽 Other Changes
+
+- Fix(pwa) ignore index.html in workbox caching
+- Feat(error) format ErrorDisplay and sticky header components
+- Refactor(release) bump version to 26.05.6 across configs and docs
+- Feat(navbar) implement production-grade mobile navbar transparency and glassmorphism
+
+### 🚀 Features
+
+- **error:** Format ErrorDisplay and sticky header components
+- **navbar:** Implement production-grade mobile navbar transparency and glassmorphism
+
+### 🚜 Refactor
+
+- **release:** Bump version to 26.05.6 across configs and docs
+
 ## [26.05.5] - 2026-05-15
 
 ### ⚙️ Miscellaneous Tasks
@@ -23,6 +49,7 @@ All notable changes to this project will be documented in this file.
 - Major CI/CD upgrade to actions 2026 versions
 - Final audit and synchronization of all CI/CD workflows
 - **release:** Bump version and update assets for new feature set
+- **release:** Prepare v26.05.5
 
 ### 🎨 Styling
 
@@ -83,7 +110,6 @@ All notable changes to this project will be documented in this file.
 - Implement mobile navbar transparency and glassmorphism
 - Modernize search bar with integrated SVG and premium focus effects
 - Implement Proposal 3 search-first mobile layout
-- Feat(ui) silky smooth header collapse animation and intent detection
 
 ### 📦 Dependencies
 
