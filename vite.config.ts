@@ -139,6 +139,7 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           navigateFallback: null,
+          globIgnores: ['**/index.html'],
         },
       }),
     ],
